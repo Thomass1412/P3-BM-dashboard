@@ -45,6 +45,8 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Downloading artifact
         uses: actions/download-artifact@v2
         with:
