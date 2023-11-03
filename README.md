@@ -50,7 +50,7 @@ OS name: "windows 11", version: "10.0", arch: "amd64", family: "windows"
 MongoDB Compass allows you to browse the database.
 
 1. Download and install [here](https://www.mongodb.com/products/tools/compass)
-2. Check the `docker-compose` for database password and user (Authorization)
+2. Check the `docker-compose.yaml` in the project root for database password and user (Authorization)
 ```
 - 'MONGO_INITDB_DATABASE=dashboard-db'
 - 'MONGO_INITDB_ROOT_PASSWORD=secret'
@@ -59,21 +59,22 @@ MongoDB Compass allows you to browse the database.
 3. Connect via `mongodb://root:secret@localhost:27017/?authMechanism=DEFAULT`
 
 # Running and building
-## Running the backend (developing)
-To start Spring for backend developing
+## Running the backend (development)
+To start Spring for backend development:
 
 1. Enter the backend directory with `cd /backend`
 2. Run the application with `mvn spring-boot:run`
-  - Spring boot will run ``docker compose up``
-  - This will launch a `mongodb` database container **only** (Don't build the Java backend docker container, since it will launch locally)
+   - Spring boot will run ``docker compose up``
+   - This will launch a `mongodb` database container **only** (Don't build the Java backend docker container, since it will launch locally)
 3. Stop the application by exiting the terminal, or issuing `mvn spring-boot:stop`
 
 ## Building and running the whole stack with Docker Compose
 To build frontend, and backend and start the whole stack. Mostly for deployment.
 
 1. Enter the projects root directory
-2. Use `docker compose up --build`
+2. Use `docker compose up --build --profile prod`
    - This will force a `--build` instead of pulling.
+   - The `--profile prod` enables the `spring-boot` container to be build (Not used when using `mvn spring-boot:run`, creates duplicate).
    - Docker compose will **built** and start a `spring-boot` container.
    - Docker compose will **pull** and start the `mongodb` container.
 3. Use `docker compose down` to stop the containers together.
