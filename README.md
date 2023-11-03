@@ -118,3 +118,20 @@ Done. Now run:
   npm run format
   npm run dev
  ```
+
+
+ ```
+# ping backend
+PING backend (172.20.0.3) 56(84) bytes of data.
+64 bytes from backend.p3-bm-dashboard_backnet (172.20.0.3): icmp_seq=1 ttl=64 time=0.101 ms
+64 bytes from backend.p3-bm-dashboard_backnet (172.20.0.3): icmp_seq=2 ttl=64 time=0.042 ms
+64 bytes from backend.p3-bm-dashboard_backnet (172.20.0.3): icmp_seq=3 ttl=64 time=0.050 ms
+^C
+--- backend ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss, time 2044ms
+rtt min/avg/max/mdev = 0.042/0.064/0.101/0.026 ms
+
+
+# ping frontend
+ping: frontend: Temporary failure in name resolution
+ ```
