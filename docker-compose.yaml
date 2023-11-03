@@ -1,5 +1,18 @@
 version: "3.8"
 services:
+  nginx:
+    image: nginx:1.25.3-alpine
+    container_name: "nginx"
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    networks:
+      - backend
+      - frontend
+    profiles:
+      - prod
+    
   mongodb:
     image: 'mongo:latest'
     container_name: "mongodb"
@@ -8,15 +21,23 @@ services:
       - 'MONGO_INITDB_ROOT_PASSWORD=secret'
       - 'MONGO_INITDB_ROOT_USERNAME=root'
     ports:
-      - '27017'
+      - 27017:27017
     volumes:
       - db:/data/db
-    profiles:
-      - spring
+    networks:
+      - backend
+    healthcheck:
+      test: echo 'db.stats().ok' | mongo localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
   backend:
     build: 
       context: ./backend
-    container_name: "spring-boot"
+      target: backend
+    container_name: "backend"
     ports:
       - 8080:8080
     depends_on:
@@ -25,8 +46,31 @@ services:
       - prod
     labels:
       org.springframework.boot.ignore: true
+    networks:
+      - backend
+    healthcheck:
+      test: curl --fail http://localhost:6868/actuator/health  || exit 1
+      interval: 15s
+      timeout: 5s
+      retries: 6
+
+  #frontend:
+  #  build:
+  #    context: /.frontend
+  #    target: frontend
+  #  container_name: "frontend"
+  #  depends_on:
+  #    - backend
+  #  networks: 
+  #    - frontend
 
 volumes:
   db:
     driver:
       local
+
+networks: 
+  backend:
+    driver: bridge
+  frontend:
+    driver: bridge
