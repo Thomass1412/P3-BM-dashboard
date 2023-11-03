@@ -7,9 +7,11 @@ services:
       - 80:80
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    networks:
-      - backend
+    depends_on:
       - frontend
+    networks:
+      - backnet
+      - frontnet
     profiles:
       - prod
     
@@ -25,7 +27,7 @@ services:
     volumes:
       - db:/data/db
     networks:
-      - backend
+      - backnet
     healthcheck:
       test: echo 'db.stats().ok' | mongo localhost:27017/test --quiet
       interval: 10s
@@ -38,8 +40,6 @@ services:
       context: ./backend
       target: backend
     container_name: "backend"
-    ports:
-      - 8080:8080
     depends_on:
       - mongodb
     profiles:
@@ -47,22 +47,24 @@ services:
     labels:
       org.springframework.boot.ignore: true
     networks:
-      - backend
+      - backnet
     healthcheck:
-      test: curl --fail http://localhost:6868/actuator/health  || exit 1
+      test: curl --fail http://localhost:8080/actuator/health  || exit 1
       interval: 15s
       timeout: 5s
       retries: 6
 
   frontend:
     build:
-      context: /.frontend
+      context: ./frontend
       target: frontend
     container_name: "frontend"
+    profiles:
+      - prod
     depends_on:
       - backend
     networks: 
-      - frontend
+      - frontnet
 
 volumes:
   db:
@@ -70,7 +72,7 @@ volumes:
       local
 
 networks: 
-  backend:
+  backnet:
     driver: bridge
-  frontend:
+  frontnet:
     driver: bridge
