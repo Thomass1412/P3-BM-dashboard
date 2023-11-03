@@ -21,6 +21,10 @@ services:
       - 8080:8080
     depends_on:
       - mongodb
+    profiles:
+      - prod
+    labels:
+      org.springframework.boot.ignore: true
 
 volumes:
   db:
