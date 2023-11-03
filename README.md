@@ -72,7 +72,7 @@ To start Spring for backend development:
 To build frontend, and backend and start the whole stack. Mostly for deployment.
 
 1. Enter the projects root directory
-2. Use `docker compose up --build --profile prod`
+2. Use `docker compose --profile prod up --build`
    - This will force a `--build` instead of pulling.
    - The `--profile prod` enables the `spring-boot` container to be build (Not used when using `mvn spring-boot:run`, creates duplicate).
    - Docker compose will **built** and start a `spring-boot` container.
