@@ -84,3 +84,37 @@ To build frontend, and backend and start the whole stack. Mostly for deployment.
 
 # Frontend notes
 
+## Creating vue app
+
+1. Enter project root `cd /P3-BM-dashboard`
+2. Use `npm` to create a vue project
+
+https://github.com/vuejs/create-vue
+
+Run:
+ `npm create vue@latest`
+
+ ```
+ PS C:\Users\Oliver\Documents\Programming\P3-BM-dashboard> npm create vue@latest
+
+ Vue.js - The Progressive JavaScript Framework
+
+√ Project name: ... frontend
+√ Add TypeScript? ... No / Yes
+√ Add JSX Support? ... No / Yes
+√ Add Vue Router for Single Page Application development? ... No / Yes
+√ Add Pinia for state management? ... No / Yes
+√ Add Vitest for Unit Testing? ... No / Yes
+√ Add an End-to-End Testing Solution? » No
+√ Add ESLint for code quality? ... No / Yes
+√ Add Prettier for code formatting? ... No / Yes
+
+Scaffolding project in C:\Users\Oliver\Documents\Programming\P3-BM-dashboard\frontend...
+
+Done. Now run:
+
+  cd frontend
+  npm install
+  npm run format
+  npm run dev
+ ```
