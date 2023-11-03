@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+  mongodb:
+    image: 'mongo:latest'
+    container_name: "mongodb"
+    environment:
+      - 'MONGO_INITDB_DATABASE=dashboard-db'
+      - 'MONGO_INITDB_ROOT_PASSWORD=secret'
+      - 'MONGO_INITDB_ROOT_USERNAME=root'
+    ports:
+      - '27017'
+    volumes:
+      - db:/data/db
+  backend:
+    build: 
+      context: ./backend
+    container_name: "spring-boot"
+    ports:
+      - 8080:8080
+    profiles:
+      - prod
+    depends_on:
+      - mongodb
+
+volumes:
+  db:
+    driver:
+      local
