@@ -1,4 +1,4 @@
-// $postParams = @{id='id123';title='integration title here'} Invoke-WebRequest -Uri http://localhost:8080/api/v1/integration -Method POST -Body $postParams
+// Invoke-WebRequest -ContentType "application/json" -Uri http://localhost:8080/api/v1/integration/ POST -Body @{id='id1';title='integration title here'}
 
 package com.aau.p3.performancedashboard.controller;
 
