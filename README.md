@@ -78,3 +78,9 @@ To build frontend, and backend and start the whole stack. Mostly for deployment.
    - Docker compose will **built** and start a `spring-boot` container.
    - Docker compose will **pull** and start the `mongodb` container.
 3. Use `docker compose down` to stop the containers together.
+
+
+
+
+# Frontend notes
+
