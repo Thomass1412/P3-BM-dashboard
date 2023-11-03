@@ -1,6 +1,7 @@
-<script setup lang="ts">
+<script setup>
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
+//import apiGet from './components/api-get.vue'
 </script>
 
 <template>

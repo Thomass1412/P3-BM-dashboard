@@ -22,15 +22,14 @@ import com.aau.p3.performancedashboard.service.IntegrationService;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@CrossOrigin(origins = "http://localhost:8081")
 @RestController
-@RequestMapping("/api/v1/integration")
+@RequestMapping("/api/v1")
 public class IntegrationController {
     
     @Autowired
     IntegrationService integrationService;
 
-    @GetMapping("/")
+    @GetMapping("/integration")
     @ResponseStatus(HttpStatus.OK)
     public Flux<Integration> getAllIntegrations(@RequestParam(required = false) String title) {
         if(title == null) {
@@ -40,13 +39,13 @@ public class IntegrationController {
         }
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/integration/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Mono<Integration> getIntegrationById(@PathVariable("id") String id) {
         return integrationService.findById(id);
     }
 
-    @PostMapping("/")
+    @PostMapping("/integration")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<Integration> createIntegration(@RequestBody Integration integration) {
         return integrationService.save(new Integration(integration.getId(), integration.getTitle()));
