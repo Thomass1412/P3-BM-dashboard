@@ -7,7 +7,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin ligula sem, conse
 ### 1. Install Java 21
 - Confirm your current version with `java -version`
 
-It should be version 21.x.x
+It should be version ``21.x.x``
 ```
 PS C:\Users\olive\Documents\Programming\P3-BM-dashboard\backend> java -version
 openjdk version "21.0.1" 2023-10-17 LTS
@@ -15,10 +15,10 @@ OpenJDK Runtime Environment Temurin-21.0.1+12 (build 21.0.1+12-LTS)
 OpenJDK 64-Bit Server VM Temurin-21.0.1+12 (build 21.0.1+12-LTS, mixed mode, sharing)
 ```
 
-Otherwise download and install [here](https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.1+12/OpenJDK21U-jdk_x64_windows_hotspot_21.0.1_12.msi)
+Otherwise download and install [here](https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.1+12/OpenJDK21U-jdk_x64_windows_hotspot_21.0.1_12.msi).
 
-1. Use the wizard
-   - **important!** choose "Set JAVA_HOME variable
+1. Use the wizard to install the JDK.
+   - **important!** choose "Set JAVA_HOME variable" in the installer!
 
 ### 2. Install Maven
 1. Download, unpack and add to "PATH"
@@ -38,7 +38,7 @@ OS name: "windows 11", version: "10.0", arch: "amd64", family: "windows"
 ### 3. Install Docker Desktop
 
 > [!WARNING]
-> Spring is broken with the *latest* docker compose version 2.23.0, and **will not run**.
+> Spring is broken with the *latest* docker compose version ``2.23.0``, and **will not run**.
 > 
 > Instead of downloading latest, use version `4.23.0` of Docker Desktop [here](https://docs.docker.com/desktop/release-notes/#4230)
 > 
