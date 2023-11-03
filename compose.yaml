@@ -11,14 +11,14 @@ services:
       - '27017'
     volumes:
       - db:/data/db
+    profiles:
+      - spring
   backend:
     build: 
       context: ./backend
     container_name: "spring-boot"
     ports:
       - 8080:8080
-    profiles:
-      - prod
     depends_on:
       - mongodb
 
