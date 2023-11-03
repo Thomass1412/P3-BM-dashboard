@@ -42,7 +42,9 @@ OS name: "windows 11", version: "10.0", arch: "amd64", family: "windows"
 > 
 > Instead of downloading latest, use version `4.23.0` of Docker Desktop [here](https://docs.docker.com/desktop/release-notes/#4230)
 > 
-> Confirm with `docker-compose --version`
+> Confirm with `docker-compose --version` that you are running version `2.20.3`
+> 
+> Issue on Stack overflow [here](https://stackoverflow.com/questions/77385146/springboot-docker-error-cannot-invoke-dockercliinspectresponse-hostconfig-b)
 
 ### 4. Install MongoDB Compass
 MongoDB Compass allows you to browse the database.
