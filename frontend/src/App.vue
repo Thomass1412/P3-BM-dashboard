@@ -3,6 +3,9 @@ import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
 //import apiGet from './components/api-get.vue'
 </script>
+<script>
+console.log("Hello")
+</script>
 
 <template>
   <header>
