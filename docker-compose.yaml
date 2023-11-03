@@ -54,15 +54,15 @@ services:
       timeout: 5s
       retries: 6
 
-  #frontend:
-  #  build:
-  #    context: /.frontend
-  #    target: frontend
-  #  container_name: "frontend"
-  #  depends_on:
-  #    - backend
-  #  networks: 
-  #    - frontend
+  frontend:
+    build:
+      context: /.frontend
+      target: frontend
+    container_name: "frontend"
+    depends_on:
+      - backend
+    networks: 
+      - frontend
 
 volumes:
   db:
