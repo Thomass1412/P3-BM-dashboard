@@ -12,8 +12,6 @@ services:
     networks:
       - backnet
       - frontnet
-    profiles:
-      - prod
     
   mongodb:
     image: 'mongo:latest'
@@ -43,7 +41,7 @@ services:
     depends_on:
       - mongodb
     profiles:
-      - prod
+      - backend
     labels:
       org.springframework.boot.ignore: true
     networks:
@@ -60,7 +58,7 @@ services:
       target: frontend
     container_name: "frontend"
     profiles:
-      - prod
+      - frontend
     depends_on:
       - backend
     networks: 
