@@ -38,6 +38,8 @@ services:
       context: ./backend
       target: backend
     container_name: "backend"
+    ports:
+      - 8080:8080
     depends_on:
       - mongodb
     profiles:
@@ -59,8 +61,6 @@ services:
     container_name: "frontend"
     profiles:
       - frontend
-    depends_on:
-      - backend
     networks: 
       - frontnet
 
