@@ -7,8 +7,6 @@ services:
       - 80:80
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - frontend
     networks:
       - backnet
       - frontnet
@@ -38,8 +36,6 @@ services:
       context: ./backend
       target: backend
     container_name: "backend"
-    ports:
-      - 8080:8080
     depends_on:
       - mongodb
     profiles:
