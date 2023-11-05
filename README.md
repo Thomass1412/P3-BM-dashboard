@@ -76,7 +76,7 @@ This are the commands to run the application, with either Spring dev server, Vit
 | -------------- | --------- | ---------------------------------------- | ------------ | ------------ | ---------- | ---------- |
 | Java backend   | /backend  | mvn spring-boot:run                      | Build docker | Dev server   | Run docker | Run docker |
 | Vue Frontend   | /frontend | npm run dev                              | Dev server   | Build docker | Run docker | Run docker |
-| Docker compose | /         | docker compose --profile prod up --build | Build docker | Build docker | Run docker | Run docker |
+| Docker compose | /         | docker compose --profile frontend --profile backend up --build | Build docker | Build docker | Run docker | Run docker |
 
 ## Docker containers overview
 
@@ -112,9 +112,9 @@ To start Vite / Vue for frontend development:
 To build frontend, and backend and start the whole stack. Mostly for deployment.
 
 1. Enter the projects root directory
-2. Use `docker compose --profile prod up --build`
+2. Use `docker compose --profile frontend --profile backend up --build`
    - This will force a `--build` instead of pulling.
-   - The `--profile prod` enables the `spring-boot` container to be build (Not used when using `mvn spring-boot:run`, creates duplicate).
+   - WRONG -> The `--profile prod` enables the `spring-boot` container to be build (Not used when using `mvn spring-boot:run`, creates duplicate).
    - Docker compose will **built** and start a `spring-boot` container.
    - Docker compose will **built** and start a `frontend` container.
    - Docker compose will **pull** and start the `mongodb` container.
