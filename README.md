@@ -59,7 +59,17 @@ MongoDB Compass allows you to browse the database.
 3. Connect via `mongodb://root:secret@localhost:27017/?authMechanism=DEFAULT`
 
 # Running and building
-## Running the backend (development)
+
+## All run commands
+This are the commands to run the application, with either Spring dev server, Vite dev server or as a whole with `docker compose`
+
+| Component      | Directory | Command                                  | Frontend                          | Backend                           | Database                        | Nginx                           |
+| -------------- | --------- | ---------------------------------------- | --------------------------------- | --------------------------------- | ------------------------------- | ------------------------------- |
+| Java backend   | /backend  | mvn spring-boot:run                      | Build docker `:white_check_mark:` | Dev server `:heavy_check_mark:`   | Run docker `:white_check_mark:` | Run docker `:white_check_mark:` |
+| Vue Frontend   | /frontend | npm run dev                              | Dev server `:heavy_check_mark:`   | Build docker `:white_check_mark:` | Run docker `:white_check_mark:` | Run docker `:white_check_mark:` |
+| Docker compose | /         | docker compose --profile prod up --build | Build docker `:white_check_mark:` | Build docker `:white_check_mark:` | Run docker `:white_check_mark:` | Run docker `:white_check_mark:` |
+
+## Running the backend (dev server)
 To start Spring for backend development:
 
 1. Enter the backend directory with `cd /backend`
@@ -67,6 +77,12 @@ To start Spring for backend development:
    - Spring boot will run ``docker compose up``
    - This will launch a `mongodb` database container **only** (Don't build the Java backend docker container, since it will launch locally)
 3. Stop the application by exiting the terminal, or issuing `mvn spring-boot:stop`
+
+## Running the frontend (dev server)
+To start Vite / Vue for frontend development:
+
+1. Enter the frontend directory with `cd /frontend`
+2. Run the dev server with `npm run dev`
 
 ## Building and running the whole stack with Docker Compose
 To build frontend, and backend and start the whole stack. Mostly for deployment.
@@ -76,7 +92,10 @@ To build frontend, and backend and start the whole stack. Mostly for deployment.
    - This will force a `--build` instead of pulling.
    - The `--profile prod` enables the `spring-boot` container to be build (Not used when using `mvn spring-boot:run`, creates duplicate).
    - Docker compose will **built** and start a `spring-boot` container.
+   - Docker compose will **built** and start a `frontend` container.
    - Docker compose will **pull** and start the `mongodb` container.
+   - Docker compose will **nginx** and start the `nginx` container.
+3. Connect to the `nginx` reverse proxy on `http://localhost` or `http://localhost/api/v1`
 3. Use `docker compose down` to stop the containers together.
 
 
@@ -87,7 +106,7 @@ To build frontend, and backend and start the whole stack. Mostly for deployment.
 ## Creating vue app
 
 1. Enter project root `cd /P3-BM-dashboard`
-2. Use `npm` to create a vue project
+2. Use `npm create vue@latest` to create a vue project
 
 https://github.com/vuejs/create-vue
 
