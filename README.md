@@ -78,6 +78,18 @@ This are the commands to run the application, with either Spring dev server, Vit
 | Vue Frontend   | /frontend | npm run dev                              | Dev server   | Build docker | Run docker | Run docker |
 | Docker compose | /         | docker compose --profile prod up --build | Build docker | Build docker | Run docker | Run docker |
 
+## Docker containers overview
+
+| Container | Port  |
+| --------- | ----- |
+| frontend  | 80    |
+| backend   | 8080  |
+| mongodb   | 27017 |
+| nginx     | 80    |
+
+![Draw.io diagram of connection to reverse proxy and services](./assets/nginx.drawio.png)
+### Reverse proxy
+
 ## Running the backend (dev server)
 
 To start Spring for backend development:

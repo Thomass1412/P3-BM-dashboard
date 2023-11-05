@@ -1,0 +1,61 @@
+<mxfile host="app.diagrams.net" modified="2023-11-05T09:58:17.357Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/119.0" etag="u7y_NHWqo9StC9D0q0zF" version="21.7.5" type="device">
+  <diagram name="Page-1" id="AnFnB6t0gtIy8S36spEW">
+    <mxGraphModel dx="2012" dy="632" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="szQnLo5om9D9D3pDjMma-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="szQnLo5om9D9D3pDjMma-1" target="szQnLo5om9D9D3pDjMma-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="szQnLo5om9D9D3pDjMma-1" value="&lt;div&gt;NGINX&lt;/div&gt;&lt;div&gt;Reverse Proxy&lt;/div&gt;&quot;localhost:80&quot;" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="390" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="szQnLo5om9D9D3pDjMma-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="szQnLo5om9D9D3pDjMma-2" target="szQnLo5om9D9D3pDjMma-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="szQnLo5om9D9D3pDjMma-2" value="&lt;div align=&quot;left&quot;&gt;events {}&lt;br&gt;&lt;br&gt;http {&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; upstream spring-backend {&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; server backend:8080;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; }&lt;br&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; upstream vue-frontend {&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; server frontend:80;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; }&lt;br&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; server {&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; listen 80;&lt;br&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; location /api/v1 {&lt;br&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; proxy_pass http://spring-backend; # Use upstream&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; }&lt;br&gt;&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; location / {&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; proxy_pass http://vue-frontend; # Use upstream&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp; }&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp; }&lt;br&gt;}&lt;/div&gt;" style="whiteSpace=wrap;html=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="-10" y="520" width="330" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="szQnLo5om9D9D3pDjMma-4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="szQnLo5om9D9D3pDjMma-3" target="szQnLo5om9D9D3pDjMma-1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="szQnLo5om9D9D3pDjMma-3" value="" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" vertex="1" parent="1">
+          <mxGeometry x="245" y="310" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="szQnLo5om9D9D3pDjMma-6" value="Client" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="260" y="328" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="szQnLo5om9D9D3pDjMma-11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="szQnLo5om9D9D3pDjMma-7" target="szQnLo5om9D9D3pDjMma-10">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="szQnLo5om9D9D3pDjMma-12" value="/api/v1" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="szQnLo5om9D9D3pDjMma-11">
+          <mxGeometry x="-0.3436" y="1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="szQnLo5om9D9D3pDjMma-14" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="szQnLo5om9D9D3pDjMma-7" target="szQnLo5om9D9D3pDjMma-13">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="szQnLo5om9D9D3pDjMma-15" value="/" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="szQnLo5om9D9D3pDjMma-14">
+          <mxGeometry x="-0.6183" y="-2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="szQnLo5om9D9D3pDjMma-16" value="&lt;div&gt;/&amp;nbsp;&amp;nbsp; &lt;br&gt;&lt;/div&gt;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="szQnLo5om9D9D3pDjMma-14">
+          <mxGeometry x="-0.5634" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="szQnLo5om9D9D3pDjMma-7" value="if &lt;i&gt;&quot;/x&quot;&lt;/i&gt;" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="655" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="szQnLo5om9D9D3pDjMma-10" value="&lt;div&gt;JAVA&lt;/div&gt;&lt;div&gt;Spring backend&lt;/div&gt;&lt;div&gt;&quot;localhost:80/api/v1&quot;&lt;br&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="480" y="520" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="szQnLo5om9D9D3pDjMma-13" value="&lt;div&gt;NGINX&lt;/div&gt;&lt;div&gt;Vue frontend&lt;br&gt;&lt;/div&gt;&lt;div&gt;&quot;localhost:80/&quot;&lt;br&gt;&lt;/div&gt;" style="whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="480" y="750" width="120" height="60" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
