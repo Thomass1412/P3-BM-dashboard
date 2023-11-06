@@ -44,29 +44,6 @@ function IntegrationForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-<<<<<<< HEAD
-      <div>
-        <label htmlFor="id">ID:</label>
-        <input
-          type="text"
-          id="id"
-          name="id"
-          value={formData.id}
-          onChange={handleChange}
-        />
-      </div>
-      <div>
-        <label htmlFor="title">Title:</label>
-        <input
-          type="text"
-          id="title"
-          name="title"
-          value={formData.title}
-          onChange={handleChange}
-        />
-      </div>
-      <button type="submit">Submit</button>
-=======
         <label className="mx-2" htmlFor="id">ID:
           <input className="w-full rounded-3xl mb-3 text-black py-1 px-2"
             type="text"
@@ -88,7 +65,6 @@ function IntegrationForm() {
       <button className="bg-sky-50 bg-opacity-50 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded-full mb-5" 
         type="submit">Submit
       </button>
->>>>>>> parent of be5ab45 (Merge branch 'frontend-getandpost' of https://github.com/Thomass1412/P3-BM-dashboard into frontend-getandpost)
     </form>
   );
 }
