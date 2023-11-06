@@ -24,6 +24,7 @@ function IntegrationForm() {
     try {
       const response = await fetch("http://localhost/api/v1/integration", {
         method: "POST",
+        mode: "cors",
         headers: {
           "Content-Type": "application/json",
         },
