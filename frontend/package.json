@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "docker-dev": "docker compose --profile backend up --build -d && next dev",
+    "docker-dev": "docker compose --profile backend --profile backend up --build -d && next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
