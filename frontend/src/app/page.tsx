@@ -12,7 +12,7 @@ export default function Home() {
         </div>
         <div className="w-full m-5 rounded-3xl bg-sky-950 flex flex-col items-center justify-between p-2">
           <h1 className="lg:text-4xl mb-5 mx-10 mt-5 text-4xl font-extrabold">
-            Post integration
+            Post integration!!
           </h1>
           <IntegrationForm />
         </div>
