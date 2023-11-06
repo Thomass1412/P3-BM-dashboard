@@ -70,7 +70,7 @@ function IntegrationForm() {
         className="bg-sky-50 bg-opacity-50 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded-full mb-5"
         type="submit"
       >
-        Submit
+        Submit!!
       </button>
     </form>
   );
