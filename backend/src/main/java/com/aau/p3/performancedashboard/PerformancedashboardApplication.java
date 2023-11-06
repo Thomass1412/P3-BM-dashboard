@@ -8,6 +8,7 @@ public class PerformancedashboardApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(PerformancedashboardApplication.class, args);
+		
 	}
 
 }
