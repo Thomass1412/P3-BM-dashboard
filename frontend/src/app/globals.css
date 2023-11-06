@@ -25,3 +25,9 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+div {
+  background-color: whitesmoke;
+  border-radius: 25px;
+  border: 1px solid black;
+}
