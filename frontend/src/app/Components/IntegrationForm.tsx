@@ -22,7 +22,7 @@ function IntegrationForm() {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost/api/v1/integration", {
+      const response = await fetch("/api/v1/integration", {
         method: "POST",
         mode: "cors",
         headers: {
