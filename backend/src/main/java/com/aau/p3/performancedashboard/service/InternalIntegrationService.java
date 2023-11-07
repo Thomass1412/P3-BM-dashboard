@@ -26,7 +26,7 @@ public class InternalIntegrationService {
   }
 
   public Mono<InternalIntegration> findById(String id) {
-    return internalIntegrationRepository.findById(id);
+    return internalIntegrationRepository.findByIntegrationId(id);
   }
 
   public Mono<InternalIntegration> save(InternalIntegration internalIntegration) {
@@ -37,7 +37,7 @@ public class InternalIntegrationService {
     return internalIntegrationRepository.findById(id).map(Optional::of).defaultIfEmpty(Optional.empty())
         .flatMap(optionalInternalIntegration -> {
           if (optionalInternalIntegration.isPresent()) {
-            internalIntegration.setId(id);
+            internalIntegration.setDocumentId(id);
             return internalIntegrationRepository.save(internalIntegration);
           }
 

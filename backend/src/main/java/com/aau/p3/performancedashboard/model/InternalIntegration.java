@@ -1,49 +1,39 @@
 package com.aau.p3.performancedashboard.model;
 
-import java.util.Date;
-import java.util.Map;
+import java.util.HashMap;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
 
+@AllArgsConstructor
 @Document
 public class InternalIntegration {
 
   @Id
-  private String id;
+  private String documentId;
 
-  private String title;
+  private String integrationId;
 
-  private Map<Date, Integer> data;
+  private String title = "";
 
-  private int datapoint;
-
-  public InternalIntegration(String id, String title, Map<Date, Integer> data) {
-    this.id = id;
-    this.title = title;
-    this.data = data;
-  }
-
-  public InternalIntegration(String id, String title, Map<Date, Integer> data, int datapoint) {
-    this.id = id;
-    this.title = title;
-    this.data = data;
-    this.datapoint = datapoint;
-  }
-
-  public InternalIntegration(String id, int datapoint) {
-    this.id = id;
-    this.datapoint = datapoint;
-  }
+  private HashMap<String, Long> data = new HashMap<String, Long>();
 
   // getters and setters
-  public String getId() {
-    return this.id;
+  public String getDocumentId() {
+    return this.documentId;
   }
 
-  public void setId(String id) {
-    this.id = id;
+  public void setDocumentId(String id) {
+    this.documentId = id;
+  }
+
+  public String getIntegrationId() {
+    return this.integrationId;
+  }
+
+  public void setIntegrationId(String integrationId) {
+    this.integrationId = integrationId;
   }
 
   public String getTitle() {
@@ -53,30 +43,18 @@ public class InternalIntegration {
   public void setTitle(String title) {
     this.title = title;
   }
-
-  // append data
-  public void appendData(Integer key) {
-    this.data.put(new Date(), key);
-  }
-
-  public Map<Date, Integer> getData() {
+  
+  public HashMap<String, Long> getData() {
     return this.data;
   }
 
-  public void setData(Map<Date, Integer> data) {
+  public void setData(HashMap<String, Long> data) {
     this.data = data;
   }
 
-  public int getDatapoint() {
-    return this.datapoint;
-  }
-
-  public void setDatapoint(int datapoint) {
-    this.datapoint = datapoint;
-  }
 
   @Override
   public String toString() {
-    return "InternalIntegration [id=" + id + ", title=" + title + ", data=" + data + "]";
+    return "InternalIntegration [id=" + documentId + ", title=" + title + ", data=" + data + "]";
   }
 }
