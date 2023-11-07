@@ -49,8 +49,6 @@ services:
     container_name: "frontend"
     ports:
       - 80:80
-    profiles:
-      - frontend
     networks: 
       - backnet
 
