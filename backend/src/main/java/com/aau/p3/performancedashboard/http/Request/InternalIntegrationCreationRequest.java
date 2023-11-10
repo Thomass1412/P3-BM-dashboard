@@ -1,19 +1,13 @@
-package com.aau.p3.performancedashboard.model;
-
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+package com.aau.p3.performancedashboard.http.Request;
 
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-@Document
-public class Integration {
+public class InternalIntegrationCreationRequest {
 
-  @Id
   private String id;
 
-  private String title;
-
+  private String title = "";
 
   // getters and setters
   public String getId() {
@@ -34,6 +28,6 @@ public class Integration {
 
   @Override
   public String toString() {
-    return "Integration [id=" + id + ", title=" + title+"]";
+    return "InternalIntegration [id=" + id + ", title=" + title + "]";
   }
 }
