@@ -3,15 +3,23 @@ import GetIntegration from "./Components/GetIntegration";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-16 bg-sky-900">
+    <main className="flex min-h-screen flex-col items-center justify-between p-16 bg-sky-950">
       <div className="flex w-4/5 flex-row items-center justify-between p-2">
+<<<<<<< Updated upstream
         <div className="w-full m-5 h-80 rounded-3xl bg-sky-950 flex flex-col items-center justify-between p-2">
+=======
+        <div className="w-full m-5 rounded-3xl bg-sky-900 flex flex-col items-center justify-between p-2">
+>>>>>>> Stashed changes
           <h1 className="lg:text-4xl mb-5 mx-10 mt-5 text-4xl font-extrabold">
             Get integration
           </h1>
           <GetIntegration />
         </div>
+<<<<<<< Updated upstream
         <div className="w-full m-5 h-80 rounded-3xl bg-sky-950 flex flex-col items-center justify-between p-2">
+=======
+        <div className="w-full m-5 rounded-3xl bg-sky-900 flex flex-col items-center justify-between p-2">
+>>>>>>> Stashed changes
           <h1 className="lg:text-4xl mb-5 mx-10 mt-5 text-4xl font-extrabold">
             Post integration
           </h1>
