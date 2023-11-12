@@ -14,9 +14,9 @@ public class InternalIntegration extends Integration{
     
     @Getter @Setter private String myField1;
 
-    public InternalIntegration(String name, String myField1) {
+    public InternalIntegration(String name) {
         super(name, "Internal");
-        this.myField1 = myField1;
+        this.myField1 = "bob";
     }
 
 }

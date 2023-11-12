@@ -8,3 +8,4 @@ import com.aau.p3.performancedashboard.model.Integration;
 @Repository
 public interface IntegrationRepository extends ReactiveMongoRepository<Integration, String> {
 }
+  
