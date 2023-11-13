@@ -22,17 +22,16 @@ public class IntegrationService {
   @Autowired
   InternalIntegrationRepository internalIntegrationRepository;
 
-  public Flux<IntegrationDTO> findAll() {
+  public Flux<Integration> findAll() {
     // Find all integrations and convert to DTO
-    return integrationRepository.findAll().map(integration -> IntegrationMapper.toDTO(integration));
+    return integrationRepository.findAll();
   } 
 
   // POST to create integration in DB
-  public Mono<Integration> saveIntegration(IntegrationDTO integrationDTO) {
-    // Convert DTO to proper class
-    InternalIntegration internalIntegration = IntegrationMapper.toInternalIntegration(integrationDTO);
+  public Mono<Integration> saveIntegration(Integration integration) {
     // Save the converted class to DB and wrap response in a Mono
-    Mono<Integration> res = Mono.just(internalIntegration).flatMap(ie -> internalIntegrationRepository.save(ie));
+    InternalIntegration ie = new InternalIntegration(integration.getName());
+    Mono<Integration> res = internalIntegrationRepository.save(ie).map(Integration.class::cast);
     return res;
   }
 

@@ -28,11 +28,11 @@ public class Integration {
     @DBRef
     private List<IntegrationData> integrationData;
 
-    Integration(String name) {
+    public Integration(String name) {
         this.name = name;
     }
 
-    Integration(String name, String type) {
+    public Integration(String name, String type) {
         this.name = name;
         this.type = type;
 
