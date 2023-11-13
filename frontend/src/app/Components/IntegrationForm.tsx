@@ -5,8 +5,8 @@ import React, { useState } from "react";
 function IntegrationForm() {
   // State to store the form data
   const [formData, setFormData] = useState({
-    id: "",
-    title: "",
+    name: "",
+    type: "",
   });
 
   // Function to handle the form input changes
@@ -34,8 +34,8 @@ function IntegrationForm() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          id: formData.id,
-          title: formData.title,
+          name: formData.name,
+          title: formData.type,
         }),
       });
       const data = await response.json();
@@ -49,25 +49,23 @@ function IntegrationForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <label className="mx-2" htmlFor="id">
-        ID:
+      <label className="mx-2" htmlFor="name">
+        Name:
         <input
           className="w-full rounded-3xl mb-3 text-black py-1 px-2"
           type="text"
-          id="id"
-          name="id"
-          value={formData.id}
+          name="name"
+          value={formData.name}
           onChange={handleChange}
         />
       </label>
-      <label htmlFor="title">
-        Title:
+      <label htmlFor="type">
+        Type:
         <input
           className="w-full rounded-3xl mb-3 text-black py-1 px-2"
           type="text"
-          id="title"
-          name="title"
-          value={formData.title}
+          name="type"
+          value={formData.type}
           onChange={handleChange}
         />
       </label>
