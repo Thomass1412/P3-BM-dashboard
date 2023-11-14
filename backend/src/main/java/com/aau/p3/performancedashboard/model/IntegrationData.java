@@ -18,7 +18,7 @@ public class IntegrationData {
     @Getter @Setter private Date timestamp;
     @Getter @Setter private String myText;
 
-    IntegrationData() {
+    public IntegrationData() {
         this.timestamp = new Date();
         this.myText = "Hello World";
     }
