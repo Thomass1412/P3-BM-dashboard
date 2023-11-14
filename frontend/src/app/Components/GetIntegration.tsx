@@ -6,7 +6,9 @@ function GetIntegration() {
   const [data, setData] = useState([
     {
       id: "",
-      title: "",
+      name: "",
+      type: "",
+      myField1: "",
     },
   ]);
 
@@ -22,7 +24,7 @@ function GetIntegration() {
   };
   const listitems = data.map((integration) => (
     <li className="py-0" key={integration.id}>
-      {integration.id} {integration.title}
+      Id: {integration.id}, Name: {integration.name}, Type: {integration.type}
     </li>
   ));
 
