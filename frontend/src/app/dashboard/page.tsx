@@ -21,7 +21,6 @@ export default function Page() {
             <div className="col-span-1 bg-green-50 rounded-2xl my-1"></div>
             <div className="col-span-1 bg-green-50 rounded-2xl my-1"></div>
         </div>
-        <div></div>
         <div className="p-1 col-span-8 row-span-5 grid grid-cols-4 grid-rows-3 gap-1 mx-8 mb-4 bg-green-50 rounded-lg my-1">
             {leaderboard}
             <div className="col-span-1 bg-green-100 rounded-md"></div>
