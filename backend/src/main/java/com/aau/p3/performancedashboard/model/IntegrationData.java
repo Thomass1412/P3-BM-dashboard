@@ -15,11 +15,17 @@ public class IntegrationData {
     @Id
     private String id;
 
-    @Getter @Setter private Date timestamp;
-    @Getter @Setter private String myText;
+    @Getter
+    @Setter
+    private Date timestamp;
+    @Getter
+    @Setter
+    private String myText;
 
     public IntegrationData() {
         this.timestamp = new Date();
         this.myText = "Hello World";
     }
+
+    
 }
