@@ -7,18 +7,22 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import reactor.core.publisher.Mono;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.aau.p3.performancedashboard.service.IntegrationDataService;
+
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 @ToString
 @NoArgsConstructor
-@TypeAlias("integration")
 @Document(collection = "integration")
 public class Integration {
 
@@ -52,5 +56,10 @@ public class Integration {
         this.name = name;
         this.type = type;
 
+    }
+
+    public Mono<IntegrationData> saveIntegrationData(IntegrationData integrationData) {
+        ReactiveMongoOperations reactiveMongoOperations = IntegrationDataService.getReactiveMongoOperations();
+        return reactiveMongoOperations.save(integrationData, this.dataCollection);
     }
 }
