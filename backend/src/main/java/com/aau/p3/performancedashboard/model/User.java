@@ -7,13 +7,11 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 @Document(collection = "users")
 public class User {
-  @Id
   private String id;
 
   @NotBlank
@@ -29,13 +27,14 @@ public class User {
   @Size(max = 120)
   private String password;
 
-  @DBRef
+  @DocumentReference
   private Set<Role> roles = new HashSet<>();
 
   public User() {
   }
 
-  public User(String username, String email, String password) {
+  public User(String id, String username, String email, String password) {
+    this.id = id;
     this.username = username;
     this.email = email;
     this.password = password;

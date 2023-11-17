@@ -3,6 +3,7 @@ package com.aau.p3.performancedashboard.controller;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import jakarta.validation.Valid;
@@ -89,7 +90,8 @@ public class AuthController {
     }
 
     // Create new user's account
-    User user = new User(signUpRequest.getUsername(), 
+    String id = UUID.randomUUID().toString();
+    User user = new User(id, signUpRequest.getUsername(), 
                          signUpRequest.getEmail(),
                          encoder.encode(signUpRequest.getPassword()));
 
