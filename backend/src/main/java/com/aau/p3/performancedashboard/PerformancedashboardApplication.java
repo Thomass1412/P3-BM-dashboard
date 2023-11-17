@@ -5,7 +5,7 @@ package com.aau.p3.performancedashboard;
 import org.bson.Document;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 
@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 
 @SpringBootApplication
 @OpenAPIDefinition(info = @Info(title = "Performance Dashboard", version = "1.0", description = "Backend API v1.0"))
+@ComponentScan("com.aau.p3.performancedashboard.repository")
 public class PerformancedashboardApplication {
 
 	public static void main(String[] args) {
