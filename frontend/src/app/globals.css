@@ -16,6 +16,35 @@
   }
 }
 
+.bg {
+  background-image: url('../img/BMbackground.jpg');
+  background-size: cover;
+}
+
+@layer components{
+  .flexCenterC{
+    @apply flex flex-col items-center justify-between;
+  }
+
+  .flexCenterR{
+    @apply flex flex-row items-center justify-between;
+  }
+}
+
+
+input:focus + label, input:not(:placeholder-shown) + label{
+  transform: translateY(-1em) scale(0.8)
+}
+
+input::placeholder{
+  color: transparent;
+}
+
+label{
+  transform-origin: 0 0;
+  transition: transform 0.2s ease-in-out;
+}
+
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
