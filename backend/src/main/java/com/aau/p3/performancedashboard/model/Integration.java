@@ -27,7 +27,7 @@ import jakarta.validation.constraints.Size;
 public class Integration {
 
     @Id
-    @Schema(name = "Integration ID (ObjectId)", example = "655a40f451a6f25c2b736e30", required = true)
+    @Schema(name = "id", example = "655a40f451a6f25c2b736e30", required = true)
     @Getter
     private String id;
 
@@ -35,7 +35,7 @@ public class Integration {
    
     @Setter
     @NotBlank(message = "Name must not be empty")
-    @Schema(name = "Integration name", example = "My Sales Integration", required = true)
+    @Schema(name = "name", example = "sales", required = true)
     @Size(min = 5, max = 50)
    
     private String name;
@@ -44,7 +44,7 @@ public class Integration {
    
     @Setter
     @NotBlank(message = "Type must not be empty")
-    @Schema(name = "Integration type", example = "internal", required = true)
+    @Schema(name = "type", example = "internal", required = true)
    
     private String type;
 
@@ -54,6 +54,7 @@ public class Integration {
 
     @Setter
     @Getter
+    @Schema(name = "dataCollection", example = "sales-db", required = false)
     private String dataCollection;
 
     public Integration(String name, String type) {
