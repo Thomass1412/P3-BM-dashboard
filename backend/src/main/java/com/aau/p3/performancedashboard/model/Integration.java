@@ -12,6 +12,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 @ToString
 @NoArgsConstructor
 @TypeAlias("integration")
@@ -21,8 +24,18 @@ public class Integration {
     @Id
     @Getter private String id;
 
-    @Getter @Setter private String name;
-    @Getter @Setter private String type;
+    @Getter
+    @Setter
+    @NotBlank(message = "Name must not be empty")
+    @Size(min = 0, max = 5)
+    private String name;
+
+    @Getter
+    @Setter
+    @NotBlank(message = "Type must not be empty")
+    @Size(min = 0, max = 20)
+    private String type;
+
     @Getter @Setter private Date lastUpdated;
     
     @DBRef
