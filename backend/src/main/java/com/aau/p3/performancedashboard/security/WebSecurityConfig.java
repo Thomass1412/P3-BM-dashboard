@@ -18,6 +18,7 @@ import com.aau.p3.performancedashboard.security.jwt.AuthEntryPointJwt;
 import com.aau.p3.performancedashboard.security.jwt.AuthTokenFilter;
 import com.aau.p3.performancedashboard.security.services.UserDetailsServiceImpl;
 
+// This class is responsible for telling spring how to handle authentication and authorization
 @Configuration
 @EnableMethodSecurity
 public class WebSecurityConfig {
