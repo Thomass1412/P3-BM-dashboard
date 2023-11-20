@@ -1,0 +1,27 @@
+<Configuration status="debug" name="baeldung" packages="">
+    <Appenders>
+        <Console name="stdout" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %p %m%n"/>
+        </Console>
+    </Appenders>
+</Configuration>
+
+<Loggers> 
+<AsyncRoot level="DEBUG">
+    <AppenderRef ref="stdout" />
+    <AppenderRef ref="fout"/>
+</AsyncRoot>
+<AsyncRoot level="INFO">
+    <AppenderRef ref="stdout" />
+    <AppenderRef ref="fout"/>
+</AsyncRoot>
+<AsyncRoot level="ERROR">
+    <AppenderRef ref="stdout" />
+    <AppenderRef ref="fout"/>
+</AsyncRoot>
+<AsyncRoot level="WARNING">
+    <AppenderRef ref="stdout" />
+    <AppenderRef ref="fout"/>
+</AsyncRoot>
+
+</Loggers>
