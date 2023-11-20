@@ -72,10 +72,10 @@ MongoDB Compass allows you to browse the database.
 
 This are the commands to run the application, with either Spring dev server, Vite dev server or as a whole with `docker compose`
 
-| Component      | Directory | Command                                  | Frontend     | Backend      | Database   | Nginx      |
-| -------------- | --------- | ---------------------------------------- | ------------ | ------------ | ---------- | ---------- |
-| Java backend   | /backend  | mvn spring-boot:run                      | Build docker | Dev server   | Run docker | Run docker |
-| Vue Frontend   | /frontend | npm run dev                              | Dev server   | Build docker | Run docker | Run docker |
+| Component      | Directory | Command                                                        | Frontend     | Backend      | Database   | Nginx      |
+| -------------- | --------- | -------------------------------------------------------------- | ------------ | ------------ | ---------- | ---------- |
+| Java backend   | /backend  | mvn spring-boot:run                                            | Build docker | Dev server   | Run docker | Run docker |
+| Vue Frontend   | /frontend | npm run dev                                                    | Dev server   | Build docker | Run docker | Run docker |
 | Docker compose | /         | docker compose --profile frontend --profile backend up --build | Build docker | Build docker | Run docker | Run docker |
 
 ## Docker containers overview
@@ -88,6 +88,7 @@ This are the commands to run the application, with either Spring dev server, Vit
 | nginx     | 80    |
 
 ![Draw.io diagram of connection to reverse proxy and services](./assets/nginx.drawio.png)
+
 ### Reverse proxy
 
 ## Running the backend (dev server)
@@ -124,16 +125,21 @@ To build frontend, and backend and start the whole stack. Mostly for deployment.
 
 # API endpoints
 
-Integrations
-GET /api/v1/integrations - Alle integrations
-POST /api/v1/integrations - Create new integration
-GET /api/v1/integration/{ID} - Én integration
-DELETE /api/v1/integration/{ID} - Én integration
-PUT /api/v1/integration/{ID} - Én integration
+## Integrations
 
-Integration data
-GET /api/v1/integration/{ID}/data - Alt data på én integration (Pagination)
-POST /api/v1/integrations/{ID}/data - Post data to integration
-GET /api/v1/integration/{ID}/data/{ID} - Én registrering
-PUT /api/v1/integration/{ID}/data/{ID} - Opdater registrering (Kun Intern)
-DELETE /api/v1/integration/{ID}/data/{ID} - Slet en registrering
+| Method | Endpoint                 | Description                                    |
+| ------ | ------------------------ | ---------------------------------------------- |
+| GET    | /api/v1/integrations     | Returns all integrations                       |
+| POST   | /api/v1/integrations     | Instantiate a new integration                  |
+| GET    | /api/v1/integration/{ID} | Get an integration **without** its data, by ID |
+| PUT    | /api/v1/integration/{ID} | Update an integration by it's ID               |
+
+## Integration data
+
+| Method | Endpoint                           | Description                                         |
+| ------ | ---------------------------------- | --------------------------------------------------- |
+| GET    | /api/v1/integration/{ID}/data      | Returns all data for an integration                 |
+| POST   | /api/v1/integration/{ID}/data      | Submit new data to an integration                   |
+| GET    | /api/v1/integration/{ID}/data/{ID} | Get a single registration for an integration, by ID |
+| PUT    | api/v1/integration/{ID}/data/{ID}  | Update a single registration, by ID                 |
+| DELETE | /api/v1/integration/{ID}/data/{ID} | Delete a registration for an integration            |
