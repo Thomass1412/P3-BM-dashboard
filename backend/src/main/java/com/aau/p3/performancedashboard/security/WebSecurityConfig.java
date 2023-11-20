@@ -19,11 +19,7 @@ import com.aau.p3.performancedashboard.security.jwt.AuthTokenFilter;
 import com.aau.p3.performancedashboard.security.services.UserDetailsServiceImpl;
 
 @Configuration
-//@EnableWebSecurity
 @EnableMethodSecurity
-//(securedEnabled = true,
-//jsr250Enabled = true,
-//prePostEnabled = true) // by default
 public class WebSecurityConfig {
   @Autowired
   UserDetailsServiceImpl userDetailsService;
