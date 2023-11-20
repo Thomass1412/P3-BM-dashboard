@@ -18,7 +18,9 @@ import com.aau.p3.performancedashboard.model.IntegrationData;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -41,22 +43,24 @@ public class IntegrationController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(produces = "application/json")
-    public Flux<Integration> getIntegrations() {
-        return integrationService.findAll();
+    public Flux<ResponseEntity<Flux<Integration>>> getIntegrations() {
+        return Flux.just(ResponseEntity.ok().body(integrationService.findAll()));
     }
 
     @Operation(
         summary = "Instantiate a new integration",
         description = "The request body must include an unique name and a predefined type. \\['internal'\\]")
-    @ApiResponses({
-      @ApiResponse(responseCode = "201", content = { @Content(schema = @Schema(implementation = Integration.class), mediaType = "application/json") }),
-    })
     @PostMapping(consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED) // https://stackoverflow.com/questions/48238250/how-to-use-reactor-core-publisher-monot-or-fluxt-with-inheritance
-    public Mono<Integration> createIntegration(@RequestBody Integration integration) {
-        Integration ie = new Integration(integration.getName(), integration.getType());
-        return integrationService.saveIntegration(ie);
+    public Mono<ResponseEntity<Mono<Integration>>> createIntegration(@RequestBody IntegrationDTO integrationDTO) {
+        try {
+            return Mono.just(ResponseEntity.ok().body(integrationService.saveIntegration(integrationDTO.getName(), integrationDTO.getType())));
+        } catch (Exception ex) {
+            System.out.println("An error occurred while saving the integration: "   + ex.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal server error");
+        }
     }
+
 
     @PostMapping("/{integrationId}")
     @ResponseStatus(HttpStatus.CREATED)
@@ -64,5 +68,19 @@ public class IntegrationController {
             @RequestBody IntegrationData integrationData) {
         Integration integration = integrationService.findById(integrationId).block();
         return integration.saveIntegrationData(integrationData);
+    }
+
+
+    @ExceptionHandler(ResponseStatusException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Mono<String> handleResponseStatusException(ResponseStatusException ex) {
+        return Mono.just("Bad Request: " + ex.getMessage());
+    }
+
+    @ExceptionHandler(Exception.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Mono<String> handleException(Exception ex){
+        System.err.println("An error occurred: " + ex.getMessage());
+        return Mono.just("Internal server error");
     }
 }

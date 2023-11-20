@@ -13,8 +13,13 @@ import com.aau.p3.performancedashboard.dto.IntegrationMapper;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 @Service
 public class IntegrationService {
+
+      private static Logger logger = LogManager.getLogger(IntegrationService.class.getName());
 
   @Autowired
   IntegrationRepository integrationRepository;
@@ -28,18 +33,34 @@ public class IntegrationService {
   }
 
   // POST to create integration in DB
-  public Mono<Integration> saveIntegration(Integration integration) {
+  public Mono<Integration> saveIntegration(String name, String type) throws Exception {
+    logger.info("Name: " + name + ", type: " + type);
+    if(integrationRepository.findByName(name).block() != null) {
+      throw new IllegalArgumentException("Already exists");
+    }
 
-    IntegrationDataService integrationDataService = new IntegrationDataService();
-    // Save the converted class to DB and wrap response in a Mono
-    InternalIntegration ie = new InternalIntegration(integration.getName());
-    ie.setDataCollection(integrationDataService.createCollection(ie.getName() + "-data"));
-    Mono<Integration> res = internalIntegrationRepository.save(ie).map(Integration.class::cast);
-    return res;
+    if(type == null) {
+      logger.error("Type is null" + type);
+      throw new IllegalArgumentException("Type must not be null");
+    }
+    
+    if(type == "internal") {
+      logger.info("If internal");
+      IntegrationDataService integrationDataService = new IntegrationDataService();
+      InternalIntegration ie = new InternalIntegration(name);
+      ie.setDataCollection(integrationDataService.createCollection(ie.getName() + "-data"));
+      Mono<Integration> res = internalIntegrationRepository.save(ie).map(Integration.class::cast);
+      return res;
+    }
+    return Mono.empty();
   }
 
   public Mono<Integration> findById(String id) {
     return integrationRepository.findById(id);
+  }
+
+  public Mono<Integration> findByName(String name) {
+    return integrationRepository.findByName(name);
   }
 
 }
