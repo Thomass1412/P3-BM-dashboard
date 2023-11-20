@@ -1,21 +1,19 @@
 # syntax=docker/dockerfile:experimental
 # Base image
-FROM eclipse-temurin:21-jdk-alpine as build
+FROM maven:3-eclipse-temurin-21-alpine as build
 WORKDIR /workspace/app
 
 # Copy source
-COPY mvnw .
-COPY .mvn .mvn
 COPY pom.xml .
 COPY src src
 # Run maven installer with cache enabled
-RUN --mount=type=cache,target=/root/.m2 ./mvnw install -DskipTests
+RUN --mount=type=cache,target=/root/.m2 mvn -Dmaven.test.skip=true clean install
 
 # Extract jar layers for docker optimization
 RUN java -Djarmode=layertools -jar target/*.jar extract --destination target/extracted
 
 # Run the extracted application
-FROM eclipse-temurin:21-jdk-alpine as backend
+FROM maven:3-eclipse-temurin-21-alpine as backend
 RUN addgroup -S demo && adduser -S demo -G demo
 VOLUME /tmp
 USER demo
