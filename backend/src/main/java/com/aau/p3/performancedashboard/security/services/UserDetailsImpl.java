@@ -12,13 +12,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 import com.aau.p3.performancedashboard.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import lombok.Getter;
+
 public class UserDetailsImpl implements UserDetails {
   private static final long serialVersionUID = 1L;
 
+  @Getter
   private String id;
 
   private String username;
 
+  @Getter
   private String email;
 
   @JsonIgnore
@@ -53,13 +57,6 @@ public class UserDetailsImpl implements UserDetails {
     return authorities;
   }
 
-  public String getId() {
-    return id;
-  }
-
-  public String getEmail() {
-    return email;
-  }
 
   @Override
   public String getPassword() {
