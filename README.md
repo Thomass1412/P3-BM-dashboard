@@ -102,7 +102,7 @@ To start Spring for backend development:
 
 ## Running the frontend (dev server)
 
-To start Vite / Vue for frontend development:
+To start React for frontend development:
 
 1. Enter the frontend directory with `cd /frontend`
 2. Run the dev server with `npm run dev`
@@ -122,55 +122,18 @@ To build frontend, and backend and start the whole stack. Mostly for deployment.
 3. Connect to the `nginx` reverse proxy on `http://localhost` or `http://localhost/api/v1`
 4. Use `docker compose down` to stop the containers together.
 
-# Frontend notes
+# API endpoints
 
-## Creating vue app
+Integrations
+GET /api/v1/integrations - Alle integrations
+POST /api/v1/integrations - Create new integration
+GET /api/v1/integration/{ID} - Én integration
+DELETE /api/v1/integration/{ID} - Én integration
+PUT /api/v1/integration/{ID} - Én integration
 
-1. Enter project root `cd /P3-BM-dashboard`
-2. Use `npm create vue@latest` to create a vue project
-
-https://github.com/vuejs/create-vue
-
-Run:
-`npm create vue@latest`
-
-```
-PS C:\Users\Oliver\Documents\Programming\P3-BM-dashboard> npm create vue@latest
-
-Vue.js - The Progressive JavaScript Framework
-
-√ Project name: ... frontend
-√ Add TypeScript? ... No / Yes
-√ Add JSX Support? ... No / Yes
-√ Add Vue Router for Single Page Application development? ... No / Yes
-√ Add Pinia for state management? ... No / Yes
-√ Add Vitest for Unit Testing? ... No / Yes
-√ Add an End-to-End Testing Solution? » No
-√ Add ESLint for code quality? ... No / Yes
-√ Add Prettier for code formatting? ... No / Yes
-
-Scaffolding project in C:\Users\Oliver\Documents\Programming\P3-BM-dashboard\frontend...
-
-Done. Now run:
-
- cd frontend
- npm install
- npm run format
- npm run dev
-```
-
-```
-# ping backend
-PING backend (172.20.0.3) 56(84) bytes of data.
-64 bytes from backend.p3-bm-dashboard_backnet (172.20.0.3): icmp_seq=1 ttl=64 time=0.101 ms
-64 bytes from backend.p3-bm-dashboard_backnet (172.20.0.3): icmp_seq=2 ttl=64 time=0.042 ms
-64 bytes from backend.p3-bm-dashboard_backnet (172.20.0.3): icmp_seq=3 ttl=64 time=0.050 ms
-^C
---- backend ping statistics ---
-3 packets transmitted, 3 received, 0% packet loss, time 2044ms
-rtt min/avg/max/mdev = 0.042/0.064/0.101/0.026 ms
-
-
-# ping frontend
-ping: frontend: Temporary failure in name resolution
-```
+Integration data
+GET /api/v1/integration/{ID}/data - Alt data på én integration (Pagination)
+POST /api/v1/integrations/{ID}/data - Post data to integration
+GET /api/v1/integration/{ID}/data/{ID} - Én registrering
+PUT /api/v1/integration/{ID}/data/{ID} - Opdater registrering (Kun Intern)
+DELETE /api/v1/integration/{ID}/data/{ID} - Slet en registrering
