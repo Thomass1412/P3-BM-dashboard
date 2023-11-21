@@ -54,6 +54,9 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+#password{
+  -webkit-text-security: disc;
+}
 
 /* width */
 ::-webkit-scrollbar {

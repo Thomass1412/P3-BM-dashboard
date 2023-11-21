@@ -22,10 +22,7 @@ export default function Page() {
             <div className="col-span-1 bg-green-50 rounded-2xl my-1"></div>
         </div>
         <div className="row-start-3 p-1 col-span-6 row-span-4 grid grid-cols-4 grid-rows-3 gap-1 mx-8 mb-4 bg-green-50 border-green-700 border-4 rounded-lg my-1">
-            <div className="col-span-1 bg-green-100 rounded-md flexCenterC justify-center text-green-700 text-5xl">+</div>
-            <div className="col-span-1 bg-green-100 rounded-md flexCenterC justify-center text-green-700 text-5xl">+</div>
-            <div className="col-span-1 bg-green-100 rounded-md flexCenterC justify-center text-green-700 text-5xl">+</div>
-            <div className="col-span-1 bg-green-100 rounded-md flexCenterC justify-center text-green-700 text-5xl">+</div>
+            {leaderboard}
             <div className="col-span-1 bg-green-100 rounded-md flexCenterC justify-center text-green-700 text-5xl">+</div>
             <div className="col-span-1 bg-green-100 rounded-md flexCenterC justify-center text-green-700 text-5xl">+</div>
             <div className="col-span-1 bg-green-100 rounded-md flexCenterC justify-center text-green-700 text-5xl">+</div>
@@ -36,7 +33,7 @@ export default function Page() {
             <div className="col-span-1 bg-green-100 rounded-md flexCenterC justify-center text-green-700 text-5xl">+</div>
 
         </div>
-        <div className="p-1 row-start-2 col-span-2 row-span-5 1 mx-8 mb-4 bg-green-50 border-green-700 border-4 rounded-lg my-1 overflow-y-scroll max-h-max">
+        <div className="p-1 row-start-2 col-span-2 row-span-5 mx-8 mb-4 bg-green-50 border-green-700 border-4 rounded-lg my-1 overflow-y-scroll max-h-max">
             <div className="col-span-1 bg-green-100 rounded-md flexCenterC justify-center text-green-700 text-5xl h-1/4 mb-1">+</div>
             <div className="col-span-1 bg-green-100 rounded-md flexCenterC justify-center text-green-700 text-5xl h-1/4 mb-1">+</div>
             <div className="col-span-1 bg-green-100 rounded-md flexCenterC justify-center text-green-700 text-5xl h-1/4 mb-1">+</div>
