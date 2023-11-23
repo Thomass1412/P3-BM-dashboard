@@ -46,8 +46,8 @@ public class IntegrationController {
     })
     @ResponseStatus(HttpStatus.OK)
     @GetMapping(produces = "application/json")
-    public Flux<ResponseEntity<Flux<Integration>>> getIntegrations() {
-        return Flux.just(ResponseEntity.ok().body(integrationService.findAll()));
+    public ResponseEntity<Flux<Integration>> getIntegrations() {
+        return ResponseEntity.ok().body(integrationService.findAll());
     }
 
     @Operation(summary = "Instantiate a new integration", description = "The request body must include an unique name and a predefined type. \\['internal'\\]")
