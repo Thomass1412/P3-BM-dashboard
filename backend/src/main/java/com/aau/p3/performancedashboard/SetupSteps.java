@@ -22,14 +22,13 @@ import com.aau.p3.performancedashboard.repository.UserRepository;
 
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
 public class SetupSteps {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
 	@Autowired
-private Environment environment;
+Environment environment;
 
 	public void setup() {
 		// put functions in here, that spring should execute on startup.
@@ -39,7 +38,7 @@ private Environment environment;
 
 		this.logger.info("Processing setup steps");
 
-		this.createAdminUser();
+		//this.createAdminUser();
 
 		this.logger.info("Finished processing setup steps");
 	}

@@ -22,6 +22,7 @@ import reactor.core.publisher.Mono;
 @OpenAPIDefinition(info = @Info(title = "Performance Dashboard", version = "1.0", description = "Backend API v1.0"))
 // This is to tell spring where our repositories are located
 @ComponentScan("com.aau.p3.performancedashboard.repository")
+@ComponentScan("com.aau.p3.performancedashboard.security")
 public class PerformancedashboardApplication {
 
 	public static void main(String[] args) {
