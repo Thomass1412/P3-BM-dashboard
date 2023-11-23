@@ -36,12 +36,12 @@ public class IntegrationService {
   public Mono<Integration> saveIntegration(String name, String type) throws Exception {
     logger.info("Name: " + name + ", type: " + type);
     if(integrationRepository.findByName(name).block() != null) {
-      throw new IllegalArgumentException("Already exists");
+      return Mono.error(new IllegalArgumentException("Already exists"));
     }
 
     if(type == null) {
       logger.error("Type is null" + type);
-      throw new IllegalArgumentException("Type must not be null");
+      return Mono.error(new IllegalArgumentException("Type must not be null"));
     }
     
     if(type == "internal") {

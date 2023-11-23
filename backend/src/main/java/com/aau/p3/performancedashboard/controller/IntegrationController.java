@@ -20,6 +20,7 @@ import com.aau.p3.performancedashboard.model.IntegrationData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -58,8 +59,7 @@ public class IntegrationController {
     })
     @PostMapping(consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED) // https://stackoverflow.com/questions/48238250/how-to-use-reactor-core-publisher-monot-or-fluxt-with-inheritance
-    public Mono<ResponseEntity<Mono<Integration>>> createIntegration(@RequestBody @Valid IntegrationDTO integrationDTO)
-            throws Exception {
+    public Mono<ResponseEntity<Mono<Integration>>> createIntegration(@RequestBody @Valid IntegrationDTO integrationDTO) throws Exception {
         return Mono.just(ResponseEntity.ok()
                 .body(integrationService.saveIntegration(integrationDTO.getName(), integrationDTO.getType())));
     }
@@ -72,21 +72,13 @@ public class IntegrationController {
         return integration.saveIntegrationData(integrationData);
     }
 
-    @ExceptionHandler(ResponseStatusException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Mono<String> handleResponseStatusException(ResponseStatusException ex) {
-        return Mono.just("Bad Request: " + ex.getMessage());
-    }
-
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Mono<String> handleException(Exception ex) {
-        return Mono.just("Internal server error" + ex.getMessage());
+    public ResponseEntity<String> handleException(Exception ex) {
+        return ResponseEntity.internalServerError().body("Integration with name");
     }
 
     @ExceptionHandler(IncorrectResultSizeDataAccessException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Mono<String> handleNonUnique(IncorrectResultSizeDataAccessException exception) {
-        return Mono.just(exception.getMessage());
+    public ResponseEntity<String> handleIncorrectResultSizeDataAccessException(IncorrectResultSizeDataAccessException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
     }
 }

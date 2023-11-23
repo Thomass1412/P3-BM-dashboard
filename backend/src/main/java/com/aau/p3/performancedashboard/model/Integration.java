@@ -37,7 +37,6 @@ public class Integration {
     @NotBlank(message = "Name must not be empty")
     @Schema(name = "name", example = "sales", required = true)
     @Size(min = 5, max = 50)
-   
     private String name;
 
     @Getter
