@@ -34,18 +34,14 @@ public class IntegrationService {
 
   // POST to create integration in DB
   public Mono<Integration> saveIntegration(String name, String type) throws Exception {
-    String integrationType = type;
     
     // If an integration with the name already exists
     if(null != integrationRepository.findByName(name).block()) {
-      return Mono.error(new IllegalArgumentException("Integration with name '" + name + "'' already exists."));
+      return Mono.error(new IllegalArgumentException("Integration with name '" + name + "' already exists."));
     }
     
-
-
-    System.out.println(integrationType);
+    // Check the type, and instantiate corresponding integration class.
     if(type.equals("internal")) {
-      logger.info("If internal");
       IntegrationDataService integrationDataService = new IntegrationDataService();
       InternalIntegration ie = new InternalIntegration(name);
       ie.setDataCollection(integrationDataService.createCollection(ie.getName() + "-data"));
@@ -53,7 +49,7 @@ public class IntegrationService {
       return res;
     }
 
-    return Mono.error(new Exception("Something went wrong saving the integration"));
+    return Mono.error(new RuntimeException("Something went wrong saving the integration"));
   }
 
   public Mono<Integration> findById(String id) {
