@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -45,7 +46,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-@Tag(name ="Authentication", description = "Authentication Management APIs")
+@Tag(name = "Authentication", description = "Authentication Management APIs")
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -64,23 +65,17 @@ public class AuthController {
   @Autowired
   JwtUtils jwtUtils;
 
-      @Operation(
-        summary = "Authenticate a user",
-        description = "The request body must include a username and a password.")
-      @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Successfully authenticated user"),
-        @ApiResponse(responseCode = "400", description = "Bad Request"),
-        @ApiResponse(responseCode = "500", description = "Internal Server Error")
-      })
+  @Operation(summary = "Authenticate a user", description = "The request body must include a username and a password.")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Successfully authenticated user"),
+      @ApiResponse(responseCode = "400", description = "Bad Request"),
+      @ApiResponse(responseCode = "500", description = "Internal Server Error")
+  })
   @PostMapping(path = "/signin", consumes = "application/json", produces = "application/json")
   public ResponseEntity<MessageResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
     Authentication authentication = authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-
-        if (!authentication.isAuthenticated()) {
-          return ResponseEntity.badRequest().body(new MessageResponse("Error: Authentication failed."));
-        }
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -92,38 +87,34 @@ public class AuthController {
         .map(item -> item.getAuthority())
         .collect(Collectors.toList());
 
-    return Mono.just(ResponseEntity.ok()
+    return ResponseEntity.ok()
         .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-        .body(new MessageResponse("Successfully authenticated user")));
+        .body(new MessageResponse("Successfully authenticated user"));
   }
 
-      @Operation(
-        summary = "Register a new user",
-        description = "The request body must include a username, an email, a password and optionally a list of roles. If roles are not provided, agent role will be assigned by default.")
-      @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Successfully registered user"),
-        @ApiResponse(responseCode = "400", description = "Bad Request"),
-        @ApiResponse(responseCode = "500", description = "Internal Server Error")
-      })
+  @Operation(summary = "Register a new user", description = "The request body must include a username, an email, a password and optionally a list of roles. If roles are not provided, agent role will be assigned by default.")
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Successfully registered user"),
+      @ApiResponse(responseCode = "400", description = "Bad Request"),
+      @ApiResponse(responseCode = "500", description = "Internal Server Error")
+  })
   @PostMapping("/signup")
-  public Mono<ResponseEntity<?>> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+  public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
     if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-      return Mono.just(ResponseEntity
-          .badRequest()
-          .body(new MessageResponse("Error: Username is already taken!")));
+      return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
     }
 
     if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-      return Mono.just(ResponseEntity
+      return ResponseEntity
           .badRequest()
-          .body(new MessageResponse("Error: Email is already in use!")));
+          .body(new MessageResponse("Error: Email is already in use!"));
     }
 
     // Create new user's account
     String id = UUID.randomUUID().toString();
-    User user = new User(id, signUpRequest.getUsername(), 
-                         signUpRequest.getEmail(),
-                         encoder.encode(signUpRequest.getPassword()));
+    User user = new User(id, signUpRequest.getUsername(),
+        signUpRequest.getEmail(),
+        encoder.encode(signUpRequest.getPassword()));
 
     Set<String> strRoles = signUpRequest.getRoles();
     Set<Role> roles = new HashSet<>();
@@ -135,28 +126,28 @@ public class AuthController {
     } else {
       strRoles.forEach(role -> {
         switch (role) {
-        case "admin":
-          Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-              .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-          roles.add(adminRole);
+          case "admin":
+            Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
+                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            roles.add(adminRole);
 
-          break;
-        case "supervisor":
-          Role supervisorRole = roleRepository.findByName(ERole.ROLE_SUPERVISOR)
-              .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-          roles.add(supervisorRole);
+            break;
+          case "supervisor":
+            Role supervisorRole = roleRepository.findByName(ERole.ROLE_SUPERVISOR)
+                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            roles.add(supervisorRole);
 
-          break;
-        case "tv":
-          Role tvRole = roleRepository.findByName(ERole.ROLE_TV)
-              .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-          roles.add(tvRole);
+            break;
+          case "tv":
+            Role tvRole = roleRepository.findByName(ERole.ROLE_TV)
+                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            roles.add(tvRole);
 
-          break;
-        default:
-          Role agentRole = roleRepository.findByName(ERole.ROLE_AGENT)
-              .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-          roles.add(agentRole);
+            break;
+          default:
+            Role agentRole = roleRepository.findByName(ERole.ROLE_AGENT)
+                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+            roles.add(agentRole);
         }
       });
     }
@@ -164,22 +155,20 @@ public class AuthController {
     user.setRoles(roles);
     userRepository.save(user);
 
-    return Mono.just(ResponseEntity.ok(new MessageResponse("User registered successfully!")));    
+    return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
   }
 
-  @Operation(
-    summary = "Retrieve all users",
-    description = "The response object will contain a list of all users.")
-  @GetMapping(path="/users", produces = "application/json")
+  @Operation(summary = "Retrieve all users", description = "The response object will contain a list of all users.")
+  @GetMapping(path = "/users", produces = "application/json")
   public Flux<User> getAllUsers() {
     return userRepository.findAll();
   }
 
   @ResponseBody
   @ExceptionHandler(AuthenticationException.class)
-  public ResponseEntity<CustomResponse> handleUnfoundRequest(AuthenticationException ex) {
-      CustomResponse response = new CustomResponse("Error authenticating.", "error", ex.getMessage());
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+  public ResponseEntity<CustomResponse> handleAuthException(AuthenticationException ex) {
+    CustomResponse response = new CustomResponse("Error authenticating.", "error", ex.getMessage());
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
   }
 
 }
