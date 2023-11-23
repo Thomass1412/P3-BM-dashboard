@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import jakarta.validation.Valid;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,7 +30,6 @@ import com.aau.p3.performancedashboard.model.Role;
 import com.aau.p3.performancedashboard.model.User;
 import com.aau.p3.performancedashboard.payload.request.LoginRequest;
 import com.aau.p3.performancedashboard.payload.request.SignupRequest;
-import com.aau.p3.performancedashboard.payload.response.UserInfoResponse;
 import com.aau.p3.performancedashboard.payload.response.MessageResponse;
 import com.aau.p3.performancedashboard.repository.RoleRepository;
 import com.aau.p3.performancedashboard.repository.UserRepository;
@@ -88,7 +89,7 @@ public class AuthController {
 
     return Mono.just(ResponseEntity.ok()
         .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-        .body(new UserInfoResponse(userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles)));
+        .body(new MessageResponse("Successfully authenticated user")));
   }
 
       @Operation(
@@ -159,6 +160,14 @@ public class AuthController {
     userRepository.save(user);
 
     return Mono.just(ResponseEntity.ok(new MessageResponse("User registered successfully!")));    
+  }
+
+  @Operation(
+    summary = "Retrieve all users",
+    description = "The response object will contain a list of all users.")
+  @GetMapping(path="/users", produces = "application/json")
+  public Flux<User> getAllUsers() {
+    return userRepository.findAll();
   }
 
 
