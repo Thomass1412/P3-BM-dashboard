@@ -8,18 +8,23 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Mono;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.aau.p3.performancedashboard.service.IntegrationDataService;
 
+import com.aau.p3.performancedashboard.service.IntegrationDataService;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+
 
 @ToString
 @NoArgsConstructor
@@ -32,20 +37,33 @@ public class Integration {
 
     @Getter
 
+
     @Setter
     @NotBlank(message = "Name must not be empty")
+    @Schema(name = "name", example = "sales", required = true)
     @Schema(name = "name", example = "sales", required = true)
     @Size(min = 5, max = 50)
     private String name;
 
     @Getter
 
+
     @Setter
     @NotBlank(message = "Type must not be empty")
     @Schema(name = "type", example = "internal", required = true)
 
+    @Schema(name = "type", example = "internal", required = true)
+
     private String type;
 
+    @Getter
+    @Setter
+    private Date lastUpdated;
+
+    @Setter
+    @Getter
+    @Schema(name = "dataCollection", example = "sales-db", required = false)
+    private String dataCollection;
     @Getter
     @Setter
     private Date lastUpdated;
@@ -59,6 +77,11 @@ public class Integration {
         this.name = name;
         this.type = type;
 
+    }
+
+    public Mono<IntegrationData> saveIntegrationData(IntegrationData integrationData) {
+        ReactiveMongoOperations reactiveMongoOperations = IntegrationDataService.getReactiveMongoOperations();
+        return reactiveMongoOperations.save(integrationData, this.dataCollection);
     }
 
     public Mono<IntegrationData> saveIntegrationData(IntegrationData integrationData) {
