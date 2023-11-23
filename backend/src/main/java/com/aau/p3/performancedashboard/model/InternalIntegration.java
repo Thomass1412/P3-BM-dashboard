@@ -21,5 +21,4 @@ public class InternalIntegration extends Integration {
         super(name, "Internal");
         this.myField1 = "bob";
     }
-
 }

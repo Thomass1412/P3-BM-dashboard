@@ -1,5 +1,6 @@
 package com.aau.p3.performancedashboard.controller;
 
+import com.aau.p3.performancedashboard.dto.CustomResponse;
 import com.aau.p3.performancedashboard.dto.IntegrationDTO;
 import com.aau.p3.performancedashboard.service.IntegrationService;
 
@@ -17,15 +18,17 @@ import jakarta.validation.Valid;
 import com.aau.p3.performancedashboard.model.Integration;
 import com.aau.p3.performancedashboard.model.IntegrationData;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.ResponseEntity.BodyBuilder;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -42,7 +45,7 @@ public class IntegrationController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", content = {
                     @Content(array = @ArraySchema(schema = @Schema(implementation = Integration.class)), mediaType = "application/json") }, description = "Successfully retrieved all integrations"),
-            @ApiResponse(responseCode = "500"),
+            @ApiResponse(responseCode = "500", description = "Generic Internal Server Error."),
     })
     @GetMapping(produces = "application/json")
     public ResponseEntity<Flux<Integration>> getIntegrations() {
@@ -53,18 +56,17 @@ public class IntegrationController {
     @ApiResponses({
             @ApiResponse(responseCode = "201", content = {
                     @Content(array = @ArraySchema(schema = @Schema(implementation = Integration.class)), mediaType = "application/json") }, description = "Successfully created new integration"),
-            @ApiResponse(responseCode = "400", description = "Bad request. Invalid parameters or requested integration already exists."),
+            @ApiResponse(responseCode = "400", content = {
+                    @Content(array = @ArraySchema(schema = @Schema(implementation = CustomResponse.class)), mediaType = "application/json") }, description = "Bad request. Invalid parameters or requested integration already exists."),
             @ApiResponse(responseCode = "404", description = "Integration type not found."),
-            @ApiResponse(responseCode = "500"),
+            @ApiResponse(responseCode = "500", description = "Generic Internal Server Error."),
     })
     @PostMapping(consumes = "application/json", produces = "application/json")
-    public ResponseEntity<Mono<Integration>> createIntegration(@RequestBody @Valid IntegrationDTO integrationDTO) throws Exception {
-        System.out.println(integrationDTO.toString());
-        return ResponseEntity.ok().body(integrationService.saveIntegration(integrationDTO.getName(), integrationDTO.getType()));
+    public ResponseEntity<Mono<Integration>> createIntegration(@RequestBody @Valid IntegrationDTO integrationDTO)
+            throws Exception {
+        return ResponseEntity.ok()
+                .body(integrationService.saveIntegration(integrationDTO.getName(), integrationDTO.getType()));
     }
-
-
-
 
     @Operation(summary = "Instantiate new integrationData", description = "The request body must include valid integrationData and path variable must contain an existing integrationId.")
     @ApiResponses({
@@ -75,24 +77,14 @@ public class IntegrationController {
             @ApiResponse(responseCode = "500"),
     })
 
-
     @PostMapping("/{integrationId}")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<IntegrationData> createIntegrationData(@PathVariable String integrationId,
             @RequestBody IntegrationData integrationData) throws Exception {
-        try{      
-            Integration integration = integrationService.findById(integrationId).block();
-
-            if (integration == null) throw new NotFoundException();
-
-            return integration.saveIntegrationData(integrationData);
-        } catch (Exception e) {
-            return null;
-        }
+        Integration integration = integrationService.findById(integrationId).block();
+        Mono<IntegrationData> res = integration.saveIntegrationData(integrationData);
+        return res;
     }
-
-
-
 
     @ResponseBody
     @ExceptionHandler(Exception.class)
@@ -103,14 +95,34 @@ public class IntegrationController {
 
     @ResponseBody
     @ExceptionHandler(IncorrectResultSizeDataAccessException.class)
-    public ResponseEntity<CustomResponse> handleIncorrectResultSizeDataAccessException(IncorrectResultSizeDataAccessException ex) {
+    public ResponseEntity<CustomResponse> handleIncorrectResultSizeDataAccessException(
+            IncorrectResultSizeDataAccessException ex) {
         CustomResponse response = new CustomResponse(ex.getMessage(), "error", "Bad Request");
         return ResponseEntity.badRequest().body(response);
     }
 
     @ResponseBody
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<String> handleUnfoundRequest(NotFoundException ex) {
-        return ((BodyBuilder) ResponseEntity.notFound()).body(ex.getMessage());
+    public ResponseEntity<CustomResponse> handleUnfoundRequest(NotFoundException ex) {
+        CustomResponse response = new CustomResponse("Integration not found", "error", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<CustomResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        List<String> errors = ex.getBindingResult()
+                .getAllErrors()
+                .stream()
+                .map(error -> {
+                    if (error instanceof FieldError) {
+                        return ((FieldError) error).getField() + ": " + error.getDefaultMessage();
+                    } else {
+                        return error.getDefaultMessage();
+                    }
+                })
+                .collect(Collectors.toList());
+
+        CustomResponse response = new CustomResponse("Validation Error", "error", errors);
+        return ResponseEntity.badRequest().body(response);
     }
 }

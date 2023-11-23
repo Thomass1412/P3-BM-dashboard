@@ -17,10 +17,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.aau.p3.performancedashboard.service.IntegrationDataService;
 
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+
 @ToString
 @NoArgsConstructor
 @Document(collection = "integration")
@@ -32,7 +32,7 @@ public class Integration {
     private String id;
 
     @Getter
-   
+
     @Setter
     @NotBlank(message = "Name must not be empty")
     @Schema(name = "name", example = "sales", required = true)
@@ -40,11 +40,11 @@ public class Integration {
     private String name;
 
     @Getter
-   
+
     @Setter
     @NotBlank(message = "Type must not be empty")
     @Schema(name = "type", example = "internal", required = true)
-   
+
     private String type;
 
     @Getter
