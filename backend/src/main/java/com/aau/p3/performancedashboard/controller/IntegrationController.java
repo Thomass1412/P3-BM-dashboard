@@ -19,9 +19,11 @@ import com.aau.p3.performancedashboard.model.IntegrationData;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -40,11 +42,8 @@ public class IntegrationController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", content = {
                     @Content(array = @ArraySchema(schema = @Schema(implementation = Integration.class)), mediaType = "application/json") }, description = "Successfully retrieved all integrations"),
-            @ApiResponse(responseCode = "404", content = {
-                    @Content(schema = @Schema()) }, description = "Integration type not found."),
-            @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }),
+            @ApiResponse(responseCode = "500"),
     })
-    @ResponseStatus(HttpStatus.OK)
     @GetMapping(produces = "application/json")
     public ResponseEntity<Flux<Integration>> getIntegrations() {
         return ResponseEntity.ok().body(integrationService.findAll());
@@ -54,23 +53,46 @@ public class IntegrationController {
     @ApiResponses({
             @ApiResponse(responseCode = "201", content = {
                     @Content(array = @ArraySchema(schema = @Schema(implementation = Integration.class)), mediaType = "application/json") }, description = "Successfully created new integration"),
-            @ApiResponse(responseCode = "400", content = { @Content(schema = @Schema()) }, description = "Error."),
-            @ApiResponse(responseCode = "500", content = { @Content(schema = @Schema()) }),
+            @ApiResponse(responseCode = "400", description = "Bad request. Invalid parameters or requested integration already exists."),
+            @ApiResponse(responseCode = "404", description = "Integration type not found."),
+            @ApiResponse(responseCode = "500"),
     })
     @PostMapping(consumes = "application/json", produces = "application/json")
-    @ResponseStatus(HttpStatus.CREATED) // https://stackoverflow.com/questions/48238250/how-to-use-reactor-core-publisher-monot-or-fluxt-with-inheritance
     public ResponseEntity<Mono<Integration>> createIntegration(@RequestBody @Valid IntegrationDTO integrationDTO) throws Exception {
         System.out.println(integrationDTO.toString());
         return ResponseEntity.ok().body(integrationService.saveIntegration(integrationDTO.getName(), integrationDTO.getType()));
     }
 
+
+
+
+    @Operation(summary = "Instantiate new integrationData", description = "The request body must include valid integrationData and path variable must contain an existing integrationId.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", content = {
+                    @Content(array = @ArraySchema(schema = @Schema(implementation = IntegrationData.class)), mediaType = "application/json") }, description = "Successfully created new integrationData"),
+            @ApiResponse(responseCode = "400", description = "Bad request. Missing integrationData"),
+            @ApiResponse(responseCode = "404", description = "Integration with id not found"),
+            @ApiResponse(responseCode = "500"),
+    })
+
+
     @PostMapping("/{integrationId}")
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<IntegrationData> createIntegrationData(@PathVariable String integrationId,
             @RequestBody IntegrationData integrationData) throws Exception {
-        Integration integration = integrationService.findById(integrationId).block();
-        return integration.saveIntegrationData(integrationData);
+        try{      
+            Integration integration = integrationService.findById(integrationId).block();
+
+            if (integration == null) throw new NotFoundException();
+
+            return integration.saveIntegrationData(integrationData);
+        } catch (Exception e) {
+            return null;
+        }
     }
+
+
+
 
     @ResponseBody
     @ExceptionHandler(Exception.class)
@@ -79,8 +101,14 @@ public class IntegrationController {
     }
 
     @ResponseBody
-    @ExceptionHandler(IncorrectResultSizeDataAccessException.class)
-    public ResponseEntity<String> handleIncorrectResultSizeDataAccessException(IncorrectResultSizeDataAccessException ex) {
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIncorrectRequest(IllegalArgumentException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ResponseBody
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<String> handleUnfoundRequest(NotFoundException ex) {
+        return ((BodyBuilder) ResponseEntity.notFound()).body(ex.getMessage());
     }
 }
