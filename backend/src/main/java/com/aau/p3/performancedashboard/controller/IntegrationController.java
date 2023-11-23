@@ -74,13 +74,15 @@ public class IntegrationController {
 
     @ResponseBody
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleException(Exception ex) {
-        return ResponseEntity.internalServerError().body(ex.getMessage());
+    public ResponseEntity<CustomResponse> handleException(Exception ex) {
+        CustomResponse response = new CustomResponse(ex.getMessage(), "error", "Internal Server Error");
+        return ResponseEntity.internalServerError().body(response);
     }
 
     @ResponseBody
     @ExceptionHandler(IncorrectResultSizeDataAccessException.class)
-    public ResponseEntity<String> handleIncorrectResultSizeDataAccessException(IncorrectResultSizeDataAccessException ex) {
-        return ResponseEntity.badRequest().body(ex.getMessage());
+    public ResponseEntity<CustomResponse> handleIncorrectResultSizeDataAccessException(IncorrectResultSizeDataAccessException ex) {
+        CustomResponse response = new CustomResponse(ex.getMessage(), "error", "Bad Request");
+        return ResponseEntity.badRequest().body(response);
     }
 }
