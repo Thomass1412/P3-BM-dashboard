@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,12 +20,15 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.aau.p3.performancedashboard.dto.CustomResponse;
 import com.aau.p3.performancedashboard.model.ERole;
 import com.aau.p3.performancedashboard.model.Role;
 import com.aau.p3.performancedashboard.model.User;
@@ -43,7 +47,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 @Tag(name ="Authentication", description = "Authentication Management APIs")
 @RestController
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/auth")
 public class AuthController {
   @Autowired
   AuthenticationManager authenticationManager;
@@ -65,16 +69,17 @@ public class AuthController {
         description = "The request body must include a username and a password.")
       @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Successfully authenticated user"),
+        @ApiResponse(responseCode = "400", description = "Bad Request"),
         @ApiResponse(responseCode = "500", description = "Internal Server Error")
       })
   @PostMapping(path = "/signin", consumes = "application/json", produces = "application/json")
-  public Mono<ResponseEntity<?>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+  public ResponseEntity<MessageResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
     Authentication authentication = authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
         if (!authentication.isAuthenticated()) {
-          return Mono.just(ResponseEntity.badRequest().body(new MessageResponse("Error: Authentication failed.")));
+          return ResponseEntity.badRequest().body(new MessageResponse("Error: Authentication failed."));
         }
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -170,6 +175,11 @@ public class AuthController {
     return userRepository.findAll();
   }
 
-
+  @ResponseBody
+  @ExceptionHandler(AuthenticationException.class)
+  public ResponseEntity<CustomResponse> handleUnfoundRequest(AuthenticationException ex) {
+      CustomResponse response = new CustomResponse("Error authenticating.", "error", ex.getMessage());
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+  }
 
 }
