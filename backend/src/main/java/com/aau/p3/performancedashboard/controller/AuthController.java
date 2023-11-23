@@ -35,6 +35,12 @@ import com.aau.p3.performancedashboard.repository.UserRepository;
 import com.aau.p3.performancedashboard.security.jwt.JwtUtils;
 import com.aau.p3.performancedashboard.security.services.UserDetailsImpl;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+@Tag(name ="Authentication", description = "Authentication Management APIs")
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
@@ -53,11 +59,22 @@ public class AuthController {
   @Autowired
   JwtUtils jwtUtils;
 
-  @PostMapping("/signin")
+      @Operation(
+        summary = "Authenticate a user",
+        description = "The request body must include a username and a password.")
+      @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Successfully authenticated user"),
+        @ApiResponse(responseCode = "500", description = "Internal Server Error")
+      })
+  @PostMapping(path = "/signin", consumes = "application/json", produces = "application/json")
   public Mono<ResponseEntity<?>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
     Authentication authentication = authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+
+        if (!authentication.isAuthenticated()) {
+          return Mono.just(ResponseEntity.badRequest().body(new MessageResponse("Error: Authentication failed.")));
+        }
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -74,6 +91,14 @@ public class AuthController {
         .body(new UserInfoResponse(userDetails.getId(), userDetails.getUsername(), userDetails.getEmail(), roles)));
   }
 
+      @Operation(
+        summary = "Register a new user",
+        description = "The request body must include a username, an email, a password and optionally a list of roles. If roles are not provided, agent role will be assigned by default.")
+      @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Successfully registered user"),
+        @ApiResponse(responseCode = "400", description = "Bad Request"),
+        @ApiResponse(responseCode = "500", description = "Internal Server Error")
+      })
   @PostMapping("/signup")
   public Mono<ResponseEntity<?>> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
     if (userRepository.existsByUsername(signUpRequest.getUsername())) {
@@ -135,4 +160,7 @@ public class AuthController {
 
     return Mono.just(ResponseEntity.ok(new MessageResponse("User registered successfully!")));    
   }
+
+
+
 }
