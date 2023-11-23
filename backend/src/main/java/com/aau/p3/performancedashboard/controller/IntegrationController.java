@@ -59,9 +59,9 @@ public class IntegrationController {
     })
     @PostMapping(consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED) // https://stackoverflow.com/questions/48238250/how-to-use-reactor-core-publisher-monot-or-fluxt-with-inheritance
-    public Mono<ResponseEntity<Mono<Integration>>> createIntegration(@RequestBody @Valid IntegrationDTO integrationDTO) throws Exception {
-        return Mono.just(ResponseEntity.ok()
-                .body(integrationService.saveIntegration(integrationDTO.getName(), integrationDTO.getType())));
+    public ResponseEntity<Mono<Integration>> createIntegration(@RequestBody @Valid IntegrationDTO integrationDTO) throws Exception {
+        System.out.println(integrationDTO.toString());
+        return ResponseEntity.ok().body(integrationService.saveIntegration(integrationDTO.getName(), integrationDTO.getType()));
     }
 
     @PostMapping("/{integrationId}")
@@ -72,11 +72,13 @@ public class IntegrationController {
         return integration.saveIntegrationData(integrationData);
     }
 
+    @ResponseBody
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception ex) {
-        return ResponseEntity.internalServerError().body("Integration with name");
+        return ResponseEntity.internalServerError().body(ex.getMessage());
     }
 
+    @ResponseBody
     @ExceptionHandler(IncorrectResultSizeDataAccessException.class)
     public ResponseEntity<String> handleIncorrectResultSizeDataAccessException(IncorrectResultSizeDataAccessException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
