@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,7 +20,7 @@ public class CustomResponse {
     @Setter
     private String status;
 
-    @Schema(name = "message", example = "['error1']")
+    @Schema(name = "error", example = "['error1']")
     @Getter
     @Setter
     private List<String> error;
