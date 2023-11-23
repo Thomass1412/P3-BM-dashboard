@@ -29,6 +29,11 @@ public class PerformancedashboardApplication {
 
 		ReactiveMongoOperations mongoOps = new ReactiveMongoTemplate(MongoClients.create("mongodb://root:secret@mongodb:27017"), "dashboard-db");
 
+		// run our setup steps here.
+		SetupSteps steps = new SetupSteps();
+		steps.setup();
+		
+
 		// Create a collection
 		String name = "test1";
 		String collectionName = name + "-data";
