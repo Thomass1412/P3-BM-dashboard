@@ -1,9 +1,10 @@
 package com.aau.p3.performancedashboard.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
+
 import org.springframework.stereotype.Service;
 
+import com.aau.p3.performancedashboard.exceptions.IntegrationNotFoundException;
 import com.aau.p3.performancedashboard.model.Integration;
 import com.aau.p3.performancedashboard.model.InternalIntegration;
 import com.aau.p3.performancedashboard.repository.IntegrationRepository;
@@ -53,17 +54,14 @@ public class IntegrationService {
 
   // Retrieves integration by ID
   public Mono<Integration> findById(String id) {
-
-    Mono<Integration> res = integrationRepository.findById(id);
-    if (res == null) {
-      return Mono.error(new NotFoundException());
-    }
-    return res;
+    return integrationRepository.findById(id)
+            .switchIfEmpty(Mono.error(new IntegrationNotFoundException("No integration with given ID: " + id)));
   }
 
   // Retrieves integration by name
   public Mono<Integration> findByName(String name) {
     return integrationRepository.findByName(name);
   }
+
 
 }
