@@ -67,7 +67,7 @@ public class IntegrationController {
     public ResponseEntity<Mono<Integration>> createIntegration(@RequestBody @Valid IntegrationDTO integrationDTO)
             throws Exception {
         return ResponseEntity.ok()
-                .body(integrationService.saveIntegration(integrationDTO.getName(), integrationDTO.getType()));
+                .body(integrationService.saveIntegration(integrationDTO));
     }
 
     @Operation(summary = "Instantiate new integrationData", description = "The request body must include valid integrationData and path variable must contain an existing integrationId.")

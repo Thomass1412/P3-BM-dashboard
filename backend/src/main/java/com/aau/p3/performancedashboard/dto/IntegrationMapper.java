@@ -4,10 +4,10 @@ import com.aau.p3.performancedashboard.model.*;
 
 public class IntegrationMapper {
 
-    public static <T extends Integration> IntegrationDTO toDTO(T integration) {
-        IntegrationDTO integrationDTO = new IntegrationDTO(integration.getName(), integration.getType());
-        return integrationDTO;
-    }
+    //public static <T extends Integration> IntegrationDTO toDTO(T integration) {
+       // IntegrationDTO integrationDTO = new IntegrationDTO(integration.getName(), integration.getType());
+        //return integrationDTO;
+    //}
 
     // https://stackoverflow.com/questions/450807/how-do-i-make-the-method-return-type-generic
 

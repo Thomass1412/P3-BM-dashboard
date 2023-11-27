@@ -1,9 +1,10 @@
 package com.aau.p3.performancedashboard.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.data.mongodb.core.CollectionOptions;
 import org.springframework.stereotype.Service;
 
+import com.aau.p3.performancedashboard.dto.IntegrationDTO;
 import com.aau.p3.performancedashboard.exceptions.IntegrationNotFoundException;
 import com.aau.p3.performancedashboard.model.Integration;
 import com.aau.p3.performancedashboard.model.InternalIntegration;
@@ -14,6 +15,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.apache.logging.log4j.Logger;
+import org.bson.Document;
 import org.apache.logging.log4j.LogManager;
 
 @Service
@@ -32,18 +34,20 @@ public class IntegrationService {
   }
 
   // POST new integration
-  public Mono<Integration> saveIntegration(String name, String type) throws Exception {
+  public Mono<Integration> saveIntegration(IntegrationDTO dto) throws Exception {
 
     // If an integration with the name already exists
-    if (null != integrationRepository.findByName(name).block()) {
-      return Mono.error(new IllegalArgumentException("Integration with name '" + name + "' already exists."));
+    if (null != integrationRepository.findByName(dto.getName()).block()) {
+      return Mono.error(new IllegalArgumentException("Integration with name '" + dto.getName() + "' already exists."));
     }
 
     // Check the type, and instantiate corresponding integration class.
-    if (type.equals("internal")) {
+    if (dto.getType().equals("internal")) {
       IntegrationDataService integrationDataService = new IntegrationDataService();
-      InternalIntegration ie = new InternalIntegration(name);
-      ie.setDataCollection(integrationDataService.createCollection(ie.getName() + "-data"));
+      InternalIntegration ie = new InternalIntegration(dto.getName());
+      String schema = "{\"$schema\":\"http://json-schema.org/draft-04/schema#\",\"type\":\"object\",\"properties\":{\"data\":{\"type\":\"object\",\"properties\":{\"Betalingsfrekvens\":{\"type\":\"string\"},\"Type\":{\"type\":\"string\"},\"Test\":{\"type\":\"number\"},\"Produkttype\":{\"type\":\"string\"},\"Publikation\":{\"type\":\"string\"},\"Telefonnummer\":{\"type\":\"integer\"},\"Kampagne\":{\"type\":\"boolean\"},\"Ordrenummer\":{\"type\":\"integer\"}}},\"employee\":{\"type\":\"string\"},\"timestamp\":{\"type\":\"string\"}}";
+  
+      ie.setDataCollection(integrationDataService.createCollection(ie.getName() + "-data", schema));
       Mono<Integration> res = internalIntegrationRepository.save(ie).map(Integration.class::cast);
       return res;
     }
