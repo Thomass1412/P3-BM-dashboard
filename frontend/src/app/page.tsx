@@ -1,5 +1,6 @@
 import IntegrationForm from "./Components/IntegrationForm";
 import GetIntegration from "./Components/GetIntegration";
+import ErrorPopup from "./Components/ErrorPopup";
 
 export default function Home() {
   return (
@@ -21,3 +22,10 @@ export default function Home() {
     </main>
   );
 }
+/*
+<h1>React popups</h1>
+<br></br>
+<button>open popup</button>
+<ErrorPopup trigger={true} >
+  <h3>hello error</h3>
+</ErrorPopup>*/
