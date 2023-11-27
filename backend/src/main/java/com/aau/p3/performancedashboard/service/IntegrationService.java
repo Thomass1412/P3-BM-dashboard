@@ -35,7 +35,6 @@ public class IntegrationService {
 
   // POST new integration
   public Mono<Integration> saveIntegration(IntegrationDTO dto) throws Exception {
-
     // If an integration with the name already exists
     if (null != integrationRepository.findByName(dto.getName()).block()) {
       return Mono.error(new IllegalArgumentException("Integration with name '" + dto.getName() + "' already exists."));
@@ -45,27 +44,31 @@ public class IntegrationService {
     if (dto.getType().equals("internal")) {
       IntegrationDataService integrationDataService = new IntegrationDataService();
       InternalIntegration ie = new InternalIntegration(dto.getName());
-      String schema = "{\"$schema\":\"http://json-schema.org/draft-04/schema#\",\"type\":\"object\",\"properties\":{\"data\":{\"type\":\"object\",\"properties\":{\"Betalingsfrekvens\":{\"type\":\"string\"},\"Type\":{\"type\":\"string\"},\"Test\":{\"type\":\"number\"},\"Produkttype\":{\"type\":\"string\"},\"Publikation\":{\"type\":\"string\"},\"Telefonnummer\":{\"type\":\"integer\"},\"Kampagne\":{\"type\":\"boolean\"},\"Ordrenummer\":{\"type\":\"integer\"}}},\"employee\":{\"type\":\"string\"},\"timestamp\":{\"type\":\"string\"}}";
-  
-      ie.setDataCollection(integrationDataService.createCollection(ie.getName() + "-data", schema));
-      Mono<Integration> res = internalIntegrationRepository.save(ie).map(Integration.class::cast);
-      return res;
+      String schema = "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"}}}";
+
+      // Create the collection and then save the integration
+      return integrationDataService.createCollection(ie.getName() + "-data", schema)
+          .flatMap(collection -> {
+            // Set the collection name after successful creation
+            ie.setDataCollection(collection.getNamespace().getCollectionName());
+            return internalIntegrationRepository.save(ie);
+          })
+          .map(Integration.class::cast);
     }
 
-    // For know, return generic error if type cannot be matched
+    // For now, return generic error if type cannot be matched
     return Mono.error(new RuntimeException("Something went wrong saving the integration"));
   }
 
   // Retrieves integration by ID
   public Mono<Integration> findById(String id) {
     return integrationRepository.findById(id)
-            .switchIfEmpty(Mono.error(new IntegrationNotFoundException("No integration with given ID: " + id)));
+        .switchIfEmpty(Mono.error(new IntegrationNotFoundException("No integration with given ID: " + id)));
   }
 
   // Retrieves integration by name
   public Mono<Integration> findByName(String name) {
     return integrationRepository.findByName(name);
   }
-
 
 }

@@ -21,8 +21,8 @@ public class IntegrationDTO {
     @Schema(name = "type", example = "internal", required = true)
     private String type;
     
-    @Getter
-    @NotBlank(message = "The integration name is required.")
-    @Schema(name = "fields", example = "fields", required = true)
-    private Map<String, String> fields;
+    //@Getter
+    // @NotBlank(message = "The integration name is required.")
+    //@Schema(name = "fields", example = "fields", required = true)
+    //private Map<String, String> fields;
 }
