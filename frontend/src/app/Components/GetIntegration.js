@@ -1,13 +1,12 @@
 "use client";
 import React, { useState } from 'react';
-import './ErrorPopup.css';
+import './ErrorPopup.scss';
 
 function ErrorPopup(props) {
   return props.trigger ? (
-    <div className="ErrorPopup">
-      <div className="ErrorPopup-inner">
-        {props.children}
-      </div>
+    <div className="alert danger-alert">
+      <h3>hello22</h3>
+      <a class="close">&times;</a>
     </div>
   ) : null; // Use null instead of an empty string
 }
@@ -64,7 +63,7 @@ function GetIntegration() {
         Get button
       </button>
       <ErrorPopup trigger={buttonClicked}>
-        <h3>Hello error</h3>
+        <h3>hello</h3>
       </ErrorPopup>
     </>
   );
