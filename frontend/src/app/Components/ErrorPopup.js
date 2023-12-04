@@ -4,10 +4,7 @@ import './ErrorPopup.css'
 function ErrorPopup(props) {
   return (props.trigger) ? (
     <div className="ErrorPopup">
-      <div className="ErrorPopup-inner">
-        {props.children}
-
-      </div>
+      {props.children}
     </div>
   ) : null;
 }
