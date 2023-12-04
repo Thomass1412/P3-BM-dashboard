@@ -1,7 +1,6 @@
 package com.aau.p3.performancedashboard.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.CollectionOptions;
 import org.springframework.stereotype.Service;
 
 import com.aau.p3.performancedashboard.dto.IntegrationDTO;
@@ -15,7 +14,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.apache.logging.log4j.Logger;
-import org.bson.Document;
 import org.apache.logging.log4j.LogManager;
 
 @Service

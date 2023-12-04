@@ -1,12 +1,9 @@
 package com.aau.p3.performancedashboard.dto;
 
-import java.util.Map;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 
 @Data
 @AllArgsConstructor

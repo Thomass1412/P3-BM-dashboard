@@ -1,9 +1,5 @@
 package com.aau.p3.performancedashboard.model;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

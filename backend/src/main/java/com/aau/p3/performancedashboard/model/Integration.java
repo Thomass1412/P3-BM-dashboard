@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.bson.Document;
 
 import com.aau.p3.performancedashboard.service.IntegrationDataService;
 
@@ -21,7 +21,7 @@ import jakarta.validation.constraints.Size;
 
 @ToString
 @NoArgsConstructor
-@Document(collection = "integration")
+@org.springframework.data.mongodb.core.mapping.Document(collection = "integration")
 public class Integration {
 
     @Id
@@ -57,7 +57,9 @@ public class Integration {
 
     public Mono<IntegrationData> saveIntegrationData(IntegrationData integrationData) {
         ReactiveMongoOperations reactiveMongoOperations = IntegrationDataService.getReactiveMongoOperations();
-        System.out.println("CHECK HERE!!!!!!!!!!!!!!!!!" + integrationData.toString());
-        return reactiveMongoOperations.save(integrationData, this.dataCollection);
+        org.bson.Document document = new Document();
+        document.put("data", integrationData.getData());
+        return reactiveMongoOperations.save(document, this.dataCollection)
+                .map(result -> integrationData);
     }
 }
