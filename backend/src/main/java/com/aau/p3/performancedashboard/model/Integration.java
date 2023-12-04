@@ -53,11 +53,11 @@ public class Integration {
     public Integration(String name, String type) {
         this.name = name;
         this.type = type;
-
     }
 
     public Mono<IntegrationData> saveIntegrationData(IntegrationData integrationData) {
         ReactiveMongoOperations reactiveMongoOperations = IntegrationDataService.getReactiveMongoOperations();
+        System.out.println("CHECK HERE!!!!!!!!!!!!!!!!!" + integrationData.toString());
         return reactiveMongoOperations.save(integrationData, this.dataCollection);
     }
 }

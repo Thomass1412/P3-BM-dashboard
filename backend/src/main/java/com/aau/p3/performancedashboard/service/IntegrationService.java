@@ -44,16 +44,23 @@ public class IntegrationService {
     if (dto.getType().equals("internal")) {
       IntegrationDataService integrationDataService = new IntegrationDataService();
       InternalIntegration ie = new InternalIntegration(dto.getName());
-      String schema = "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"}}}";
 
-      // Create the collection and then save the integration
+      String schema = "{\n" +
+        "  \"type\": \"object\",\n" +
+        "  \"properties\": {\n" +
+        "    \"data\": {\n" +
+        "      \"type\": \"object\"\n" +
+        "    }\n" +
+        "  }\n" +
+        "}";
+
       return integrationDataService.createCollection(ie.getName() + "-data", schema)
-          .flatMap(collection -> {
-            // Set the collection name after successful creation
-            ie.setDataCollection(collection.getNamespace().getCollectionName());
-            return internalIntegrationRepository.save(ie);
-          })
-          .map(Integration.class::cast);
+        .flatMap(collection -> {
+          // Set the collection name after successful creation
+          ie.setDataCollection(collection.getNamespace().getCollectionName());
+          return internalIntegrationRepository.save(ie);
+        })
+        .map(Integration.class::cast);
     }
 
     // For now, return generic error if type cannot be matched
