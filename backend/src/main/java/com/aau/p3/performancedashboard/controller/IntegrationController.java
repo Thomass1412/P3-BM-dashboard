@@ -18,31 +18,37 @@ import jakarta.validation.Valid;
 
 import com.aau.p3.performancedashboard.model.Integration;
 import com.aau.p3.performancedashboard.model.IntegrationData;
+import com.aau.p3.performancedashboard.payload.response.PageableResponse;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
- * This class is responsible for handling HTTP requests related to integrations (plural).
+ * This class is responsible for handling HTTP requests related to integrations
+ * (plural).
  * It uses the {@link IntegrationService} to interact with the data layer.
  * It uses the {@link Autowired} annotation to inject the service dependency.
- * It uses the {@link RestController} annotation to indicate that it's a RESTful web service controller.
- * It uses the {@link RequestMapping} annotation to map HTTP requests to handler methods.
+ * It uses the {@link RestController} annotation to indicate that it's a RESTful
+ * web service controller.
+ * It uses the {@link RequestMapping} annotation to map HTTP requests to handler
+ * methods.
  */
 @Tag(name = "Integration", description = "Integration Management APIs")
 @RestController
-@RequestMapping("/api/v1/integrations")
+@RequestMapping("/api/v1/integrations/pageable")
 class IntegrationsController {
 
     // Service to interact with the data layer.
@@ -59,34 +65,48 @@ class IntegrationsController {
     }
 
     /**
-     * Fetches all integrations.
+     * Fetches a page of integrations.
      * 
-     * This endpoint retrieves all instantiated integrations. The response object will inherit from a specific integration subclass, so fields may vary.
+     * This endpoint retrieves a page of instantiated integrations based on the
+     * provided page number and size. The response object will inherit from a
+     * specific integration subclass, so fields may vary.
      * 
-     * @return A {@link ResponseEntity} containing a {@link Flux} of {@link Integration} objects.
+     * @param page The page number to retrieve (0-indexed).
+     * @param size The number of integrations per page.
+     * @return A {@link Mono} containing a {@link Page} of {@link Integration}
+     *         objects.
      * 
-     * @response 200 Successfully retrieved all integrations. The response body contains a JSON array of integrations.
-     * @response 500 Internal Server Error. An error occurred while trying to fetch the integrations.
+     * @response 200 Successfully retrieved a page of integrations. The response
+     *           body contains a JSON array of integrations.
+     * @response 500 Internal Server Error. An error occurred while trying to fetch
+     *           the integrations.
      */
-    @Operation(summary = "Retrieve all instantiated integrations", description = "Fetches all integrations. The response object will inherit from a specific integration subclass, so fields may vary.")
+    @Operation(summary = "Retrieve a page of instantiated integrations", description = "Fetches a page of integrations based on the provided page number and size. The response object will inherit from a specific integration subclass, so fields may vary.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Successfully retrieved all integrations", content = {
-            @Content(array = @ArraySchema(schema = @Schema(implementation = Integration.class)), mediaType = "application/json")
-        }),
-        @ApiResponse(responseCode = "500", description = "Internal Server Error. An error occurred while trying to fetch the integrations.")
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved a page of integrations", content = {
+                    @Content(schema = @Schema(implementation = PageableResponse.class), mediaType = "application/json")
+            }),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error. An error occurred while trying to fetch the integrations.")
     })
     @GetMapping(produces = "application/json")
-    public ResponseEntity<Flux<Integration>> getAllIntegrations() {
-        return ResponseEntity.ok().body(integrationService.findAll());
+    public Mono<Page<Integration>> getAllIntegrationsBy(@RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
+        // Extract the request parameters into a Pageable object.
+        Pageable pageable = PageRequest.of(page, size);
+        // Fetch the page of integrations.
+        return integrationService.findAllBy(pageable);
     }
 }
 
 /**
- * This class is responsible for handling HTTP requests related to integration (singular).
+ * This class is responsible for handling HTTP requests related to integration
+ * (singular).
  * It uses the {@link IntegrationService} to interact with the data layer.
  * It uses the {@link Autowired} annotation to inject the service dependency.
- * It uses the {@link RestController} annotation to indicate that it's a RESTful web service controller.
- * It uses the {@link RequestMapping} annotation to map HTTP requests to handler methods.
+ * It uses the {@link RestController} annotation to indicate that it's a RESTful
+ * web service controller.
+ * It uses the {@link RequestMapping} annotation to map HTTP requests to handler
+ * methods.
  */
 @Tag(name = "Integration", description = "Integration Management APIs")
 @RestController
@@ -105,7 +125,7 @@ public class IntegrationController {
     public IntegrationController(IntegrationService integrationService) {
         this.integrationService = integrationService;
     }
-    
+
     @Operation(summary = "Instantiate a new integration", description = "The request body must include an unique name and a predefined type. \\['internal'\\]")
     @ApiResponses({
             @ApiResponse(responseCode = "201", content = {
@@ -116,7 +136,7 @@ public class IntegrationController {
             @ApiResponse(responseCode = "500", description = "Generic Internal Server Error."),
     })
     @PostMapping(consumes = "application/json", produces = "application/json")
-    public ResponseEntity<Mono<Integration>> createIntegration(@RequestBody @Valid IntegrationDTO integrationDTO)
+    public ResponseEntity<Mono<IntegrationResponse>> createIntegration(@RequestBody @Valid IntegrationDTO integrationDTO)
             throws Exception {
         return ResponseEntity.ok()
                 .body(integrationService.saveIntegration(integrationDTO));
@@ -142,13 +162,13 @@ public class IntegrationController {
 
     @Operation(summary = "Retrieve an integration by its ID", description = "Fetches a single integration based on its unique ID.")
     @ApiResponses({
-        @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Integration.class)), description = "Successfully retrieved the integration"),
-        @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = CustomResponse.class)), description = "Integration not found")
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Integration.class)), description = "Successfully retrieved the integration"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = CustomResponse.class)), description = "Integration not found")
     })
     @GetMapping("/{integrationId}")
     public Mono<ResponseEntity<Integration>> getIntegrationById(@PathVariable String integrationId) {
         return integrationService.findById(integrationId)
-            .map(integration -> ResponseEntity.ok().body(integration));
+                .map(integration -> ResponseEntity.ok().body(integration));
     }
 
     @ResponseBody
@@ -157,7 +177,6 @@ public class IntegrationController {
         CustomResponse response = new CustomResponse("Integration not found", "error", List.of(ex.getMessage()));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
-
 
     @ResponseBody
     @ExceptionHandler(Exception.class)

@@ -1,6 +1,9 @@
 package com.aau.p3.performancedashboard.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.aau.p3.performancedashboard.dto.IntegrationDTO;
@@ -10,7 +13,6 @@ import com.aau.p3.performancedashboard.model.InternalIntegration;
 import com.aau.p3.performancedashboard.repository.IntegrationRepository;
 import com.aau.p3.performancedashboard.repository.InternalIntegrationRepository;
 
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.apache.logging.log4j.Logger;
@@ -18,7 +20,7 @@ import org.apache.logging.log4j.LogManager;
 
 @Service
 public class IntegrationService {
-  protected static final Logger logger = LogManager.getLogger(IntegrationService.class.getName());
+  private static final Logger logger = LogManager.getLogger(IntegrationService.class.getName());
 
   @Autowired
   IntegrationRepository integrationRepository;
@@ -27,8 +29,11 @@ public class IntegrationService {
   InternalIntegrationRepository internalIntegrationRepository;
 
   // GET all integrations
-  public Flux<Integration> findAll() {
-    return integrationRepository.findAll();
+  public Mono<Page<Integration>> findAllBy(Pageable pageable) {
+    return integrationRepository.findAllBy(pageable)
+                .collectList()
+                .zipWith(integrationRepository.count())
+                .map(objects -> new PageImpl<>(objects.getT1(), pageable, objects.getT2()));
   }
 
   // POST new integration
