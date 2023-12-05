@@ -33,25 +33,79 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/**
+ * This class is responsible for handling HTTP requests related to integrations (plural).
+ * It uses the {@link IntegrationService} to interact with the data layer.
+ * It uses the {@link Autowired} annotation to inject the service dependency.
+ * It uses the {@link RestController} annotation to indicate that it's a RESTful web service controller.
+ * It uses the {@link RequestMapping} annotation to map HTTP requests to handler methods.
+ */
 @Tag(name = "Integration", description = "Integration Management APIs")
 @RestController
 @RequestMapping("/api/v1/integrations")
-public class IntegrationController {
+class IntegrationsController {
 
+    // Service to interact with the data layer.
+    private IntegrationService integrationService;
+
+    /**
+     * This constructor is used to inject the {@link IntegrationService} dependency.
+     *
+     * @param integrationService The service to interact with the data layer.
+     */
     @Autowired
-    IntegrationService integrationService;
-
-    @Operation(summary = "Retrieve all instantiated integrations", description = "The response object will inherit from a specific integration subclass. Fields may vary.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", content = {
-                    @Content(array = @ArraySchema(schema = @Schema(implementation = Integration.class)), mediaType = "application/json") }, description = "Successfully retrieved all integrations"),
-            @ApiResponse(responseCode = "500", description = "Generic Internal Server Error."),
-    })
-    @GetMapping(produces = "application/json")
-    public ResponseEntity<Flux<Integration>> getIntegrations() {
-        return ResponseEntity.ok().body(integrationService.findAll());
+    public IntegrationsController(IntegrationService integrationService) {
+        this.integrationService = integrationService;
     }
 
+    /**
+     * Fetches all integrations.
+     * 
+     * This endpoint retrieves all instantiated integrations. The response object will inherit from a specific integration subclass, so fields may vary.
+     * 
+     * @return A {@link ResponseEntity} containing a {@link Flux} of {@link Integration} objects.
+     * 
+     * @response 200 Successfully retrieved all integrations. The response body contains a JSON array of integrations.
+     * @response 500 Internal Server Error. An error occurred while trying to fetch the integrations.
+     */
+    @Operation(summary = "Retrieve all instantiated integrations", description = "Fetches all integrations. The response object will inherit from a specific integration subclass, so fields may vary.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Successfully retrieved all integrations", content = {
+            @Content(array = @ArraySchema(schema = @Schema(implementation = Integration.class)), mediaType = "application/json")
+        }),
+        @ApiResponse(responseCode = "500", description = "Internal Server Error. An error occurred while trying to fetch the integrations.")
+    })
+    @GetMapping(produces = "application/json")
+    public ResponseEntity<Flux<Integration>> getAllIntegrations() {
+        return ResponseEntity.ok().body(integrationService.findAll());
+    }
+}
+
+/**
+ * This class is responsible for handling HTTP requests related to integration (singular).
+ * It uses the {@link IntegrationService} to interact with the data layer.
+ * It uses the {@link Autowired} annotation to inject the service dependency.
+ * It uses the {@link RestController} annotation to indicate that it's a RESTful web service controller.
+ * It uses the {@link RequestMapping} annotation to map HTTP requests to handler methods.
+ */
+@Tag(name = "Integration", description = "Integration Management APIs")
+@RestController
+@RequestMapping("/api/v1/integration")
+public class IntegrationController {
+
+    // Service to interact with the data layer.
+    private IntegrationService integrationService;
+
+    /**
+     * This constructor is used to inject the {@link IntegrationService} dependency.
+     *
+     * @param integrationService The service to interact with the data layer.
+     */
+    @Autowired
+    public IntegrationController(IntegrationService integrationService) {
+        this.integrationService = integrationService;
+    }
+    
     @Operation(summary = "Instantiate a new integration", description = "The request body must include an unique name and a predefined type. \\['internal'\\]")
     @ApiResponses({
             @ApiResponse(responseCode = "201", content = {
