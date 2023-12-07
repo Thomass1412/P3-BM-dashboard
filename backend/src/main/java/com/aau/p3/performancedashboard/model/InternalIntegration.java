@@ -2,13 +2,11 @@ package com.aau.p3.performancedashboard.model;
 
 import lombok.ToString;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @ToString
-@NoArgsConstructor
 @Document(collection = "integration")
 public class InternalIntegration extends Integration {
 
@@ -16,8 +14,8 @@ public class InternalIntegration extends Integration {
     @Setter
     private String myField1;
 
-    public InternalIntegration(String name) {
-        super(name, "Internal");
+    public InternalIntegration(String name, String dataCollection) {
+        super(name, "internal", dataCollection);
         this.myField1 = "bob";
     }
 }
