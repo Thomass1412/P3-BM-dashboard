@@ -2,64 +2,46 @@ package com.aau.p3.performancedashboard.model;
 
 import java.util.Date;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import reactor.core.publisher.Mono;
+import lombok.Data;
+import lombok.NonNull;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.bson.Document;
-
-import com.aau.p3.performancedashboard.service.IntegrationDataService;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 
-@ToString
-@NoArgsConstructor
+@Data
 @org.springframework.data.mongodb.core.mapping.Document(collection = "integration")
 public class Integration {
 
     @Id
+    @NonNull // <-- For the required args constructor
     @Schema(name = "id", example = "655a40f451a6f25c2b736e30", required = true)
-    @Getter private String id;
+    private String id;
 
-    @Getter
-    @Setter
+    @NonNull
     @NotBlank(message = "Name must not be empty")
     @Schema(name = "name", example = "sales", required = true)
     @Size(min = 5, max = 50)
     private String name;
-
-    @Getter
-    @Setter
+    
+    @NonNull
     @NotBlank(message = "Type must not be empty")
     @Schema(name = "type", example = "internal", required = true)
     private String type;
 
-    @Getter
-    @Setter
+    @Schema(name = "lastUpdated", example = "2021-05-05T12:00:00.000Z", required = true)
     private Date lastUpdated;
 
-    @Setter
-    @Getter
-    @Schema(name = "dataCollection", example = "sales-db", required = false)
+    @Schema(name = "dataCollection", example = "sales-db", required = true)
     private String dataCollection;
 
-    public Integration(String name, String type) {
+    public Integration(String name, String type, String dataCollection) {
         this.name = name;
         this.type = type;
-    }
-
-    public Mono<IntegrationData> saveIntegrationData(IntegrationData integrationData) {
-        ReactiveMongoOperations reactiveMongoOperations = IntegrationDataService.getReactiveMongoOperations();
-        org.bson.Document document = new Document();
-        document.put("data", integrationData.getData());
-        return reactiveMongoOperations.save(document, this.dataCollection)
-                .map(result -> integrationData);
+        this.dataCollection = dataCollection;
+        this.lastUpdated = new Date();
     }
 }
