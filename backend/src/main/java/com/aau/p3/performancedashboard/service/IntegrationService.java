@@ -1,32 +1,45 @@
 package com.aau.p3.performancedashboard.service;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.aau.p3.performancedashboard.dto.IntegrationDTO;
+import com.aau.p3.performancedashboard.converter.IntegrationConverter;
 import com.aau.p3.performancedashboard.exceptions.IntegrationNotFoundException;
 import com.aau.p3.performancedashboard.model.Integration;
 import com.aau.p3.performancedashboard.model.InternalIntegration;
+import com.aau.p3.performancedashboard.payload.request.CreateIntegrationRequest;
+import com.aau.p3.performancedashboard.payload.response.IntegrationResponse;
 import com.aau.p3.performancedashboard.repository.IntegrationRepository;
 import com.aau.p3.performancedashboard.repository.InternalIntegrationRepository;
 
 import reactor.core.publisher.Mono;
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-
 @Service
 public class IntegrationService {
   private static final Logger logger = LogManager.getLogger(IntegrationService.class.getName());
 
-  @Autowired
-  IntegrationRepository integrationRepository;
+  private final IntegrationRepository integrationRepository;
+  private final InternalIntegrationRepository internalIntegrationRepository;
+  private final IntegrationDataService integrationDataService;
 
+  /**
+   * This constructor is used to inject the {@link IntegrationRepository} and {@link InternalIntegrationRepository} dependencies.
+   *
+   * @param integrationRepository The repository to interact with the Integration data.
+   * @param internalIntegrationRepository The repository to interact with the InternalIntegration data.
+   */
   @Autowired
-  InternalIntegrationRepository internalIntegrationRepository;
+  public IntegrationService(IntegrationRepository integrationRepository, InternalIntegrationRepository internalIntegrationRepository, @Lazy IntegrationDataService integrationDataService) {
+      this.integrationRepository = integrationRepository;
+      this.internalIntegrationRepository = internalIntegrationRepository;
+      this.integrationDataService = integrationDataService;
+  }
 
   // GET all integrations
   public Mono<Page<Integration>> findAllBy(Pageable pageable) {
@@ -37,37 +50,34 @@ public class IntegrationService {
   }
 
   // POST new integration
-  public Mono<Integration> saveIntegration(IntegrationDTO dto) throws Exception {
-    // If an integration with the name already exists
-    if (null != integrationRepository.findByName(dto.getName()).block()) {
-      return Mono.error(new IllegalArgumentException("Integration with name '" + dto.getName() + "' already exists."));
+  public Mono<IntegrationResponse> createIntegration(CreateIntegrationRequest integrationRequest) {
+    // If an integration with the name already exists return early with an error.
+    if (null != integrationRepository.findByName(integrationRequest.getName()).block()) {
+      return Mono.error(new IllegalArgumentException("Integration with name '" + integrationRequest.getName() + "' already exists."));
     }
 
     // Check the type, and instantiate corresponding integration class.
-    if (dto.getType().equals("internal")) {
-      IntegrationDataService integrationDataService = new IntegrationDataService();
-      InternalIntegration ie = new InternalIntegration(dto.getName());
+    if (integrationRequest.getType().equals("internal")) {
+      
+      // Create a new collection
+      String collectionName = null;
+      try {
+        collectionName = integrationDataService.createCollection(integrationRequest).block();
+      } catch (Exception e) {
+        logger.error("Error creating collection: " + e.getMessage());
+        return Mono.error(new RuntimeException("Something went wrong creating the collection", e));
+      }
 
-      String schema = "{\n" +
-        "  \"type\": \"object\",\n" +
-        "  \"properties\": {\n" +
-        "    \"data\": {\n" +
-        "      \"type\": \"object\"\n" +
-        "    }\n" +
-        "  }\n" +
-        "}";
+      // Insert the collection name into the Integration
+      InternalIntegration internalIntegration = new InternalIntegration(integrationRequest.getName(), collectionName);
 
-      return integrationDataService.createCollection(ie.getName() + "-data", schema)
-        .flatMap(collection -> {
-          // Set the collection name after successful creation
-          ie.setDataCollection(collection.getNamespace().getCollectionName());
-          return internalIntegrationRepository.save(ie);
-        })
-        .map(Integration.class::cast);
+      // Save the integration
+      return internalIntegrationRepository.save(internalIntegration)
+        .map(integration -> IntegrationConverter.convertAnyIntegrationToIntegrationResponse(integration))
+        .switchIfEmpty(Mono.error(new RuntimeException("Something went wrong saving the integration")));
+    } else {
+      return Mono.error(new IllegalArgumentException("Integration type '" + integrationRequest.getType() + "' is not supported. Currently only 'internal' is supported."));
     }
-
-    // For now, return generic error if type cannot be matched
-    return Mono.error(new RuntimeException("Something went wrong saving the integration"));
   }
 
   // Retrieves integration by ID
