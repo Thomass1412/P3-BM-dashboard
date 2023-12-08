@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.bson.BsonDocument;
 import org.bson.BsonValue;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.data.domain.Page;
@@ -196,6 +197,20 @@ public class IntegrationController {
     public Mono<ResponseEntity<Integration>> getIntegrationById(@PathVariable String integrationId) {
         return integrationService.findById(integrationId)
                 .map(integration -> ResponseEntity.ok().body(integration));
+    }
+
+   @GetMapping("/{integrationId}/data/pageable")
+    public Mono<Page<IntegrationDataResponse>> getAllIntegrationDataBy(@PathVariable String integrationId, @RequestParam(name = "page", defaultValue = "0") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
+        // Extract the request parameters into a Pageable object.
+        Pageable pageable = PageRequest.of(page, size);
+        // Fetch the page of integrations.
+        return integrationDataService.findAllBy(integrationId, pageable);
+    }
+
+    @GetMapping("/{integrationId}/schema")
+    public ResponseEntity<Mono<Document>> getSchemaBy(@PathVariable String integrationId) {
+        return ResponseEntity.ok().body(integrationService.getSchemaBy(integrationId));
     }
 
     @ResponseBody

@@ -4,6 +4,8 @@ import org.bson.Document;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.stereotype.Service;
 
@@ -25,14 +27,17 @@ public class IntegrationDataService {
 	private final IntegrationService integrationService;
 	private final ReactiveMongoOperations mongoOperations;
 	private final MongoDatabase mongoDatabase;
+	private final TestService integrationDataRepository;
+	
 
 	private static final Logger logger = LoggerFactory.getLogger(IntegrationDataService.class);
 
 	@Autowired
-	public IntegrationDataService(IntegrationService integrationService, ReactiveMongoOperations mongoOperations, MongoDatabase mongoDatabase) {
+	public IntegrationDataService(IntegrationService integrationService, ReactiveMongoOperations mongoOperations, MongoDatabase mongoDatabase, TestService integrationDataRepository) {
 		this.integrationService = integrationService;
 		this.mongoOperations = mongoOperations;
 		this.mongoDatabase = mongoDatabase;
+		this.integrationDataRepository = integrationDataRepository;
 	}
 
 	/**
@@ -93,6 +98,20 @@ public class IntegrationDataService {
 								.flatMap(result -> Mono.just(IntegrationDataConverter.convertDocumentToIntegrationDataResponse(document))) // Convert the inserted document to an IntegrationDataResponse
 								.onErrorMap(ClassCastException.class, ex -> new RuntimeException(ex.getMessage(), ex)) // Map the ClassCastException to a RuntimeException
 								.doOnError(error -> logger.error("Error converting document to IntegrationDataResponse: " + error.getMessage(), error)); // Log the error
+					}
+				});
+	}
+
+
+	// ...
+
+	public Mono<Page<IntegrationDataResponse>> findAllBy(String integrationId, Pageable pageable) {
+		return integrationService.findById(integrationId)
+				.flatMap(integration -> {
+					if (!integration.getType().equals("internal")) {
+						return Mono.error(new IllegalArgumentException("Integration with id '"+ integrationId + "' is not internal."));
+					} else {
+						return integrationDataRepository.findAllBy(integrationId, pageable);
 					}
 				});
 	}

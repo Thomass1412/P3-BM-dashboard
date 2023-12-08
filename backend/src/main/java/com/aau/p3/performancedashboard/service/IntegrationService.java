@@ -2,6 +2,7 @@ package com.aau.p3.performancedashboard.service;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
@@ -17,6 +18,8 @@ import com.aau.p3.performancedashboard.payload.request.CreateIntegrationRequest;
 import com.aau.p3.performancedashboard.payload.response.IntegrationResponse;
 import com.aau.p3.performancedashboard.repository.IntegrationRepository;
 import com.aau.p3.performancedashboard.repository.InternalIntegrationRepository;
+import com.aau.p3.performancedashboard.schema.MongoSchemaRetriever;
+import com.mongodb.reactivestreams.client.MongoDatabase;
 
 import reactor.core.publisher.Mono;
 
@@ -27,6 +30,7 @@ public class IntegrationService {
   private final IntegrationRepository integrationRepository;
   private final InternalIntegrationRepository internalIntegrationRepository;
   private final IntegrationDataService integrationDataService;
+  private final MongoDatabase mongoDatabase;
 
   /**
    * This constructor is used to inject the {@link IntegrationRepository} and {@link InternalIntegrationRepository} dependencies.
@@ -35,10 +39,11 @@ public class IntegrationService {
    * @param internalIntegrationRepository The repository to interact with the InternalIntegration data.
    */
   @Autowired
-  public IntegrationService(IntegrationRepository integrationRepository, InternalIntegrationRepository internalIntegrationRepository, @Lazy IntegrationDataService integrationDataService) {
+  public IntegrationService(IntegrationRepository integrationRepository, InternalIntegrationRepository internalIntegrationRepository, @Lazy IntegrationDataService integrationDataService, MongoDatabase mongoDatabase) {
       this.integrationRepository = integrationRepository;
       this.internalIntegrationRepository = internalIntegrationRepository;
       this.integrationDataService = integrationDataService;
+      this.mongoDatabase = mongoDatabase;
   }
 
   // GET all integrations
@@ -91,4 +96,11 @@ public class IntegrationService {
     return integrationRepository.findByName(name);
   }
 
+  public Mono<Document> getSchemaBy(String integrationId){
+    MongoSchemaRetriever retriever = new MongoSchemaRetriever();
+    return integrationRepository.findById(integrationId)
+    .doOnSuccess(s -> logger.info("Retrieved schema for integration: " + s.getName()))
+    .switchIfEmpty(Mono.error(new RuntimeException("Something went wrong saving the integration")))
+    .map(integration -> retriever.retrieveSchema(integration.getDataCollection(), mongoDatabase));
+  }
 }
