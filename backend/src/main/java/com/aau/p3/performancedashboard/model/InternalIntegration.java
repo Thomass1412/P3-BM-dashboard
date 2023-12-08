@@ -4,19 +4,18 @@ import lombok.ToString;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @ToString
-@TypeAlias("internalintegration")
 @Document(collection = "integration")
-public class InternalIntegration extends Integration{
-    
-    @Getter @Setter private String myField1;
+public class InternalIntegration extends Integration {
 
-    public InternalIntegration(String name) {
-        super(name, "Internal");
+    @Getter
+    @Setter
+    private String myField1;
+
+    public InternalIntegration(String name, String dataCollection) {
+        super(name, "internal", dataCollection);
         this.myField1 = "bob";
     }
-
 }
