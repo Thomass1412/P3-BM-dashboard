@@ -1,7 +1,7 @@
 package com.aau.p3.performancedashboard.model;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.LinkedList;
+import java.util.List;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -42,7 +42,7 @@ public class User {
   @Getter
   @Setter
   @DocumentReference
-  private Set<Role> roles = new HashSet<>();
+  private List<Role> roles = new LinkedList<>();
 
   public User() {
   }
