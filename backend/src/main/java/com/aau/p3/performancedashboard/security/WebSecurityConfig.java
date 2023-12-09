@@ -30,13 +30,24 @@ public class WebSecurityConfig {
   UserDetailsServiceImpl userDetailsService;
 
   @Autowired
+  /**
+   * The authentication entry point for handling unauthorized requests.
+   */
   private AuthEntryPointJwt unauthorizedHandler;
 
+  /**
+   * This class represents a filter for authenticating JWT tokens.
+   */
   @Bean
   public AuthTokenFilter authenticationJwtTokenFilter() {
     return new AuthTokenFilter();
   }
 
+  /**
+   * Creates and configures a DaoAuthenticationProvider.
+   * 
+   * @return The configured DaoAuthenticationProvider instance.
+   */
   @Bean
   public DaoAuthenticationProvider authenticationProvider() {
       DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -47,16 +58,35 @@ public class WebSecurityConfig {
       return authProvider;
   }
   
+  /**
+   * Returns the authentication manager.
+   *
+   * @param authConfig the authentication configuration
+   * @return the authentication manager
+   * @throws Exception if an error occurs while retrieving the authentication manager
+   */
   @Bean
   public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
     return authConfig.getAuthenticationManager();
   }
 
+  /**
+   * Returns a PasswordEncoder object that can be used to encode passwords.
+   *
+   * @return a PasswordEncoder object
+   */
   @Bean
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
 
+  /**
+   * Configures the security filter chain for the HTTP requests.
+   *
+   * @param http the HttpSecurity object to configure the filter chain
+   * @return the configured SecurityFilterChain object
+   * @throws Exception if an error occurs while configuring the filter chain
+   */
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.csrf(csrf -> csrf.disable())
@@ -69,7 +99,10 @@ public class WebSecurityConfig {
     .requestMatchers("/api/v1/swagger-ui/**").permitAll()
     .requestMatchers("/api/v1/docs/**").permitAll()
 
-    .requestMatchers("/api/v1/**").authenticated()
+    // Disabled for now
+    //.requestMatchers("/api/v1/**").authenticated()
+    .requestMatchers("/api/v1/**").permitAll()
+
     .anyRequest().permitAll()
 );
 

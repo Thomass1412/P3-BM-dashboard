@@ -71,7 +71,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/v1/integrations/pageable")
 class IntegrationsController {
 
-    // Service to interact with the data layer.
+    // Dependencies
     private IntegrationService integrationService;
 
     /**
@@ -199,8 +199,9 @@ public class IntegrationController {
                 .map(integration -> ResponseEntity.ok().body(integration));
     }
 
-   @GetMapping("/{integrationId}/data/pageable")
-    public Mono<Page<IntegrationDataResponse>> getAllIntegrationDataBy(@PathVariable String integrationId, @RequestParam(name = "page", defaultValue = "0") int page,
+    @GetMapping("/{integrationId}/data/pageable")
+    public Mono<Page<IntegrationDataResponse>> getAllIntegrationDataBy(@PathVariable String integrationId,
+            @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
         // Extract the request parameters into a Pageable object.
         Pageable pageable = PageRequest.of(page, size);
@@ -218,13 +219,6 @@ public class IntegrationController {
     public ResponseEntity<ErrorResponse> handleNotFoundException(IntegrationNotFoundException ex) {
         ErrorResponse response = new ErrorResponse("Integration not found", "error", List.of(ex.getMessage()));
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
-
-    @ResponseBody
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception ex) {
-        ErrorResponse response = new ErrorResponse(ex.getMessage(), "error", "Internal Server Error");
-        return ResponseEntity.internalServerError().body(response);
     }
 
     @ResponseBody
@@ -251,6 +245,13 @@ public class IntegrationController {
 
         ErrorResponse response = new ErrorResponse("Validation Error", "error", errors);
         return ResponseEntity.badRequest().body(response);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleException(Exception ex) {
+        ErrorResponse response = new ErrorResponse(ex.getMessage(), "error", "Internal Server Error");
+        return ResponseEntity.internalServerError().body(response);
     }
 
     /**
