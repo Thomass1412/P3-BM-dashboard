@@ -7,29 +7,31 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import reactor.core.publisher.Mono;
+
 @RestController
 @RequestMapping("/api/v1/test")
 public class TestController {
   @GetMapping("/all")
-  public String allAccess() {
-    return "Public Content.";
+  public Mono<String> allAccess() {
+    return Mono.just("Public Content.");
   }
 
   @GetMapping("/user")
   @PreAuthorize("hasRole('AGENT') or hasRole('MODERATOR') or hasRole('ADMIN')")
-  public String userAccess() {
-    return "agent Content.";
+  public Mono<String> userAccess() {
+    return Mono.just("agent Content.");
   }
 
   @GetMapping("/mod")
   @PreAuthorize("hasRole('SUPERVISOR')")
-  public String moderatorAccess() {
-    return "supervisor Board.";
+  public Mono<String> moderatorAccess() {
+    return Mono.just("supervisor Board.");
   }
 
   @GetMapping("/admin")
   @PreAuthorize("hasRole('ADMIN')")
-  public String adminAccess() {
-    return "Admin Board.";
+  public Mono<String> adminAccess() {
+    return Mono.just("Admin Board.");
   }
 }
