@@ -19,9 +19,9 @@ public class PerformancedashboardApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(PerformancedashboardApplication.class, args);
 
-		// run our setup steps here.
-		SetupSteps steps = new SetupSteps();
-		steps.setup();
+		// Ensures that a default admin is set up on startup as of now.
+		Setup setup = new Setup();
+		setup.run();
 	}
 
 }
