@@ -31,11 +31,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.aau.p3.performancedashboard.dto.CustomResponse;
 import com.aau.p3.performancedashboard.model.ERole;
 import com.aau.p3.performancedashboard.model.User;
 import com.aau.p3.performancedashboard.payload.request.LoginRequest;
 import com.aau.p3.performancedashboard.payload.request.SignupRequest;
+import com.aau.p3.performancedashboard.payload.response.CustomResponse;
 import com.aau.p3.performancedashboard.payload.response.ErrorResponse;
 import com.aau.p3.performancedashboard.payload.response.MessageResponse;
 import com.aau.p3.performancedashboard.repository.RoleRepository;
