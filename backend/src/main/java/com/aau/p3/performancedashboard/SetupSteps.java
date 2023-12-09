@@ -14,13 +14,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.aau.p3.performancedashboard.model.ERole;
 import com.aau.p3.performancedashboard.model.Role;
 import com.aau.p3.performancedashboard.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
 
 import com.aau.p3.performancedashboard.repository.RoleRepository;
 import com.aau.p3.performancedashboard.repository.UserRepository;
-
-import lombok.NoArgsConstructor;
 
 public class SetupSteps {
 
