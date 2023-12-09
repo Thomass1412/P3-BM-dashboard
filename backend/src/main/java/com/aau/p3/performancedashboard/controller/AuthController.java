@@ -1,13 +1,16 @@
 package com.aau.p3.performancedashboard.controller;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import jakarta.validation.Valid;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -30,10 +33,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.aau.p3.performancedashboard.dto.CustomResponse;
 import com.aau.p3.performancedashboard.model.ERole;
-import com.aau.p3.performancedashboard.model.Role;
 import com.aau.p3.performancedashboard.model.User;
 import com.aau.p3.performancedashboard.payload.request.LoginRequest;
 import com.aau.p3.performancedashboard.payload.request.SignupRequest;
+import com.aau.p3.performancedashboard.payload.response.ErrorResponse;
 import com.aau.p3.performancedashboard.payload.response.MessageResponse;
 import com.aau.p3.performancedashboard.repository.RoleRepository;
 import com.aau.p3.performancedashboard.repository.UserRepository;
@@ -49,20 +52,28 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
-  @Autowired
-  AuthenticationManager authenticationManager;
 
-  @Autowired
-  UserRepository userRepository;
+  private static final Logger logger = LogManager.getLogger(AuthController.class);
 
-  @Autowired
-  RoleRepository roleRepository;
+  // Dependencies
+  private final AuthenticationManager authenticationManager;
+  private final UserRepository userRepository;
+  private final RoleRepository roleRepository;
+  private final PasswordEncoder encoder;
+  private final JwtUtils jwtUtils;
 
+  // Constructor injection
   @Autowired
-  PasswordEncoder encoder;
+  public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository,
+                        RoleRepository roleRepository, PasswordEncoder encoder, JwtUtils jwtUtils) {
+      this.authenticationManager = authenticationManager;
+      this.userRepository = userRepository;
+      this.roleRepository = roleRepository;
+      this.encoder = encoder;
+      this.jwtUtils = jwtUtils;
+  }
 
-  @Autowired
-  JwtUtils jwtUtils;
+  
 
   @Operation(summary = "Authenticate a user", description = "The request body must include a username and a password.")
   @ApiResponses({
@@ -71,24 +82,30 @@ public class AuthController {
       @ApiResponse(responseCode = "500", description = "Internal Server Error")
   })
   @PostMapping(path = "/signin", consumes = "application/json", produces = "application/json")
-  public ResponseEntity<MessageResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-
+  public Mono<ResponseEntity<String>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
     Authentication authentication = authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+    logger.error("Authentication: " + authentication.toString()); 
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
+    logger.error("Security context: " + SecurityContextHolder.getContext().toString());
 
     UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+    logger.error("User details: " + userDetails.toString());
 
     ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
+    logger.error("JWT cookie: " + jwtCookie.toString());
 
     List<String> roles = userDetails.getAuthorities().stream()
         .map(item -> item.getAuthority())
         .collect(Collectors.toList());
 
-    return ResponseEntity.ok()
+    logger.error("Roles: " + roles.toString());
+
+    logger.error("Successfully authenticated user");
+    return Mono.just(ResponseEntity.ok()
         .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-        .body(new MessageResponse("Successfully authenticated user"));
+        .body("Successfully authenticated user"));
   }
 
   @Operation(summary = "Register a new user", description = "The request body must include a username, an email, a password and optionally a list of roles. If roles are not provided, agent role will be assigned by default.")
@@ -98,15 +115,17 @@ public class AuthController {
       @ApiResponse(responseCode = "500", description = "Internal Server Error")
   })
   @PostMapping("/signup")
-  public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
-    if (userRepository.existsByUsername(signUpRequest.getUsername())) {
-      return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));
+  public Mono<ResponseEntity<MessageResponse>> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
+    // Check if username or email already exists
+    if (userRepository.existsByUsername(signUpRequest.getUsername()).block()) {
+      return Mono.just(ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!")));
     }
 
-    if (userRepository.existsByEmail(signUpRequest.getEmail())) {
-      return ResponseEntity
+    // Check if email already exists
+    if (userRepository.existsByEmail(signUpRequest.getEmail()).block()) {
+      return Mono.just(ResponseEntity
           .badRequest()
-          .body(new MessageResponse("Error: Email is already in use!"));
+          .body(new MessageResponse("Error: Email is already in use!")));
     }
 
     // Create new user's account
@@ -115,46 +134,31 @@ public class AuthController {
         signUpRequest.getEmail(),
         encoder.encode(signUpRequest.getPassword()));
 
-    Set<String> strRoles = signUpRequest.getRoles();
-    Set<Role> roles = new HashSet<>();
+    // Get the roles from the request body
+    List<String> strRoles = signUpRequest.getRoles();
 
-    if (strRoles == null) {
-      Role agentRole = roleRepository.findByName(ERole.ROLE_AGENT)
-          .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-      roles.add(agentRole);
-    } else {
-      strRoles.forEach(role -> {
-        switch (role) {
-          case "admin":
-            Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
-                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-            roles.add(adminRole);
-
-            break;
-          case "supervisor":
-            Role supervisorRole = roleRepository.findByName(ERole.ROLE_SUPERVISOR)
-                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-            roles.add(supervisorRole);
-
-            break;
-          case "tv":
-            Role tvRole = roleRepository.findByName(ERole.ROLE_TV)
-                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-            roles.add(tvRole);
-
-            break;
-          default:
-            Role agentRole = roleRepository.findByName(ERole.ROLE_AGENT)
-                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-            roles.add(agentRole);
+    // If no roles are provided, assign agent role by default
+    // Otherwise, assign the roles provided
+    return Flux.fromIterable(strRoles == null ? Collections.singletonList("agent") : strRoles)
+    .flatMap(roleName -> {
+        switch (roleName) {
+            case "admin":
+                return roleRepository.findByName(ERole.ROLE_ADMIN);
+            case "supervisor":
+                return roleRepository.findByName(ERole.ROLE_SUPERVISOR);
+            case "tv":
+                return roleRepository.findByName(ERole.ROLE_TV);
+            default:
+                return roleRepository.findByName(ERole.ROLE_AGENT);
         }
-      });
-    }
-
-    user.setRoles(roles);
-    userRepository.save(user);
-
-    return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+    })
+    .collectList()
+    .flatMap(roles -> {
+        user.setRoles(roles);
+        return userRepository.save(user);
+    })
+    .map(savedUser -> ResponseEntity.ok(new MessageResponse("User registered successfully!")))
+    .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(new MessageResponse("Error: " + e.getMessage()))));
   }
 
   @Operation(summary = "Retrieve all users", description = "The response object will contain a list of all users.")
@@ -165,9 +169,17 @@ public class AuthController {
 
   @ResponseBody
   @ExceptionHandler(AuthenticationException.class)
-  public ResponseEntity<CustomResponse> handleAuthException(AuthenticationException ex) {
+  public Mono<ResponseEntity<CustomResponse>> handleAuthException(AuthenticationException ex) {
     CustomResponse response = new CustomResponse("Error authenticating.", "error", ex.getMessage());
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response));
   }
 
+  @ResponseBody
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<ErrorResponse> handleException(Exception ex) {
+      ErrorResponse response = new ErrorResponse(ex.getMessage(), "error", "Internal Server Error");
+      return ResponseEntity.internalServerError().body(response);
+  }
 }
+
+
