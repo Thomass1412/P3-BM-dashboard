@@ -210,8 +210,9 @@ public class IntegrationController {
     }
 
     @GetMapping("/{integrationId}/schema")
-    public ResponseEntity<Mono<Document>> getSchemaBy(@PathVariable String integrationId) {
-        return ResponseEntity.ok().body(integrationService.getSchemaBy(integrationId));
+    public Mono<ResponseEntity<Document>> getSchemaBy(@PathVariable String integrationId) {
+        return integrationService.getSchemaBy(integrationId)
+                .map(schema -> ResponseEntity.ok().body(schema));
     }
 
     @ResponseBody
