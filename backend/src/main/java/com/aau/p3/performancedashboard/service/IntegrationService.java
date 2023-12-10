@@ -1,5 +1,7 @@
 package com.aau.p3.performancedashboard.service;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.Document;
@@ -56,7 +58,17 @@ public class IntegrationService {
     return integrationRepository.findAllBy(pageable)
         .collectList()
         .zipWith(integrationRepository.count())
-        .map(objects -> new PageImpl<>(objects.getT1(), pageable, objects.getT2()));
+        .flatMap(objects -> {
+          List<Integration> integrations = objects.getT1();
+          long totalElements = objects.getT2();
+          if (integrations.isEmpty()) {
+            logger.error("No integrations found.");
+            return Mono.error(new IntegrationNotFoundException("No integrations found."));
+          } else {
+            logger.debug("Found " + integrations.size() + " integrations.");
+            return Mono.just(new PageImpl<>(integrations, pageable, totalElements));
+          }
+        });
   }
 
   
@@ -74,12 +86,15 @@ public class IntegrationService {
   public Mono<IntegrationResponse> createIntegration(CreateIntegrationRequest integrationRequest) {
     // If an integration with the name already exists return early with an error.
     if (null != integrationRepository.findByName(integrationRequest.getName()).block()) {
-      return Mono.error(
-          new IllegalArgumentException("Integration with name '" + integrationRequest.getName() + "' already exists."));
+      logger.error("Integration with name '" + integrationRequest.getName() + "' already exists.");
+      return Mono.error(new IllegalArgumentException("Integration with name '" + integrationRequest.getName() + "' already exists."));
+    } else {
+      logger.debug("Integration with name '" + integrationRequest.getName() + "' does not exist. Continuing.");
     }
 
     // Check the type, and instantiate corresponding integration class.
     if (integrationRequest.getType().equals("internal")) {
+      logger.debug("Creating internal integration.");
 
       // Create a new collection
       String collectionName = null;
@@ -87,7 +102,7 @@ public class IntegrationService {
         collectionName = integrationDataService.createCollection(integrationRequest).block();
       } catch (Exception e) {
         logger.error("Error creating collection: " + e.getMessage());
-        return Mono.error(new RuntimeException("Something went wrong creating the collection", e));
+        return Mono.error(new RuntimeException(e.getMessage(), e));
       }
 
       // Insert the collection name into the Integration
@@ -95,8 +110,7 @@ public class IntegrationService {
 
       // Save the integration
       return internalIntegrationRepository.save(internalIntegration)
-          .map(integration -> IntegrationConverter.convertAnyIntegrationToIntegrationResponse(integration))
-          .switchIfEmpty(Mono.error(new RuntimeException("Something went wrong saving the integration")));
+          .map(integration -> IntegrationConverter.convertAnyIntegrationToIntegrationResponse(integration));
     } else {
       return Mono.error(new IllegalArgumentException("Integration type '" + integrationRequest.getType()
           + "' is not supported. Currently only 'internal' is supported."));

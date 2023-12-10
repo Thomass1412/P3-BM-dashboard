@@ -2,7 +2,6 @@ package com.aau.p3.performancedashboard.controller;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.bson.BsonDocument;
 import org.bson.BsonValue;
@@ -14,8 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,7 +24,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.aau.p3.performancedashboard.exceptions.IntegrationNotFoundException;
 import com.aau.p3.performancedashboard.model.Integration;
 import com.aau.p3.performancedashboard.payload.request.CreateIntegrationDataRequest;
 import com.aau.p3.performancedashboard.payload.request.CreateIntegrationRequest;
@@ -44,8 +40,6 @@ import com.mongodb.WriteError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// SWAGGER dependencies
-// DOCS https://docs.swagger.io/swagger-core/v2.0.0-RC3/apidocs/io/swagger/v3/oas/annotations
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -70,6 +64,9 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("/api/v1/integrations/pageable")
 class IntegrationsController {
+
+    // Logger
+    private static final Logger logger = LoggerFactory.getLogger(IntegrationsController.class);
 
     // Dependencies
     private IntegrationService integrationService;
@@ -96,8 +93,7 @@ class IntegrationsController {
      * 
      * @param page The page number to retrieve (0-indexed).
      * @param size The number of integrations per page.
-     * @return A {@link Mono} containing a {@link Page} of {@link Integration}
-     *         objects.
+     * @return A {@link Mono} containing a {@link Page} of {@link Integration} objects.
      * 
      * @response 200 Successfully retrieved a page of integrations. The response
      *           body contains a JSON array of integrations.
@@ -109,11 +105,14 @@ class IntegrationsController {
             @ApiResponse(responseCode = "200", description = "Successfully retrieved a page of integrations", content = {
                     @Content(schema = @Schema(implementation = PageableResponse.class), mediaType = "application/json")
             }),
-            @ApiResponse(responseCode = "500", description = "Internal Server Error. An error occurred while trying to fetch the integrations.")
+            @ApiResponse(responseCode = "400", description = "Bad request. No integrations found.", content = {
+                    @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
+            })
     })
     @GetMapping(produces = "application/json")
     public Mono<Page<Integration>> getAllIntegrationsBy(@RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size) {
+        logger.debug("getAllIntegrationsBy() called with: page = [" + page + "], size = [" + size + "]");
         // Extract the request parameters into a Pageable object.
         Pageable pageable = PageRequest.of(page, size);
         // Fetch the page of integrations.
@@ -136,6 +135,7 @@ class IntegrationsController {
 @RequestMapping("/api/v1/integration")
 public class IntegrationController {
 
+    // Logger
     private static final Logger logger = LoggerFactory.getLogger(IntegrationController.class);
 
     // Service to interact with the data layer.
@@ -156,19 +156,20 @@ public class IntegrationController {
         this.integrationDataService = integrationDataService;
     }
 
-    @Operation(summary = "Instantiate a new integration", description = "The request body must include a unique name and a predefined type. ['internal']")
+    @Operation(summary = "Instantiate a new integration", description = "The request body must include a unique name and a predefined type.")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", content = {
-                    @Content(array = @ArraySchema(schema = @Schema(implementation = IntegrationResponse.class)), mediaType = "application/json") }, description = "Successfully created a new integration"),
-            @ApiResponse(responseCode = "400", content = {
-                    @Content(array = @ArraySchema(schema = @Schema(implementation = ErrorResponse.class)), mediaType = "application/json") }, description = "Bad request. Invalid parameters or requested integration already exists."),
-            @ApiResponse(responseCode = "404", description = "Integration type not found."),
-            @ApiResponse(responseCode = "500", description = "Generic Internal Server Error."),
+        @ApiResponse(responseCode = "201", content = {
+            @Content(array = @ArraySchema(schema = @Schema(implementation = IntegrationResponse.class)), mediaType = "application/json") }, description = "Successfully created a new integration"),
+        @ApiResponse(responseCode = "400", content = {
+            @Content(array = @ArraySchema(schema = @Schema(implementation = ErrorResponse.class)), mediaType = "application/json") }, description = "Bad request. Invalid parameters or requested integration already exists."),
+        @ApiResponse(responseCode = "404", description = "Integration type not found."),
+        @ApiResponse(responseCode = "500", description = "Generic Internal Server Error."),
     })
     @PostMapping(consumes = "application/json", produces = "application/json")
-    public ResponseEntity<Mono<IntegrationResponse>> createIntegration(
-            @RequestBody @Valid CreateIntegrationRequest createIntegrationRequest) {
-        return ResponseEntity.ok().body(integrationService.createIntegration(createIntegrationRequest));
+    public Mono<ResponseEntity<IntegrationResponse>> createIntegration(
+        @RequestBody @Valid CreateIntegrationRequest createIntegrationRequest) {
+        return integrationService.createIntegration(createIntegrationRequest)
+            .map(integrationResponse -> ResponseEntity.ok().body(integrationResponse));
     }
 
     @Operation(summary = "Submit new integrationData", description = "The request body must include valid integrationData and path variable must contain an existing integrationId.")
@@ -216,43 +217,11 @@ public class IntegrationController {
     }
 
     @ResponseBody
-    @ExceptionHandler(IntegrationNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFoundException(IntegrationNotFoundException ex) {
-        ErrorResponse response = new ErrorResponse("Integration not found", "error", List.of(ex.getMessage()));
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-    }
-
-    @ResponseBody
     @ExceptionHandler(IncorrectResultSizeDataAccessException.class)
     public ResponseEntity<ErrorResponse> handleIncorrectResultSizeDataAccessException(
             IncorrectResultSizeDataAccessException ex) {
         ErrorResponse response = new ErrorResponse(ex.getMessage(), "error", "Bad Request");
         return ResponseEntity.badRequest().body(response);
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        List<String> errors = ex.getBindingResult()
-                .getAllErrors()
-                .stream()
-                .map(error -> {
-                    if (error instanceof FieldError) {
-                        return ((FieldError) error).getField() + ": " + error.getDefaultMessage();
-                    } else {
-                        return error.getDefaultMessage();
-                    }
-                })
-                .collect(Collectors.toList());
-
-        ErrorResponse response = new ErrorResponse("Validation Error", "error", errors);
-        return ResponseEntity.badRequest().body(response);
-    }
-
-    @ResponseBody
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(Exception ex) {
-        ErrorResponse response = new ErrorResponse(ex.getMessage(), "error", "Internal Server Error");
-        return ResponseEntity.internalServerError().body(response);
     }
 
     /**

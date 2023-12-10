@@ -14,29 +14,23 @@ import org.apache.logging.log4j.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.aau.p3.performancedashboard.model.ERole;
 import com.aau.p3.performancedashboard.model.User;
 import com.aau.p3.performancedashboard.payload.request.LoginRequest;
 import com.aau.p3.performancedashboard.payload.request.SignupRequest;
-import com.aau.p3.performancedashboard.payload.response.CustomResponse;
-import com.aau.p3.performancedashboard.payload.response.ErrorResponse;
 import com.aau.p3.performancedashboard.payload.response.MessageResponse;
 import com.aau.p3.performancedashboard.repository.RoleRepository;
 import com.aau.p3.performancedashboard.repository.UserRepository;
@@ -48,6 +42,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+/**
+ * Controller for handling authentication requests.
+ * Provides endpoints for user login and signup.
+ */
 @Tag(name = "Authentication", description = "Authentication Management APIs")
 @RestController
 @RequestMapping("/auth")
@@ -73,8 +71,12 @@ public class AuthController {
       this.jwtUtils = jwtUtils;
   }
 
-  
-
+  /**
+   * Authenticates a user.
+   * 
+   * @param loginRequest The request body containing the username and password.
+   * @return A Mono of ResponseEntity<String> representing the authentication result.
+   */
   @Operation(summary = "Authenticate a user", description = "The request body must include a username and a password.")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = "Successfully authenticated user"),
@@ -108,6 +110,12 @@ public class AuthController {
         .body("Successfully authenticated user"));
   }
 
+  /**
+   * Registers a new user.
+   *
+   * @param signUpRequest the request body containing the user's information
+   * @return a Mono of ResponseEntity containing a MessageResponse indicating the result of the registration
+   */
   @Operation(summary = "Register a new user", description = "The request body must include a username, an email, a password and optionally a list of roles. If roles are not provided, agent role will be assigned by default.")
   @ApiResponses({
       @ApiResponse(responseCode = "200", description = "Successfully registered user"),
@@ -161,24 +169,15 @@ public class AuthController {
     .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(new MessageResponse("Error: " + e.getMessage()))));
   }
 
+  /**
+   * Retrieves all users.
+   * 
+   * @return a Flux of User objects representing all users.
+   */
   @Operation(summary = "Retrieve all users", description = "The response object will contain a list of all users.")
   @GetMapping(path = "/users", produces = "application/json")
   public Flux<User> getAllUsers() {
     return userRepository.findAll();
-  }
-
-  @ResponseBody
-  @ExceptionHandler(AuthenticationException.class)
-  public Mono<ResponseEntity<CustomResponse>> handleAuthException(AuthenticationException ex) {
-    CustomResponse response = new CustomResponse("Error authenticating.", "error", ex.getMessage());
-    return Mono.just(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response));
-  }
-
-  @ResponseBody
-  @ExceptionHandler(Exception.class)
-  public ResponseEntity<ErrorResponse> handleException(Exception ex) {
-      ErrorResponse response = new ErrorResponse(ex.getMessage(), "error", "Internal Server Error");
-      return ResponseEntity.internalServerError().body(response);
   }
 }
 

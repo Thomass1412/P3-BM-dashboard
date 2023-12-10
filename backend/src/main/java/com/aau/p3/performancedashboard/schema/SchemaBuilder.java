@@ -3,6 +3,8 @@ package com.aau.p3.performancedashboard.schema;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.mongodb.core.schema.JsonSchemaObject.Type;
 import org.springframework.data.mongodb.core.schema.JsonSchemaProperty;
 import org.springframework.data.mongodb.core.schema.MongoJsonSchema;
@@ -11,107 +13,159 @@ import org.springframework.data.mongodb.core.schema.MongoJsonSchema.MongoJsonSch
 import com.aau.p3.performancedashboard.payload.request.IntegrationDataSchemaRequest;
 
 /**
- * This class is responsible for building a MongoDB JSON schema based on a list of schema requests.
+ * This class is responsible for building a MongoDB JSON schema based on a list
+ * of schema requests.
  * The schema will always include the "_id", "timestamp", and "employee" fields.
  * The "data" field will be built based on the provided schema requests.
  */
 public class SchemaBuilder {
 
-    /**
-     * Generates a MongoDB JSON schema from a list of schema requests.
-     * The schema will include the "_id", "timestamp", and "employee" fields.
-     * The "data" field will be built based on the provided schema requests.
-     *
-     * @param schemaRequests A list of schema requests to build the "data" field of the schema.
-     * @return A MongoDB JSON schema built from the provided schema requests.
-     * @throws IllegalArgumentException If an invalid type is provided in a schema request.
-     */
-    public static MongoJsonSchema generateFrom(List<IntegrationDataSchemaRequest> schemaRequests) throws IllegalArgumentException {
-        MongoJsonSchemaBuilder builder = MongoJsonSchema.builder();
-        List<JsonSchemaProperty> properties = new ArrayList<>();
+  // Logger
+  private static final Logger logger = LoggerFactory.getLogger(SchemaBuilder.class);
 
-        // Add the required properties to the list for the schema. (id, timestamp, employee)
-        //properties.add(JsonSchemaProperty.named("_id").ofType(Type.stringType()));
-        properties.add(JsonSchemaProperty.named("integrationId").ofType(Type.stringType()));
-        properties.add(JsonSchemaProperty.named("timestamp").ofType(Type.dateType()));
-        //properties.add(JsonSchemaProperty.named("employee").ofType(Type.objectType()));
+  /**
+   * Generates a MongoDB JSON schema from a list of schema requests.
+   * The schema will include the "_id", "timestamp", and "employee" fields.
+   * The "data" field will be built based on the provided schema requests.
+   *
+   * @param schemaRequests A list of schema requests to build the "data" field of
+   *                       the schema.
+   * @return A MongoDB JSON schema built from the provided schema requests.
+   * @throws IllegalArgumentException If an invalid type is provided in a schema
+   *                                  request.
+   */
+  public static MongoJsonSchema generateFrom(List<IntegrationDataSchemaRequest> schemaRequests)
+      throws IllegalArgumentException, RuntimeException {
+    logger.info("Generating MongoDB JSON schema from schema requests...");
 
-        // Create a new builder for the data field.
-        MongoJsonSchemaBuilder dataBuilder = MongoJsonSchema.builder();
-        List<JsonSchemaProperty> dataProperties = new ArrayList<>();
-        List<String> dataRequiredProperties = new ArrayList<>();
+    // Build the properties for the "data" object.
+    List<JsonSchemaProperty> dataProperties = buildProperties(schemaRequests);
 
-        // Iterate through the schema requests and add the properties to the list for the schema.
-        for (IntegrationDataSchemaRequest request : schemaRequests) {
-            String key = request.getName();
-            BasicDataEnum type = BasicDataEnum.valueOf(request.getType().toUpperCase());
+    // Build the "data" object.
+    JsonSchemaProperty dataSchema = JsonSchemaProperty.object("data")
+        .properties(dataProperties.toArray(new JsonSchemaProperty[0]));
 
-            switch (type) {
-                case TEXT:
-                    dataProperties.add(JsonSchemaProperty.string(key));
-                    break;
-                case NUMBER:
-                    dataProperties.add(JsonSchemaProperty.number(key));
-                    break;
-                case DATE:
-                    dataProperties.add(JsonSchemaProperty.timestamp(key));
-                    break;
-                default:
-                    throw new IllegalArgumentException("Invalid type: " + type + " for key: " + key + "of types 'TEXT', 'NUMBER', or 'DATE'.");
-            }
+    // Build the properties for the main schema.
+    List<JsonSchemaProperty> properties = new ArrayList<>();
+    properties.add(JsonSchemaProperty.named("integrationId").ofType(Type.stringType()));
+    properties.add(JsonSchemaProperty.named("timestamp").ofType(Type.dateType()));
+    properties.add(dataSchema); // Add the "data" object to the properties.
 
-            // Check if the property is required
-            if (request.isRequired()) {
-                dataRequiredProperties.add(key);
-            }
-        }
+    MongoJsonSchemaBuilder schemaBuilder = MongoJsonSchema.builder();
+    schemaBuilder.properties(properties.toArray(new JsonSchemaProperty[0]));
 
-        // Add the properties to the data builder and build the data schema.
-        dataBuilder.properties(dataProperties.toArray(new JsonSchemaProperty[0]));
-        dataBuilder.required(dataRequiredProperties.toArray(new String[0]));
+    logger.debug("MongoDB JSON schema generated successfully.");
 
-        // Build the data schema and add it to the main schema.
-        JsonSchemaProperty dataSchema = JsonSchemaProperty.object("data").properties(dataProperties.toArray(new JsonSchemaProperty[0])).required(dataRequiredProperties.toArray(new String[0]));
-        properties.add(dataSchema);
-
-        // Add the properties to the main builder.
-        builder.properties(properties.toArray(new JsonSchemaProperty[0]));
-
-        // Return the built schema.
-        return builder.build();
+    MongoJsonSchema schema = schemaBuilder.build();
+    if (schema == null) {
+      throw new RuntimeException("Failed to generate MongoDB JSON schema.");
     }
-}
+    return schema;
+  }
 
-/* 
-{
-  "name": "bananas",
-  "type": "internal",
-  "schema": [
-    {
-      "name": "Brand",
-      "type": "text",
-      "required": true
-    },
-    {
-      "name": "Price",
-      "type": "number",
-      "required": true
-    },
-    {
-      "name": "Maturity",
-      "type": "text",
-      "required": false
+  /**
+   * Builds a list of JsonSchemaProperty objects based on a list of IntegrationDataSchemaRequest objects.
+   *
+   * @param schemaRequests the list of IntegrationDataSchemaRequest objects
+   * @return the list of JsonSchemaProperty objects
+   * @throws IllegalArgumentException if any of the schema requests are invalid
+   */
+  private static List<JsonSchemaProperty> buildProperties(List<IntegrationDataSchemaRequest> schemaRequests)
+      throws IllegalArgumentException {
+    List<JsonSchemaProperty> properties = new ArrayList<>();
+
+    for (IntegrationDataSchemaRequest request : schemaRequests) {
+      JsonSchemaProperty property = buildPropertyFromRequest(request);
+      properties.add(property);
     }
-  ]
-}
-*/
-/* 
-{
-  "timestamp": "2023-12-07T19:43:28.087Z",
-  "data": {
-    "Brand": "El mexican",
-    "Price": 2.49,
-    "Maturity": "Yellow"
+
+    return properties;
+  }
+
+  /**
+   * Represents a property in a JSON schema.
+   */
+  private static JsonSchemaProperty buildPropertyFromRequest(IntegrationDataSchemaRequest request)
+      throws IllegalArgumentException, RuntimeException {
+    String key = request.getName();
+    String typeString = request.getType().toUpperCase();
+
+    BasicDataEnum type = getType(typeString, key);
+
+    JsonSchemaProperty property = getPropertyBasedOnType(type, key);
+
+    if (request.isRequired()) {
+      property = JsonSchemaProperty.required(property);
+    }
+
+    return property;
+  }
+
+  /**
+   * Enum representing the basic data types.
+   * The possible values are 'TEXT', 'NUMBER', and 'DATE'.
+   */
+  private static BasicDataEnum getType(String typeString, String key) throws IllegalArgumentException {
+    try {
+      return BasicDataEnum.valueOf(typeString);
+    } catch (IllegalArgumentException e) {
+      String errorMessage = "Invalid type: " + typeString + " for key: " + key
+          + ". Expected 'TEXT', 'NUMBER', or 'DATE'.";
+      logger.error(errorMessage);
+      throw new IllegalArgumentException(errorMessage, e);
+    }
+  }
+
+  /**
+   * Represents a property in a JSON schema.
+   */
+  private static JsonSchemaProperty getPropertyBasedOnType(BasicDataEnum type, String key)
+      throws IllegalArgumentException {
+    switch (type) {
+      case TEXT:
+        return JsonSchemaProperty.string(key);
+      case NUMBER:
+        return JsonSchemaProperty.number(key);
+      case DATE:
+        return JsonSchemaProperty.timestamp(key);
+      default:
+        String errorMessage = "Unexpected type: " + type + " for key: " + key;
+        logger.error(errorMessage);
+        throw new IllegalArgumentException(errorMessage);
+    }
   }
 }
+
+/*
+ * {
+ * "name": "bananas",
+ * "type": "internal",
+ * "schema": [
+ * {
+ * "name": "Brand",
+ * "type": "text",
+ * "required": true
+ * },
+ * {
+ * "name": "Price",
+ * "type": "number",
+ * "required": true
+ * },
+ * {
+ * "name": "Maturity",
+ * "type": "text",
+ * "required": false
+ * }
+ * ]
+ * }
+ */
+/*
+ * {
+ * "timestamp": "2023-12-07T19:43:28.087Z",
+ * "data": {
+ * "Brand": "El mexican",
+ * "Price": 2.49,
+ * "Maturity": "Yellow"
+ * }
+ * }
  */
