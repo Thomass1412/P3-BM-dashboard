@@ -173,4 +173,14 @@ rtt min/avg/max/mdev = 0.042/0.064/0.101/0.026 ms
 
 # ping frontend
 ping: frontend: Temporary failure in name resolution
+
 ```
+
+#Forntend Navigation
+At the moment you can navigate with most of the buttons, otherwise and because it's a work in progress use URL naviagtion.
+There are endpoints as follows
+/login
+/dashboard
+/supervisor
+/newmetric
+/newintegration
