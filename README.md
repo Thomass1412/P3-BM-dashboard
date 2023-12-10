@@ -143,3 +143,12 @@ To build frontend, and backend and start the whole stack. Mostly for deployment.
 | GET    | /api/v1/integration/{ID}/data/{ID} | Get a single registration for an integration, by ID |
 | PUT    | api/v1/integration/{ID}/data/{ID}  | Update a single registration, by ID                 |
 | DELETE | /api/v1/integration/{ID}/data/{ID} | Delete a registration for an integration            |
+
+#Forntend Navigation
+At the moment you can navigate with most of the buttons, otherwise and because it's a work in progress use URL naviagtion.
+There are endpoints as follows
+/login
+/dashboard
+/supervisor
+/newmetric
+/newintegration
