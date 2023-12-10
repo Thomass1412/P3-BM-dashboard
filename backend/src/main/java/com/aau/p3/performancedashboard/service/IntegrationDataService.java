@@ -5,8 +5,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import com.aau.p3.performancedashboard.payload.request.CreateIntegrationRequest;
@@ -19,37 +22,37 @@ import com.mongodb.client.model.ValidationLevel;
 import com.mongodb.client.model.ValidationOptions;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
 public class IntegrationDataService {
-	
+
 	// Logger
 	private static final Logger logger = LoggerFactory.getLogger(IntegrationDataService.class);
 
 	// Dependencies
 	private final IntegrationService integrationService;
 	private final ReactiveMongoOperations mongoOperations;
+	private final ReactiveMongoTemplate mongoTemplate;
 	private final MongoDatabase mongoDatabase;
-	private final TestService integrationDataRepository;
 
 	// Constructor injection
 	@Autowired
 	public IntegrationDataService(IntegrationService integrationService, ReactiveMongoOperations mongoOperations,
-			MongoDatabase mongoDatabase, TestService integrationDataRepository) {
+			ReactiveMongoTemplate mongoTemplate, MongoDatabase mongoDatabase) {
 		this.integrationService = integrationService;
 		this.mongoOperations = mongoOperations;
+		this.mongoTemplate = mongoTemplate;
 		this.mongoDatabase = mongoDatabase;
-		this.integrationDataRepository = integrationDataRepository;
 	}
 
 	/**
-	 * Retrieves a page of IntegrationDataResponse objects based on the provided
-	 * integrationId and pageable parameters.
-	 * 
+	 * Finds all integration data by integration ID and pageable.
+	 *
 	 * @param integrationId the ID of the integration
-	 * @param pageable      the pageable object specifying the page number and size
-	 * @return a Mono containing a Page of IntegrationDataResponse objects
+	 * @param pageable the pageable object for pagination
+	 * @return a Mono of Page<IntegrationDataResponse> containing the integration data
 	 */
 	public Mono<Page<IntegrationDataResponse>> findAllBy(String integrationId, Pageable pageable) {
 		return integrationService.findById(integrationId)
@@ -58,7 +61,22 @@ public class IntegrationDataService {
 						return Mono.error(new IllegalArgumentException(
 								"Integration with id '" + integrationId + "' is not internal."));
 					} else {
-						return integrationDataRepository.findAllBy(integrationId, pageable);
+						// Get the name of the data collection
+						String dataCollection = integration.getDataCollection();
+
+						// Create a query object with the provided pageable
+						Query query = new Query().with(pageable);
+
+						// Find the data and count the total number of elements
+						Flux<IntegrationDataResponse> data = mongoTemplate.find(query, IntegrationDataResponse.class,
+								dataCollection);
+						Mono<Long> count = mongoTemplate.count(query, dataCollection);
+
+						// Return a Mono emitting a Page of IntegrationDataResponse objects
+						return data
+								.collectList()
+								.zipWith(count)
+								.map(objects -> new PageImpl<>(objects.getT1(), pageable, objects.getT2()));
 					}
 				});
 	}
@@ -127,31 +145,19 @@ public class IntegrationDataService {
 
 						// Insert the document into the collection
 						return mongoOperations.getCollection(integration.getDataCollection())
-								.flatMap(collection -> Mono.from(collection.insertOne(document))) // Insert the document
-																									// into the
-																									// collection
+								.flatMap(collection -> Mono.from(collection.insertOne(document)))
 								.doOnSuccess(result -> logger.info("Successfully saved: " + document.toJson()
 										+ " to collection: " + integration.getDataCollection())) // Log the result
 								.doOnError(error -> logger.error("Error saving: " + document.toJson()
 										+ " to collection: " + integration.getDataCollection(), error)) // Log the error
 								.flatMap(result -> Mono.just(
-										IntegrationDataConverter.convertDocumentToIntegrationDataResponse(document))) // Convert
-																														// the
-																														// inserted
-																														// document
-																														// to
-																														// an
-																														// IntegrationDataResponse
-								.onErrorMap(ClassCastException.class, ex -> new RuntimeException(ex.getMessage(), ex)) // Map
-																														// the
-																														// ClassCastException
-																														// to
-																														// a
-																														// RuntimeException
+										IntegrationDataConverter.convertDocumentToIntegrationDataResponse(document)))
+								.onErrorMap(ClassCastException.class, ex -> new RuntimeException(ex.getMessage(), ex))
 								.doOnError(error -> logger.error(
 										"Error converting document to IntegrationDataResponse: " + error.getMessage(),
 										error)); // Log the error
 					}
 				});
 	}
+
 }
