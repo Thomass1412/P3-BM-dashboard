@@ -200,6 +200,29 @@ public class IntegrationController {
                 .map(integration -> ResponseEntity.ok().body(integration));
     }
 
+    /**
+     * Fetches a page of integration data.
+     * 
+     * This endpoint retrieves a page of integration data based on the provided page. The response object will have a unique ID, a timestamp, and a data object.
+     * 
+     * @param page The page number to retrieve (0-indexed).
+     * @param size The number of integrations per page.
+     * @return A {@link Mono} containing a {@link Page} of {@link IntegrationDataResponse} objects.
+     * 
+     * @response 200 Successfully retrieved a page of integrations. The response
+     *           body contains a JSON array of integrations.
+     * @response 500 Internal Server Error. An error occurred while trying to fetch
+     *           the integrations.
+     */
+    @Operation(summary = "Retrieve a page of integration data", description = "Fetches a page of integration data based on the provided page number and size. The schema is unqiue, so fields in 'data' will vary.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved a page of integration data", content = {
+                    @Content(schema = @Schema(implementation = PageableResponse.class), mediaType = "application/json")
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request. No integrations found.", content = {
+                    @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
+            })
+    })
     @GetMapping("/{integrationId}/data/pageable")
     public Mono<Page<IntegrationDataResponse>> getAllIntegrationDataBy(@PathVariable String integrationId,
             @RequestParam(name = "page", defaultValue = "0") int page,
@@ -210,6 +233,11 @@ public class IntegrationController {
         return integrationDataService.findAllBy(integrationId, pageable);
     }
 
+    @Operation(summary = "Retrieve the schema of an integration", description = "Fetches the schema of an integration based on its unique ID.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Document.class)), description = "Successfully retrieved the schema"),
+            @ApiResponse(responseCode = "404", content = @Content(schema = @Schema(implementation = ErrorResponse.class)), description = "Integration not found")
+    })
     @GetMapping("/{integrationId}/schema")
     public Mono<ResponseEntity<Document>> getSchemaBy(@PathVariable String integrationId) {
         return integrationService.getSchemaBy(integrationId)
