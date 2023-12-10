@@ -58,7 +58,7 @@ function IntegrationForm() {
               type="text"
               id="id"
               name="id"
-              value={formData.id}
+              value={formData.name}
               onChange={handleChange}
             />
           </label>
@@ -67,7 +67,7 @@ function IntegrationForm() {
               type="text"
               id="title"
               name="title"
-              value={formData.title}
+              value={formData.type}
               onChange={handleChange}
             />
           </label>
