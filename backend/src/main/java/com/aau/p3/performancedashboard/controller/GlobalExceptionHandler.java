@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -18,6 +19,7 @@ import com.aau.p3.performancedashboard.exceptions.IntegrationNotFoundException;
 import com.aau.p3.performancedashboard.payload.response.CustomResponse;
 import com.aau.p3.performancedashboard.payload.response.ErrorResponse;
 
+import io.micrometer.core.ipc.http.HttpSender.Response;
 import reactor.core.publisher.Mono;
 
 @ControllerAdvice
@@ -35,6 +37,8 @@ public class GlobalExceptionHandler {
             return handleMethodArgumentNotValidException((MethodArgumentNotValidException) ex);
         } else if (ex instanceof AuthenticationException) {
             return handleAuthenticationException((AuthenticationException) ex);
+        } else if(ex instanceof AccessDeniedException) {
+            return handleAccessDeniedException((AccessDeniedException) ex);
         } else {
             return handleGenericException(ex);
         }
@@ -74,9 +78,17 @@ public class GlobalExceptionHandler {
 
     @ResponseBody
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
-        HttpStatus status = HttpStatus.UNAUTHORIZED;
+    protected ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ErrorResponse response = new ErrorResponse("Error authenticating.", status.toString() , ex.getMessage());
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(AccessDeniedException.class)
+    protected ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
+        HttpStatus status = HttpStatus.FORBIDDEN;
+        ErrorResponse response = new ErrorResponse("Access denied.", status.toString() , ex.getMessage());
         return ResponseEntity.status(status).body(response);
     }
 }
