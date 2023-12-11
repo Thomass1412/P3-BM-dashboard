@@ -1,7 +1,7 @@
 import React from "react";
 
 
-function Logo(color: string, bColor: string) {
+function Logo(color, bColor) {
     return (
         <svg id="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2100 150" fill= {color} >
             <rect className="burger" x="1210.07" y="2.43" width="109.66" height="26.31" fill={bColor}></rect>

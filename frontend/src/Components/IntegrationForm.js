@@ -10,7 +10,7 @@ function IntegrationForm() {
   });
 
   // Function to handle the form input changes
-  const handleChange = (e: any) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -19,7 +19,7 @@ function IntegrationForm() {
   };
 
   // Function to handle the form submission
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     /*

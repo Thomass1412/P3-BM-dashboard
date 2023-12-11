@@ -17,7 +17,7 @@
 }
 
 .bg {
-  background-image: url('../img/BMbackground.jpg');
+  background-image: url('./img/BMbackground.jpg');
   background-size: cover;
 }
 

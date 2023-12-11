@@ -1,3 +1,4 @@
+import React from "react";
 import Head from "../Components/Header";
 import LeaderBoard from "../Metric/LeaderBoard";
 

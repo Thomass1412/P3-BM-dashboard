@@ -1,5 +1,7 @@
+import React from "react";
 import Head from "../Components/Header";
 import LeaderBoard from "../Metric/LeaderBoard";
+
 
 export default function Page() {
   const leaderboard = LeaderBoard();
