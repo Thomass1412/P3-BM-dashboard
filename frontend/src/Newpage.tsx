@@ -1,5 +1,6 @@
 import React from "react";
-import { default as Leaderboard } from "./Metric/LeaderBoard"
+import Leaderboard from "./Metric/LeaderBoard"
+
 
 
 export default function Home() {

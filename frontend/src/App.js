@@ -1,6 +1,6 @@
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./Newpage.tsx";
+import Login from "./page.tsx";
 
 export default function App() {
   return (

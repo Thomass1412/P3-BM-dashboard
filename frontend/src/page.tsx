@@ -1,6 +1,6 @@
 import React from "react";
-import {Logo} from "../Components/Logo";
-import {Login} from "../Components/Login";
+import Logo from "./Components/Logo";
+import LoginFrom from "./Components/Login";
 
 export default function Page() {
   const logo = Logo("rgb(134 239 172)", "white")
@@ -17,7 +17,7 @@ export default function Page() {
             Login
           </h1>
         </div>
-        <Login/>
+        <LoginFrom/>
       </div>
     </main>
   );

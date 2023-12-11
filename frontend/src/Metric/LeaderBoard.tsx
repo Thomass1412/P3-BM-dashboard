@@ -1,6 +1,6 @@
 import React from "react";
 
-function Logo() {
+function LeaderBoard() {
     const type = "Sales Value "
     const period = " Current month"
     return (
@@ -18,4 +18,4 @@ function Logo() {
         </div>
     );
 }
-export default Logo;
+export default LeaderBoard;
