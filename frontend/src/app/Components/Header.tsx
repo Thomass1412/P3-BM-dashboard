@@ -51,7 +51,7 @@ function Header() {
               <button id="createButton"className="block py-2 px-3 rounded md:p-0" onClick={(e)=>dropDownFocus(open)}>Create new &#11206;</button>
               </li>
               {open && (
-                <ul className="absolute bg-green-700 w-max rounded-lg border-green-900 border-solid border-2 p-2 mt-2 rounded-tl-none">
+                <ul className="absolute bg-green-700 w-max rounded-lg border-green-900 border-solid border-2 p-2 mt-2 rounded-tl-none text-green-50">
                   <li className="border-solid border-b-2 hover:border-green-200  border-green-700" >
                     <a href="/newmetric" className="block rounded md:bg-transparent md:p-0">New metric</a>
                   </li>
