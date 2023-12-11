@@ -19,5 +19,7 @@ public class Role {
   @Setter
   private ERole name;
 
-
+  public Role(ERole name) {
+    this.name = name;
+  }
 }

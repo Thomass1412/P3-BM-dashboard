@@ -180,15 +180,20 @@ public class IntegrationController {
             @ApiResponse(responseCode = "404", description = "Integration with id not found"),
             @ApiResponse(responseCode = "500"),
     })
-
     @PostMapping("/{integrationId}")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Mono<IntegrationDataResponse>> submitIntegrationData(@PathVariable String integrationId,
             @RequestBody @Valid CreateIntegrationDataRequest integrationDataRequest) throws Exception {
-        return ResponseEntity.ok()
-                .body(integrationDataService.saveIntegrationData(integrationId, integrationDataRequest));
+        return ResponseEntity.ok().body(integrationDataService.saveIntegrationData(integrationId, integrationDataRequest));
     }
 
+    /**
+     * Retrieves an integration by its ID.
+     * Fetches a single integration based on its unique ID.
+     *
+     * @param integrationId The ID of the integration to retrieve.
+     * @return A Mono of ResponseEntity containing the retrieved integration.
+     */
     @Operation(summary = "Retrieve an integration by its ID", description = "Fetches a single integration based on its unique ID.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Integration.class)), description = "Successfully retrieved the integration"),
@@ -233,6 +238,12 @@ public class IntegrationController {
         return integrationDataService.findAllBy(integrationId, pageable);
     }
 
+    /**
+     * Retrieves the schema of an integration based on its unique ID.
+     *
+     * @param integrationId the unique ID of the integration
+     * @return a Mono of ResponseEntity containing the retrieved schema as a Document
+     */
     @Operation(summary = "Retrieve the schema of an integration", description = "Fetches the schema of an integration based on its unique ID.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", content = @Content(schema = @Schema(implementation = Document.class)), description = "Successfully retrieved the schema"),

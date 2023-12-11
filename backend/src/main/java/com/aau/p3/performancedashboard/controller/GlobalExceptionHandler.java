@@ -16,11 +16,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.aau.p3.performancedashboard.exceptions.IntegrationNotFoundException;
-import com.aau.p3.performancedashboard.payload.response.CustomResponse;
 import com.aau.p3.performancedashboard.payload.response.ErrorResponse;
 
-import io.micrometer.core.ipc.http.HttpSender.Response;
-import reactor.core.publisher.Mono;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {

@@ -71,7 +71,6 @@ public class IntegrationService {
         });
   }
 
-  
   /**
    * Creates a new integration based on the provided integration request.
    * If an integration with the same name already exists, an error is returned.

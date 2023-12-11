@@ -127,6 +127,13 @@ public class IntegrationDataService {
 				});
 	}
 
+	/**
+	 * Saves integration data for a given integration ID.
+	 *
+	 * @param integrationId The ID of the integration.
+	 * @param integrationDataRequest The request object containing the integration data to be saved.
+	 * @return A Mono emitting the IntegrationDataResponse after saving the data.
+	 */
 	public Mono<IntegrationDataResponse> saveIntegrationData(String integrationId,
 			CreateIntegrationDataRequest integrationDataRequest) {
 		return integrationService.findById(integrationId)
