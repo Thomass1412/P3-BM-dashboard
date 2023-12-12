@@ -101,7 +101,7 @@ public class WebSecurityConfig {
 
     // Disabled for now
     //.requestMatchers("/api/v1/**").authenticated()
-    .requestMatchers("/api/v1/**").permitAll()
+    .requestMatchers("/api/v1/**").authenticated()
 
     .anyRequest().permitAll()
 );

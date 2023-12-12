@@ -6,7 +6,7 @@ services:
     env_file:
       - dev.env
     ports:
-      - "${MONGO_PORT}:27017"
+      - "27017:27017"
     volumes:
       - db:/data/db
     networks:
@@ -24,7 +24,9 @@ services:
       -  dev.env
     environment:
       - "SPRING_PROFILES_ACTIVE=dev-localdb"
-      #- "SPRING_PROFILES_ACTIVE=dev-remotedb" 
+      - "admin.username=admin"
+      - "admin.password=admin"
+      - "admin.email=admin@localhost"
     networks:
       - backnet
 

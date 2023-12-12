@@ -84,30 +84,30 @@ public class AuthController {
       @ApiResponse(responseCode = "500", description = "Internal Server Error")
   })
   @PostMapping(path = "/signin", consumes = "application/json", produces = "application/json")
-  public Mono<ResponseEntity<String>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+  public Mono<ResponseEntity<MessageResponse>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
     Authentication authentication = authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-    logger.error("Authentication: " + authentication.toString()); 
+    logger.debug("Authentication: " + authentication.toString()); 
 
     SecurityContextHolder.getContext().setAuthentication(authentication);
-    logger.error("Security context: " + SecurityContextHolder.getContext().toString());
+    logger.debug("Security context: " + SecurityContextHolder.getContext().toString());
 
     UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-    logger.error("User details: " + userDetails.toString());
+    logger.debug("User details: " + userDetails.toString());
 
     ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(userDetails);
-    logger.error("JWT cookie: " + jwtCookie.toString());
+    logger.debug("JWT cookie: " + jwtCookie.toString());
 
     List<String> roles = userDetails.getAuthorities().stream()
         .map(item -> item.getAuthority())
         .collect(Collectors.toList());
 
-    logger.error("Roles: " + roles.toString());
+    logger.debug("Roles: " + roles.toString());
 
-    logger.error("Successfully authenticated user");
+    logger.debug("Successfully authenticated user");
     return Mono.just(ResponseEntity.ok()
         .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-        .body("Successfully authenticated user"));
+        .body(new MessageResponse("Successfully authenticated user")));
   }
 
   /**

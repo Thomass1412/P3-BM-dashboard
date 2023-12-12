@@ -7,7 +7,12 @@ import java.util.List;
 import java.util.UUID;
 
 import org.slf4j.Logger;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -19,11 +24,9 @@ import com.aau.p3.performancedashboard.model.User;
 import com.aau.p3.performancedashboard.repository.RoleRepository;
 import com.aau.p3.performancedashboard.repository.UserRepository;
 
-import lombok.Setter;
 import reactor.core.publisher.Mono;
 
 @Component
-@Setter
 public class Setup {
 
 	private final Logger logger = LoggerFactory.getLogger(Setup.class);
@@ -33,27 +36,24 @@ public class Setup {
     private UserRepository userRepository;
     private RoleRepository roleRepository;
 
-    public Setup() {
-        // Default constructor
-    }
-
     @Autowired
-    public Setup(Environment environment, PasswordEncoder encoder, UserRepository userRepository, RoleRepository roleRepository) {
+    public Setup(@Lazy Environment environment, @Lazy PasswordEncoder encoder, @Lazy UserRepository userRepository, @Lazy RoleRepository roleRepository) {
         this.environment = environment;
         this.encoder = encoder;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
     }
 
-	public void run() {
+	@EventListener(ContextRefreshedEvent.class)
+	public void onApplicationEvent(ContextRefreshedEvent event) {
 		logger.info("Processing setup steps");
 
-		createRoles();
+		//createRoles();
 
 		//createAdminUser();
 
 		logger.info("Finished processing setup steps");
-	}
+    }
 
 	/*
 	   ROLE_TV,
