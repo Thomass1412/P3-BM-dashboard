@@ -1,15 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import './ErrorPopup.scss';
-
-function ErrorPopup(props) {
-  return props.trigger ? (
-    <div className="alert danger-alert">
-      <h3>hello22</h3>
-      <a class="close">&times;</a>
-    </div>
-  ) : null; // Use null instead of an empty string
-}
+import { useSnackbar } from './SnackbarProvider'; // Import the Snackbar hook
 
 function GetIntegration() {
   const [data, setData] = useState([
@@ -22,6 +13,7 @@ function GetIntegration() {
   ]);
 
   const [buttonClicked, setButtonClicked] = useState(false);
+  const { showSnackbar } = useSnackbar(); // Use the Snackbar hook
 
   const getData = async () => {
     try {
@@ -31,6 +23,8 @@ function GetIntegration() {
       console.log('Success:', data);
     } catch (error) {
       console.error('Error:', error);
+      // Show an error Snackbar message
+      showSnackbar('error', 'An error occurred while fetching data.');
     } finally {
       setButtonClicked(true); // Set buttonClicked to true after the button is pressed
     }
@@ -62,9 +56,6 @@ function GetIntegration() {
       >
         Get button
       </button>
-      <ErrorPopup trigger={buttonClicked}>
-        <h3>hello</h3>
-      </ErrorPopup>
     </>
   );
 }
