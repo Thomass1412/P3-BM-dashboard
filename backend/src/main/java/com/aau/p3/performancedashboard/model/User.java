@@ -43,8 +43,7 @@ public class User {
 
   @Getter
   @Setter
-  @DocumentReference
-  private List<Role> roles = new LinkedList<>();
+  private List<String> roles;
 
   public User() {
   }

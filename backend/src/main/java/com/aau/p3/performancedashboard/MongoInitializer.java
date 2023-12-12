@@ -7,7 +7,6 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
@@ -92,14 +91,12 @@ public class MongoInitializer {
         String id = UUID.randomUUID().toString();
         User user = new User(id, environment.getProperty("admin.username"), environment.getProperty("admin.email"),
                 encoder.encode(environment.getProperty("admin.password")));
-        List<Role> roles = new LinkedList<>();
+        List<String> roles = new LinkedList<>();
         Role adminRole = roleRepository.findByName(ERole.ROLE_ADMIN)
                 .switchIfEmpty(Mono.error(new RuntimeException("Error: Role is not found."))).block();
-        roles.add(adminRole);
+        roles.add(adminRole.getName().name()); // Save the role name as a string
         user.setRoles(roles);
         User savedUser = userRepository.save(user).block();
-        logger.debug("Returned user: " + savedUser.toString());
-        //logger.debug("Created admin user");
-
+        logger.debug("Created admin user: " + savedUser.getUsername());
     }
-}
+}  

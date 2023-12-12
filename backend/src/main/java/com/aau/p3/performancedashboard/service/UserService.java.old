@@ -1,0 +1,29 @@
+package com.aau.p3.performancedashboard.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.aau.p3.performancedashboard.repository.RoleRepository;
+import com.aau.p3.performancedashboard.repository.UserRepository;
+
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+@Service
+public class UserService {
+
+    // Logger
+    private static final Logger logger = LogManager.getLogger(UserService.class);
+    
+    // Dependencies
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+
+    // Constructor injection
+    @Autowired
+    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
+        this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
+    }
+}

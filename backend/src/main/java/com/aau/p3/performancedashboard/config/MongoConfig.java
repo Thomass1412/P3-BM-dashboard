@@ -1,4 +1,4 @@
-package com.aau.p3.performancedashboard;
+package com.aau.p3.performancedashboard.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

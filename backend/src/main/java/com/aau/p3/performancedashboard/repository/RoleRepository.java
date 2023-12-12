@@ -22,4 +22,12 @@ public interface RoleRepository extends ReactiveMongoRepository<Role, String> {
    * @return an Optional containing the Role if found, or empty if not
    */
   Mono<Role> findByName(ERole name);
+
+  /**
+   * Retrieves a role by its ID.
+   *
+   * @param id the ID of the role to retrieve
+   * @return a Mono emitting the role with the specified ID, or an empty Mono if not found
+   */
+  Mono<Role> findById(String id);
 }

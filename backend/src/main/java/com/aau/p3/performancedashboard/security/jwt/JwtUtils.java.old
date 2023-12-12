@@ -2,6 +2,8 @@ package com.aau.p3.performancedashboard.security.jwt;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,10 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
-import com.aau.p3.performancedashboard.security.services.UserDetailsImpl;
+import com.aau.p3.performancedashboard.service.UserDetailsImpl;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -57,7 +60,7 @@ public class JwtUtils {
    * @return the generated JWT cookie
    */
   public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal) {
-    String jwt = generateTokenFromUserID(userPrincipal.getUsername());
+    String jwt = generateTokenFromUserID(userPrincipal);
     ResponseCookie cookie = ResponseCookie.from(jwtCookie, jwt).path("/api").maxAge(24 * 60 * 60).httpOnly(true)
         .build();
     return cookie;
@@ -122,12 +125,17 @@ public class JwtUtils {
    * @param id the user ID
    * @return the generated JWT token
    */
-  public String generateTokenFromUserID(String id) {
+public String generateTokenFromUserID(UserDetailsImpl userPrincipal) {
+    List<String> roles = userPrincipal.getAuthorities().stream()
+        .map(GrantedAuthority::getAuthority)
+        .collect(Collectors.toList());
+
     return Jwts.builder()
-        .setSubject(id)
+        .setSubject(userPrincipal.getUsername())
+        .claim("roles", roles)
         .setIssuedAt(new Date())
         .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
         .signWith(key(), SignatureAlgorithm.HS256)
         .compact();
-  }
+}
 }

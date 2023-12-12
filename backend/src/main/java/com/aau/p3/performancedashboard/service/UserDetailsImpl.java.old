@@ -1,4 +1,4 @@
-package com.aau.p3.performancedashboard.security.services;
+package com.aau.p3.performancedashboard.service;
 
 import java.util.Collection;
 import java.util.List;
@@ -16,7 +16,9 @@ import com.aau.p3.performancedashboard.model.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
+import lombok.ToString;
 
+@ToString
 public class UserDetailsImpl implements UserDetails {
   private static final long serialVersionUID = 1L;
   
@@ -45,8 +47,9 @@ public class UserDetailsImpl implements UserDetails {
   }
 
   public static UserDetailsImpl build(User user) {
+    logger.debug("User roles: " + user.getRoles());
     List<GrantedAuthority> authorities = user.getRoles().stream()
-        .map(role -> new SimpleGrantedAuthority(role.getName().name()))
+        .map(role -> new SimpleGrantedAuthority(role))
         .collect(Collectors.toList());
 
     return new UserDetailsImpl(

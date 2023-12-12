@@ -1,6 +1,6 @@
 package com.aau.p3.performancedashboard.controller;
 
-import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -32,10 +32,9 @@ import com.aau.p3.performancedashboard.model.User;
 import com.aau.p3.performancedashboard.payload.request.LoginRequest;
 import com.aau.p3.performancedashboard.payload.request.SignupRequest;
 import com.aau.p3.performancedashboard.payload.response.MessageResponse;
-import com.aau.p3.performancedashboard.repository.RoleRepository;
 import com.aau.p3.performancedashboard.repository.UserRepository;
 import com.aau.p3.performancedashboard.security.jwt.JwtUtils;
-import com.aau.p3.performancedashboard.security.services.UserDetailsImpl;
+import com.aau.p3.performancedashboard.service.UserDetailsImpl;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -56,17 +55,14 @@ public class AuthController {
   // Dependencies
   private final AuthenticationManager authenticationManager;
   private final UserRepository userRepository;
-  private final RoleRepository roleRepository;
   private final PasswordEncoder encoder;
   private final JwtUtils jwtUtils;
 
   // Constructor injection
   @Autowired
-  public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository,
-                        RoleRepository roleRepository, PasswordEncoder encoder, JwtUtils jwtUtils) {
+  public AuthController(AuthenticationManager authenticationManager, UserRepository userRepository, PasswordEncoder encoder, JwtUtils jwtUtils) {
       this.authenticationManager = authenticationManager;
       this.userRepository = userRepository;
-      this.roleRepository = roleRepository;
       this.encoder = encoder;
       this.jwtUtils = jwtUtils;
   }
@@ -85,13 +81,19 @@ public class AuthController {
   })
   @PostMapping(path = "/signin", consumes = "application/json", produces = "application/json")
   public Mono<ResponseEntity<MessageResponse>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-    Authentication authentication = authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
-    logger.debug("Authentication: " + authentication.toString()); 
 
+    // Authenticate the user
+    logger.debug("Authenticating user: " + loginRequest.getUsername());
+    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
+    Authentication authentication = authenticationManager.authenticate(authenticationToken);
+
+    logger.debug("Authentication request: " + authentication.toString()); 
+
+    // Set the authentication in the security context
     SecurityContextHolder.getContext().setAuthentication(authentication);
     logger.debug("Security context: " + SecurityContextHolder.getContext().toString());
 
+    // Generate JWT token
     UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
     logger.debug("User details: " + userDetails.toString());
 
@@ -100,9 +102,11 @@ public class AuthController {
 
     List<String> roles = userDetails.getAuthorities().stream()
         .map(item -> item.getAuthority())
+        .peek(item -> logger.debug("Authority: " + item))
         .collect(Collectors.toList());
 
-    logger.debug("Roles: " + roles.toString());
+    logger.debug("Logging user in: " + userDetails.getUsername() + " with roles: ");
+    roles.forEach(role -> logger.debug("Role: " + role));
 
     logger.debug("Successfully authenticated user");
     return Mono.just(ResponseEntity.ok()
@@ -145,29 +149,32 @@ public class AuthController {
     // Get the roles from the request body
     List<String> strRoles = signUpRequest.getRoles();
 
-    // If no roles are provided, assign agent role by default
-    // Otherwise, assign the roles provided
-    return Flux.fromIterable(strRoles == null ? Collections.singletonList("agent") : strRoles)
-    .flatMap(roleName -> {
-        switch (roleName) {
-            case "admin":
-                return roleRepository.findByName(ERole.ROLE_ADMIN);
-            case "supervisor":
-                return roleRepository.findByName(ERole.ROLE_SUPERVISOR);
-            case "tv":
-                return roleRepository.findByName(ERole.ROLE_TV);
-            default:
-                return roleRepository.findByName(ERole.ROLE_AGENT);
-        }
-    })
-    .collectList()
-    .flatMap(roles -> {
-        user.setRoles(roles);
-        return userRepository.save(user);
-    })
-    .map(savedUser -> ResponseEntity.ok(new MessageResponse("User registered successfully!")))
-    .onErrorResume(e -> Mono.just(ResponseEntity.badRequest().body(new MessageResponse("Error: " + e.getMessage()))));
-  }
+    List<String> roles = new LinkedList<>();
+
+    if (strRoles == null) {
+        roles.add(ERole.ROLE_AGENT.name());
+    } else {
+        strRoles.forEach(role -> {
+            switch (role) {
+                case "admin":
+                    roles.add(ERole.ROLE_ADMIN.name());
+                    break;
+                case "supervisor":
+                    roles.add(ERole.ROLE_SUPERVISOR.name());
+                    break;
+                case "tv":
+                    roles.add(ERole.ROLE_TV.name());
+                    break;
+                default:
+                    roles.add(ERole.ROLE_AGENT.name());
+            }
+        });
+    }
+
+    user.setRoles(roles);
+    return userRepository.save(user)
+        .map(savedUser -> ResponseEntity.ok(new MessageResponse("User registered successfully!")));
+}
 
   /**
    * Retrieves all users.
