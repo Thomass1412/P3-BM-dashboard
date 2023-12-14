@@ -29,7 +29,7 @@ import reactor.core.publisher.Mono;
 public class IntegrationService {
 
   // Logger
-  private static final Logger logger = LogManager.getLogger(IntegrationService.class.getName());
+  private static final Logger logger = LogManager.getLogger(IntegrationService.class);
 
   // Dependencies
   private final IntegrationRepository integrationRepository;
