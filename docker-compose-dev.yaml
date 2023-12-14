@@ -27,6 +27,7 @@ services:
       - "admin.username=admin"
       - "admin.password=admin"
       - "admin.email=admin@localhost"
+      - "disable.auth=false"
     networks:
       - backnet
 

@@ -14,28 +14,7 @@ import reactor.core.publisher.Mono;
  */
 @Repository
 public interface UserRepository extends ReactiveMongoRepository<User, String> {
-  
-  /**
-   * Finds a {@link User} by their username.
-   *
-   * @param username the username of the User
-   * @return a Mono emitting the User if found, or empty if not
-   */
-  Mono<User> findByUsername(String username);
 
-  /**
-   * Checks if a {@link User} exists by their username.
-   *
-   * @param username the username of the User
-   * @return a Mono emitting true if the User exists, false otherwise
-   */
-  Mono<Boolean> existsByUsername(String username);
+  Mono<User> findByLogin(String login);
 
-  /**
-   * Checks if a {@link User} exists by their email.
-   *
-   * @param email the email of the User
-   * @return a Mono emitting true if the User exists, false otherwise
-   */
-  Mono<Boolean> existsByEmail(String email);
 }

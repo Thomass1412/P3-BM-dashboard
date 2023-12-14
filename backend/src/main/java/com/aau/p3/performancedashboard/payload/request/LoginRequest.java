@@ -1,16 +1,18 @@
 package com.aau.p3.performancedashboard.payload.request;
 
-import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
 import lombok.Setter;
 
-@Getter
+@Data
 @Setter
 public class LoginRequest {
-  @NotBlank
+  @NotEmpty
+  @Size(min = 3, max = 50)
   private String username;
 
-  @NotBlank
+  @NotEmpty
   private String password;
 
 }
