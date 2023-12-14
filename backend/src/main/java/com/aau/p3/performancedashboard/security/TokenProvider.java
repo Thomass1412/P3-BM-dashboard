@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import io.jsonwebtoken.security.Keys;
 
@@ -71,13 +72,20 @@ public class TokenProvider {
      * @param authentication the authentication object
      * @return the generated token as a string
      */
-    public String createToken(Authentication authentication) {
+    public String createToken(Authentication authentication, Optional<Date> expirationDate) {
         String authorities = authentication.getAuthorities().stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.joining(","));
 
         long now = (new Date()).getTime();
-        Date validity = new Date(now + this.tokenValidityInMilliseconds);
+
+        // Longer expirationdate for api keys
+        Date validity = null;
+        if(!expirationDate.isEmpty()) {
+            validity = expirationDate.get();
+        } else {
+            validity = new Date(now + this.tokenValidityInMilliseconds);
+        }
 
         return Jwts.builder()
             .setSubject(authentication.getName())
