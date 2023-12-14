@@ -55,6 +55,7 @@ public class IntegrationDataService {
 	 * @return a Mono of Page<IntegrationDataResponse> containing the integration data
 	 */
 	public Mono<Page<IntegrationDataResponse>> findAllBy(String integrationId, Pageable pageable) {
+		logger.debug("Finding all data for integration with id: " + integrationId + " and pageable: " + pageable.toString());
 		return integrationService.findById(integrationId)
 				.flatMap(integration -> {
 					if (!integration.getType().equals("internal")) {
@@ -68,9 +69,12 @@ public class IntegrationDataService {
 						Query query = new Query().with(pageable);
 
 						// Find the data and count the total number of elements
+						logger.debug("Finding data in collection: " + dataCollection	+ " with query: " + query.toString());
 						Flux<IntegrationDataResponse> data = mongoTemplate.find(query, IntegrationDataResponse.class,
 								dataCollection);
-						Mono<Long> count = mongoTemplate.count(query, dataCollection);
+						Mono<Long> count = mongoTemplate.count(new Query(), dataCollection);
+
+						count.doOnNext(value -> logger.debug("Found " + value + " elements in collection: " + dataCollection)).subscribe();
 
 						// Return a Mono emitting a Page of IntegrationDataResponse objects
 						return data
