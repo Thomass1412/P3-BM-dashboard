@@ -1,5 +1,7 @@
 package com.aau.p3.performancedashboard.controller;
 
+import java.util.Optional;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,7 +39,6 @@ public class AuthController {
     private final TokenProvider tokenProvider;
     private final JWTReactiveAuthenticationManager authenticationManager;
 
-    
     @Value("${performancedashboard.app.jwtCookieName}")
     private String jwtCookieName;
 
@@ -48,10 +49,12 @@ public class AuthController {
     }
 
     @PostMapping(path = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Mono<ResponseEntity<JWTToken>> authorize(@Valid @RequestBody LoginRequest loginRequest, ServerHttpResponse response) {
+    public Mono<ResponseEntity<JWTToken>> authorize(@Valid @RequestBody LoginRequest loginRequest,
+            ServerHttpResponse response) {
         // Get the authentication token
-        Authentication authenticationToken = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
-        
+        Authentication authenticationToken = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
+                loginRequest.getPassword());
+
         // Authenticate and return both the token and the cookie
         return this.authenticationManager.authenticate(authenticationToken)
                 .doOnSuccess(auth -> logger.debug("Authentication success: {}", auth))
@@ -59,7 +62,7 @@ public class AuthController {
                     throw new BadCredentialsException("Bad crendentials");
                 })
                 .map(auth -> {
-                    String jwt = tokenProvider.createToken(auth);
+                    String jwt = tokenProvider.createToken(auth, Optional.empty());
                     ResponseCookie jwtCookie = ResponseCookie.from(jwtCookieName, jwt)
                             .httpOnly(true)
                             .path("/")
