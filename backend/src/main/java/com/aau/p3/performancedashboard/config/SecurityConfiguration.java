@@ -69,11 +69,11 @@ public class SecurityConfiguration {
         if (Objects.equals(environment.getProperty("disable.auth"), "true")) {
             // Disable authentication
             AUTH_WHITELIST = new String[] {
-                    "/api/v1/**"
+                    "/**"
             };
         } else {
             AUTH_WHITELIST = new String[] {
-                    "/api/v1/webjars/**",
+                    "/api/v1/**",
                     "/api/v1/docs/**",
                     "/auth/**"
             };
