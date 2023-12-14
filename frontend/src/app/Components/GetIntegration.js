@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { useSnackbar } from './SnackbarProvider'; // Import the Snackbar hook
+import { useSnackbar } from './SnackbarProvider';
 
 function GetIntegration() {
   const [data, setData] = useState([
@@ -13,7 +13,7 @@ function GetIntegration() {
   ]);
 
   const [buttonClicked, setButtonClicked] = useState(false);
-  const { showSnackbar } = useSnackbar(); // Use the Snackbar hook
+  const { showSnackbar } = useSnackbar(); 
 
   const getData = async () => {
     try {
@@ -21,12 +21,12 @@ function GetIntegration() {
       const data = await response.json();
       setData(data);
       console.log('Success:', data);
+      showSnackbar('success', 'Data fetched successfully!');
     } catch (error) {
       console.error('Error:', error);
-      // Show an error Snackbar message
       showSnackbar('error', 'An error occurred while fetching data.');
     } finally {
-      setButtonClicked(true); // Set buttonClicked to true after the button is pressed
+      setButtonClicked(true);
     }
   };
 

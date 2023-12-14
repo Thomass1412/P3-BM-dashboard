@@ -1,8 +1,7 @@
 "use client";
 import React, { useState, createContext, useContext } from "react";
-import CustomSnackbar from "./CustomSnackBar"; // Import your Snackbar component
+import CustomSnackbar from "./CustomSnackBar"; 
 
-// Create a context for managing Snackbar state
 const SnackbarContext = createContext();
 
 export const useSnackbar = () => {
