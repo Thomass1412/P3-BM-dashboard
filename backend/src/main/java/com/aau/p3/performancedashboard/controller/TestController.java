@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import reactor.core.publisher.Mono;
 
@@ -20,9 +21,11 @@ import reactor.core.publisher.Mono;
     bearerFormat = "JWT"
 )
 @SecurityRequirement(name = "bearerAuth")
+@Tag(name = "Authentication Test Controller", description = "Allows to test different endpoints with different authorization levels")
 @RestController
 @RequestMapping("/api/v1/test")
 public class TestController {
+  
   @GetMapping("/all")
   public Mono<String> allAccess() {
     return Mono.just("Public Content.");
