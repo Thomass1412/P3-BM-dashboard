@@ -5,6 +5,7 @@ import Supervisor from "./Pages/supervisorPage.tsx";
 import Dashboard from "./Pages/dashboardPage.tsx";
 import NewIntergration from "./Pages/newIntergrationPage.tsx";
 import NewMetric from "./Pages/newMetricPage.tsx";
+import GetInt from "./Pages/getint.tsx";
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />}/>
         <Route path="/newintergration" element={<NewIntergration />}/>
         <Route path="/newMetric" element={<NewMetric />}/>
+        <Route path="/getint" element={<GetInt />}/>
 
       </Routes>
     </BrowserRouter>
