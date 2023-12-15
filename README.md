@@ -72,10 +72,10 @@ MongoDB Compass allows you to browse the database.
 
 This are the commands to run the application, with either Spring dev server, Vite dev server or as a whole with `docker compose`
 
-| Component      | Directory | Command                                  | Frontend     | Backend      | Database   | Nginx      |
-| -------------- | --------- | ---------------------------------------- | ------------ | ------------ | ---------- | ---------- |
-| Java backend   | /backend  | mvn spring-boot:run                      | Build docker | Dev server   | Run docker | Run docker |
-| Vue Frontend   | /frontend | npm run dev                              | Dev server   | Build docker | Run docker | Run docker |
+| Component      | Directory | Command                                                        | Frontend     | Backend      | Database   | Nginx      |
+| -------------- | --------- | -------------------------------------------------------------- | ------------ | ------------ | ---------- | ---------- |
+| Java backend   | /backend  | mvn spring-boot:run                                            | Build docker | Dev server   | Run docker | Run docker |
+| Vue Frontend   | /frontend | npm run dev                                                    | Dev server   | Build docker | Run docker | Run docker |
 | Docker compose | /         | docker compose --profile frontend --profile backend up --build | Build docker | Build docker | Run docker | Run docker |
 
 ## Docker containers overview
@@ -88,6 +88,7 @@ This are the commands to run the application, with either Spring dev server, Vit
 | nginx     | 80    |
 
 ![Draw.io diagram of connection to reverse proxy and services](./assets/nginx.drawio.png)
+
 ### Reverse proxy
 
 ## Running the backend (dev server)
@@ -102,7 +103,7 @@ To start Spring for backend development:
 
 ## Running the frontend (dev server)
 
-To start Vite / Vue for frontend development:
+To start React for frontend development:
 
 1. Enter the frontend directory with `cd /frontend`
 2. Run the dev server with `npm run dev`
@@ -122,55 +123,32 @@ To build frontend, and backend and start the whole stack. Mostly for deployment.
 3. Connect to the `nginx` reverse proxy on `http://localhost` or `http://localhost/api/v1`
 4. Use `docker compose down` to stop the containers together.
 
-# Frontend notes
+# API endpoints
 
-## Creating vue app
+## Integrations
 
-1. Enter project root `cd /P3-BM-dashboard`
-2. Use `npm create vue@latest` to create a vue project
+| Method | Endpoint                 | Description                                    |
+| ------ | ------------------------ | ---------------------------------------------- |
+| GET    | /api/v1/integrations     | Returns all integrations                       |
+| POST   | /api/v1/integrations     | Instantiate a new integration                  |
+| GET    | /api/v1/integration/{ID} | Get an integration **without** its data, by ID |
+| PUT    | /api/v1/integration/{ID} | Update an integration by it's ID               |
 
-https://github.com/vuejs/create-vue
+## Integration data
 
-Run:
-`npm create vue@latest`
+| Method | Endpoint                           | Description                                         |
+| ------ | ---------------------------------- | --------------------------------------------------- |
+| GET    | /api/v1/integration/{ID}/data      | Returns all data for an integration                 |
+| POST   | /api/v1/integration/{ID}/data      | Submit new data to an integration                   |
+| GET    | /api/v1/integration/{ID}/data/{ID} | Get a single registration for an integration, by ID |
+| PUT    | api/v1/integration/{ID}/data/{ID}  | Update a single registration, by ID                 |
+| DELETE | /api/v1/integration/{ID}/data/{ID} | Delete a registration for an integration            |
 
-```
-PS C:\Users\Oliver\Documents\Programming\P3-BM-dashboard> npm create vue@latest
-
-Vue.js - The Progressive JavaScript Framework
-
-√ Project name: ... frontend
-√ Add TypeScript? ... No / Yes
-√ Add JSX Support? ... No / Yes
-√ Add Vue Router for Single Page Application development? ... No / Yes
-√ Add Pinia for state management? ... No / Yes
-√ Add Vitest for Unit Testing? ... No / Yes
-√ Add an End-to-End Testing Solution? » No
-√ Add ESLint for code quality? ... No / Yes
-√ Add Prettier for code formatting? ... No / Yes
-
-Scaffolding project in C:\Users\Oliver\Documents\Programming\P3-BM-dashboard\frontend...
-
-Done. Now run:
-
- cd frontend
- npm install
- npm run format
- npm run dev
-```
-
-```
-# ping backend
-PING backend (172.20.0.3) 56(84) bytes of data.
-64 bytes from backend.p3-bm-dashboard_backnet (172.20.0.3): icmp_seq=1 ttl=64 time=0.101 ms
-64 bytes from backend.p3-bm-dashboard_backnet (172.20.0.3): icmp_seq=2 ttl=64 time=0.042 ms
-64 bytes from backend.p3-bm-dashboard_backnet (172.20.0.3): icmp_seq=3 ttl=64 time=0.050 ms
-^C
---- backend ping statistics ---
-3 packets transmitted, 3 received, 0% packet loss, time 2044ms
-rtt min/avg/max/mdev = 0.042/0.064/0.101/0.026 ms
-
-
-# ping frontend
-ping: frontend: Temporary failure in name resolution
-```
+#Forntend Navigation
+At the moment you can navigate with most of the buttons, otherwise and because it's a work in progress use URL naviagtion.
+There are endpoints as follows
+/login
+/dashboard
+/supervisor
+/newmetric
+/newintegration

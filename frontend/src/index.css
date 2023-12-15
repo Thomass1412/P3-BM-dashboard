@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+.bg {
+  background-image: url('./img/BMbackground.jpg');
+  background-size: cover;
+}
+
+@layer components{
+  .flexCenterC{
+    @apply flex flex-col items-center justify-between;
+  }
+
+  .flexCenterR{
+    @apply flex flex-row items-center justify-between;
+  }
+}
+
+
+input:focus + label, input:not(:placeholder-shown) + label{
+  transform: translateY(-1em) scale(0.8)
+}
+
+input::placeholder{
+  color: transparent;
+}
+
+label{
+  transform-origin: 0 0;
+  transition: transform 0.2s ease-in-out;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+#password{
+  -webkit-text-security: disc;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 7px;
+  
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #000;
+  border-radius: 4px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
