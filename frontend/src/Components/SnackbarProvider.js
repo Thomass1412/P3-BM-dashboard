@@ -1,4 +1,3 @@
-"use client";
 import React, { useState, createContext, useContext } from "react";
 import CustomSnackbar from "./CustomSnackBar"; 
 
