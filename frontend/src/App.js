@@ -5,7 +5,7 @@ import Supervisor from "./Pages/supervisorPage.tsx";
 import Dashboard from "./Pages/dashboardPage.tsx";
 import NewIntergration from "./Pages/newIntergrationPage.tsx";
 import NewMetric from "./Pages/newMetricPage.tsx";
-import GetInt from "./Pages/getint.tsx";
+import GetInt from "./Pages/getntgrationpage.tsx";
 import SnackbarProvider from "./Components/SnackbarProvider.js";
 
 export default function App() {
