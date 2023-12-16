@@ -19,7 +19,7 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />}/>
           <Route path="/newintergration" element={<NewIntergration />}/>
           <Route path="/newMetric" element={<NewMetric />}/>
-          <Route path="/getint" element={<GetInt />}/>
+          <Route path="/viewintergrations" element={<GetInt />}/>
         </Routes>
       </SnackbarProvider>
     </BrowserRouter>
