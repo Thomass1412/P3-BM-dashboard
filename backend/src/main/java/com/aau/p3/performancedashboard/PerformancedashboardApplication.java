@@ -13,8 +13,7 @@ import io.swagger.v3.oas.annotations.info.Info;
 @EnableWebFlux
 @EnableReactiveMongoRepositories
 @OpenAPIDefinition(info = @Info(title = "Performance Dashboard", version = "1.0", description = "Backend API v1.0"))
-@ComponentScan("com.aau.p3.performancedashboard.repository")
-@ComponentScan("com.aau.p3.performancedashboard.security")
+@ComponentScan({"com.aau.p3.performancedashboard.repository", "com.aau.p3.performancedashboard.config", "com.aau.p3.performancedashboard.security", "com.aau.p3.performancedashboard.controller"})
 public class PerformancedashboardApplication {
 
 	public static void main(String[] args) {

@@ -1,5 +1,8 @@
 package com.aau.p3.performancedashboard.controller;
 
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.aau.p3.performancedashboard.converter.UserConverter;
+import com.aau.p3.performancedashboard.model.Authority;
 import com.aau.p3.performancedashboard.model.User;
 import com.aau.p3.performancedashboard.payload.request.RegisterRequest;
 import com.aau.p3.performancedashboard.payload.response.ErrorResponse;
@@ -18,12 +22,13 @@ import com.aau.p3.performancedashboard.repository.UserRepository;
 import com.aau.p3.performancedashboard.security.AuthorityConstant;
 
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import org.springframework.web.bind.annotation.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import reactor.core.publisher.Flux;
@@ -40,6 +45,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import com.aau.p3.performancedashboard.repository.AuthorityRepository;
 
 @SecurityScheme(name = "bearerAuth", type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT")
 @SecurityRequirement(name = "bearerAuth")
@@ -57,15 +63,17 @@ public class UserController {
     private final UserConverter userConverter;
     private final AuthorityRepository authorityRepository;
     private final ObjectMapper objectMapper;
+    private final ReactiveMongoTemplate mongoTemplate;
 
     // Constructor injection
     public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder, UserConverter userConverter,
-            AuthorityRepository authorityRepository, ObjectMapper objectMapper) {
+            AuthorityRepository authorityRepository, ObjectMapper objectMapper, ReactiveMongoTemplate mongoTemplate) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userConverter = userConverter;
         this.authorityRepository = authorityRepository;
         this.objectMapper = objectMapper;
+        this.mongoTemplate = mongoTemplate;
     }
 
     /**
@@ -86,7 +94,7 @@ public class UserController {
     @PostMapping(path = "/register", consumes = "application/json", produces = "application/json")
     @PreAuthorize("hasRole('ADMIN')")
     public Mono<ResponseEntity<UserResponse>> register(@Valid @RequestBody RegisterRequest registerRequest) {
-        logger.debug("Registering user with login: " + registerRequest.getLogin());
+        logger.debug("Registering user: {}", registerRequest);
 
         try {
             String json = objectMapper.writeValueAsString(registerRequest);
@@ -95,36 +103,48 @@ public class UserController {
             logger.error("Error converting RegisterRequest to JSON", e);
         }
 
-        return userRepository.existsByLogin(registerRequest.getLogin())
-
+        return userRepository.existsByLogin(registerRequest.getUsername())
                 .flatMap(exists -> {
                     if (exists) {
                         return Mono.error(new IllegalArgumentException("Login is already taken!"));
                     } else {
                         User user = new User();
 
-                        user.setLogin(registerRequest.getLogin());
+                        user.setLogin(registerRequest.getUsername());
                         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
                         user.setDisplayName(registerRequest.getDisplayName());
                         user.setEmail(registerRequest.getEmail());
+                        user.setAchievements(new LinkedList<>());
 
                         List<String> authorities = registerRequest.getAuthorities();
 
+                        authorityRepository.findAll()
+                                .collectList()
+                                .doOnNext(authorityList -> logger.debug("Authorities: " + authorityList.toString()))
+                                .subscribe();
+
                         if (authorities != null) {
                             return Flux.fromIterable(authorities)
-                                    .filter(authority -> AuthorityConstant.ADMIN.equals(authority)
-                                            || AuthorityConstant.SUPERVISOR.equals(authority)
-                                            || AuthorityConstant.AGENT.equals(authority)
-                                            || AuthorityConstant.TV.equals(authority))
-                                    .flatMap(authorityRepository::findByName)
+                                    .flatMap(authorityName -> {
+                                        Query query = new Query();
+                                        query.addCriteria(Criteria.where("name").is(authorityName));
+                                        return mongoTemplate.findOne(query, Authority.class)
+                                                .switchIfEmpty(Mono.error(new IllegalArgumentException(
+                                                        "Authority " + authorityName + " does not exist")));
+                                    })
                                     .collectList()
-                                    .map(authorityList -> {
-                                        user.setAuthorities(new HashSet<>(authorityList));
-                                        return user;
+                                    .flatMap(validAuthorities -> {
+                                        user.setAuthorities(new HashSet<>(validAuthorities));
+                                        return Mono.just(user);
+                                    });
+                        } else {
+                            return authorityRepository.findByName(AuthorityConstant.AGENT)
+                                    .flatMap(agentAuthority -> {
+                                        user.setAuthorities(new HashSet<>());
+                                        user.getAuthorities().add(agentAuthority);
+                                        return Mono.just(user);
                                     });
                         }
-
-                        return Mono.just(user);
                     }
                 })
                 .flatMap(user -> userRepository.save(user).thenReturn(user))

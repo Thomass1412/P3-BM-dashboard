@@ -2,6 +2,7 @@ package com.aau.p3.performancedashboard.model;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import jakarta.validation.constraints.Email;
@@ -38,12 +39,18 @@ public class User implements Serializable {
 
   @NotBlank
   @Size(max = 50)
+  private String displayName;
+  
+  @NotBlank
+  @Size(max = 50)
   @Email
   private String email;
 
   @NotBlank
   @Size(max = 120)
   private String password;
+
+  private List<String> achievements;
 
   // Do not serialize the authorities
   @JsonIgnore

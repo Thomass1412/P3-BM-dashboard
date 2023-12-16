@@ -1,5 +1,8 @@
 package com.aau.p3.performancedashboard;
 
+import java.util.AbstractMap;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import com.aau.p3.performancedashboard.model.Authority;
 import com.aau.p3.performancedashboard.model.User;
+import com.aau.p3.performancedashboard.repository.AuthorityRepository;
 import com.aau.p3.performancedashboard.security.AuthorityConstant;
 
 import reactor.core.publisher.Flux;
@@ -26,13 +30,15 @@ public class MongoInitializer {
     private final Environment environment;
     private final PasswordEncoder encoder;
     private final ReactiveMongoTemplate mongoTemplate;
+    private final AuthorityRepository authorityRepository;
 
     @Autowired
     public MongoInitializer(Environment environment, PasswordEncoder encoder,
-            ReactiveMongoTemplate mongoTemplate) {
+            ReactiveMongoTemplate mongoTemplate, AuthorityRepository authorityRepository) {
         this.environment = environment;
         this.encoder = encoder;
         this.mongoTemplate = mongoTemplate;
+        this.authorityRepository = authorityRepository;
     }
 
     /**
@@ -72,11 +78,28 @@ public class MongoInitializer {
         Authority tvAuthority = new Authority();
         tvAuthority.setName(AuthorityConstant.TV);
 
+        List<Authority> authorityTest = authorityRepository.findAll().collectList()
+        .doOnNext(authorityList -> logger.debug("Authorities: " + authorityList.toString()))
+        .switchIfEmpty(Mono.error(new IllegalArgumentException("No authorities found")))
+        .doOnError(e -> logger.error("Error getting authorities", e))
+        .block();
+
         return Flux.just(adminAuthority, agentAuthority, supervisorAuthority, tvAuthority)
-                .doOnNext(authority -> logger.debug("Creating default authority: " + authority.getName()))
-                .flatMap(authority -> mongoTemplate.save(authority, "authorities"))
-                .doOnNext(authority -> logger.debug("Finished creating default authority: " + authority.getName()))
-                .then();
+            .flatMap(authority -> authorityRepository.existsByName(authority.getName())
+                .map(exists -> new AbstractMap.SimpleEntry<>(authority, exists)))
+            .flatMap(entry -> {
+                Authority authority = entry.getKey();
+                Boolean exists = entry.getValue();
+                if (!exists) {
+                    logger.debug("Creating default authority: " + authority.getName());
+                    return mongoTemplate.save(authority, "authorities")
+                        .doOnSuccess(savedAuthority -> logger.debug("Finished creating default authority: " + savedAuthority.getName()));
+                } else {
+                    logger.debug("Authority already exists: " + authority.getName());
+                    return Mono.empty();
+                }
+            })
+        .then();
     }
 
     private Mono<Void> createDefaultAdmin() {

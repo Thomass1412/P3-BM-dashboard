@@ -18,11 +18,14 @@ public class Authority implements GrantedAuthority {
 
 	private static final long serialVersionUID = 1L;
 
+	@Id
+	@Getter
+	private String id;
+
 	@NotNull
 	@Size(max = 50)
-	@Getter
 	@Setter
-	@Id
+	@Getter
 	private String name;
 
 	/**
