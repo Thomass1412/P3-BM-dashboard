@@ -4,7 +4,7 @@ services:
     image: 'mongo:latest'
     container_name: "mongodb"
     env_file:
-      - dev.env
+      - db.env
     ports:
       - "27017:27017"
     volumes:
@@ -13,7 +13,6 @@ services:
       - backnet
 
   backend:
-  
     build: 
       context: ./backend
       target: backend
@@ -21,7 +20,7 @@ services:
     depends_on:
       - mongodb
     env_file:
-      -  dev.env
+      -  db.env
     environment:
       - "SPRING_PROFILES_ACTIVE=dev-localdb"
       - "admin.username=admin"

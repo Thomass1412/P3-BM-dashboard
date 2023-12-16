@@ -45,7 +45,7 @@ import reactor.core.publisher.Mono;
 
 @SecurityScheme(name = "bearerAuth", type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT")
 @SecurityRequirement(name = "bearerAuth")
-@Tag(name = "Authentication", description = "Authentication Management APIs")
+@Tag(name = "API keys", description = "API key management APIs")
 @RestController
 @RequestMapping("/auth/api-keys/pageable")
 class ApiKeysController {
@@ -85,7 +85,7 @@ class ApiKeysController {
 
 @SecurityScheme(name = "bearerAuth", type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT")
 @SecurityRequirement(name = "bearerAuth")
-@Tag(name = "Authentication", description = "Authentication Management APIs")
+@Tag(name = "API keys", description = "API key management APIs")
 @RestController
 @RequestMapping("/auth/api-key")
 public class ApiKeyController {

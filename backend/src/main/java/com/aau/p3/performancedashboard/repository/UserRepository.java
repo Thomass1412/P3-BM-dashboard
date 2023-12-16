@@ -1,11 +1,13 @@
 package com.aau.p3.performancedashboard.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 
 import org.springframework.stereotype.Repository;
 
 import com.aau.p3.performancedashboard.model.User;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -15,8 +17,35 @@ import reactor.core.publisher.Mono;
 @Repository
 public interface UserRepository extends ReactiveMongoRepository<User, String> {
 
-  Mono<User> findByLogin(String login);
-  Mono<User> findById(String id);
+  /**
+   * Finds a user by their login.
+   *
+   * @param login the login of the user to find
+   * @return a Mono emitting the user if found, or an empty Mono if not found
+   */
+  public Mono<User> findByLogin(String login);
+
+  /**
+   * Retrieves a user by their ID.
+   *
+   * @param id the ID of the user to retrieve
+   * @return a Mono emitting the user with the specified ID, or an empty Mono if no user is found
+   */
+  public Mono<User> findById(String id);
   
-  Mono<Boolean> existsByLogin(String login);
+  /**
+   * Checks if a user with the specified login exists in the repository.
+   *
+   * @param login the login of the user to check
+   * @return a Mono<Boolean> indicating whether a user with the specified login exists
+   */
+  public Mono<Boolean> existsByLogin(String login);
+
+  /**
+   * Retrieves all users based on the specified pageable parameters.
+   *
+   * @param pageable the pageable object containing the pagination information
+   * @return a Flux of User objects representing the users found
+   */
+  public Flux<User> findAllBy(Pageable pageable);
 }
