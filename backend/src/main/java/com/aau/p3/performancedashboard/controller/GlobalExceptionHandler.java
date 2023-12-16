@@ -51,8 +51,19 @@ public class GlobalExceptionHandler {
 
     protected ResponseEntity<ErrorResponse> handleIntegrationNotFoundException(IntegrationNotFoundException ex) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
-        return ResponseEntity.status(status)
-                .body(new ErrorResponse("Integration Not Found", status.toString(), ex.getMessage()));
+
+        List<String> integrationIds = ex.getIntegrationIds();
+        if(integrationIds == null || integrationIds.isEmpty()) {
+            return ResponseEntity.status(status)
+                    .body(new ErrorResponse("Integration Not Found", status.toString(), ex.getMessage()));        
+        } else if(integrationIds.size() == 1) {
+            return ResponseEntity.status(status)
+                    .body(new ErrorResponse("Integration Not Found", status.toString(), "Integration with id " + integrationIds.get(0) + " not found"));
+        } else {
+            return ResponseEntity.status(status)
+                    .body(new ErrorResponse("Integration Not Found", status.toString(), "Integrations with ids " + integrationIds + " not found"));
+        }
+    
     }
 
     protected ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
