@@ -29,7 +29,7 @@ import reactor.core.publisher.Mono;
 public class IntegrationService {
 
   // Logger
-  private static final Logger logger = LogManager.getLogger(IntegrationService.class.getName());
+  private static final Logger logger = LogManager.getLogger(IntegrationService.class);
 
   // Dependencies
   private final IntegrationRepository integrationRepository;
@@ -73,54 +73,52 @@ public class IntegrationService {
 
   /**
    * Creates a new integration based on the provided integration request.
-   * If an integration with the same name already exists, an error is returned.
-   * If the integration type is 'internal', a new collection is created and associated with the integration.
-   * The created integration is then saved and converted to an integration response.
    * 
-   * @param integrationRequest The request object containing the details of the integration to be created.
-   * @return A Mono emitting the created integration response.
-   * @throws IllegalArgumentException if an integration with the same name already exists or if the integration type is not supported.
-   * @throws RuntimeException if there is an error creating the collection or saving the integration.
+   * @param integrationRequest The request object containing the integration details.
+   * @return A Mono emitting the integration response.
+   * @throws IllegalArgumentException if an integration with the same name already exists.
    */
   public Mono<IntegrationResponse> createIntegration(CreateIntegrationRequest integrationRequest) {
-    // If an integration with the name already exists return early with an error.
-    if (null != integrationRepository.findByName(integrationRequest.getName()).block()) {
-      logger.error("Integration with name '" + integrationRequest.getName() + "' already exists.");
-      return Mono.error(new IllegalArgumentException("Integration with name '" + integrationRequest.getName() + "' already exists."));
-    } else {
-      logger.debug("Integration with name '" + integrationRequest.getName() + "' does not exist. Continuing.");
-    }
-
-    // Check the type, and instantiate corresponding integration class.
-    if (integrationRequest.getType().equals("internal")) {
-      logger.debug("Creating internal integration.");
-
-      // Create a new collection
-      String collectionName = null;
-      try {
-        collectionName = integrationDataService.createCollection(integrationRequest).block();
-      } catch (Exception e) {
-        logger.error("Error creating collection: " + e.getMessage());
-        return Mono.error(new RuntimeException(e.getMessage(), e));
-      }
-
-      // Insert the collection name into the Integration
-      InternalIntegration internalIntegration = new InternalIntegration(integrationRequest.getName(), collectionName);
-
-      // Save the integration
-      return internalIntegrationRepository.save(internalIntegration)
-          .map(integration -> IntegrationConverter.convertAnyIntegrationToIntegrationResponse(integration));
-    } else {
-      return Mono.error(new IllegalArgumentException("Integration type '" + integrationRequest.getType()
-          + "' is not supported. Currently only 'internal' is supported."));
-    }
+    // Check if integration with given name already exists, or else create it
+    return integrationRepository.findByName(integrationRequest.getName())
+        .hasElement()
+        .flatMap(exists -> exists ? Mono.error(new IllegalArgumentException("Integration with name '" + integrationRequest.getName() + "' already exists.")) : createInternalIntegration(integrationRequest));
   }
+
+  /**
+   * Creates an internal integration based on the provided integration request.
+   * 
+   * @param integrationRequest the request object containing the details of the integration to be created
+   * @return a Mono that emits the integration response if the integration is created successfully,
+   *         otherwise emits an error with an IllegalArgumentException
+   */
+  private Mono<IntegrationResponse> createInternalIntegration(CreateIntegrationRequest integrationRequest) {
+    // Return a mono which emits the integration response if the integration is created successfully
+    // Otherwise emit an error with an IllegalArgumentException
+    return Mono.justOrEmpty(integrationRequest)
+    .flatMap(request -> {
+        if (!request.getType().equals("internal")) {
+            return Mono.error(new IllegalArgumentException("Integration type '" + request.getType()
+                + "' is not supported. Currently only 'internal' is supported."));
+        }
+
+        return integrationDataService.createCollection(request)
+            .flatMap(collectionName -> {
+                InternalIntegration internalIntegration = new InternalIntegration(request.getName(),
+                    collectionName);
+                return internalIntegrationRepository.save(internalIntegration);
+            })
+            .map(IntegrationConverter::convertAnyIntegrationToIntegrationResponse)
+            .doOnError(e -> logger.error("Error creating collection: " + e.getMessage()));
+    });
+}
 
   /**
    * Finds an integration by its ID.
    *
    * @param id the ID of the integration to find
-   * @return a Mono emitting the found integration, or an error if no integration is found
+   * @return a Mono emitting the found integration, or an error if no integration
+   *         is found
    */
   public Mono<Integration> findById(String id) {
     return integrationRepository.findById(id)
@@ -136,7 +134,6 @@ public class IntegrationService {
   public Mono<Integration> findByName(String name) {
     return integrationRepository.findByName(name);
   }
-
 
   /**
    * Retrieves the schema for a given integration ID.

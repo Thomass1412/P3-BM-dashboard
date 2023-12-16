@@ -1,57 +1,58 @@
 package com.aau.p3.performancedashboard.model;
 
-import java.util.LinkedList;
+import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.DocumentReference;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Setter;
-import lombok.Getter;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Data;
 
 @Document(collection = "users")
-public class User {
+@NoArgsConstructor
+@AllArgsConstructor
+@Setter
+@Data
+public class User implements Serializable {
+
+  private static final long serialVersionUID = 1L;
+  
   @Id
-  @Getter
-  @Setter
   private String id;
 
   @NotBlank
   @Size(max = 20)
-  @Getter
-  @Setter
-  private String username;
+  @Indexed(unique = true)
+  private String login;
 
   @NotBlank
-  @Getter
-  @Setter
+  @Size(max = 50)
+  private String displayName;
+  
+  @NotBlank
   @Size(max = 50)
   @Email
   private String email;
 
-  @Getter
-  @Setter
   @NotBlank
   @Size(max = 120)
   private String password;
 
-  @Getter
-  @Setter
-  @DocumentReference
-  private List<Role> roles = new LinkedList<>();
+  private List<String> achievements;
 
-  public User() {
-  }
-
-  public User(String id, String username, String email, String password) {
-    this.id = id;
-    this.username = username;
-    this.email = email;
-    this.password = password;
-  }
-
+  // Do not serialize the authorities
+  @JsonIgnore
+  private Set<Authority> authorities = new HashSet<>();
 }

@@ -37,8 +37,8 @@ import com.aau.p3.performancedashboard.service.IntegrationService;
 import com.mongodb.MongoWriteException;
 import com.mongodb.WriteError;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -66,7 +66,7 @@ import reactor.core.publisher.Mono;
 class IntegrationsController {
 
     // Logger
-    private static final Logger logger = LoggerFactory.getLogger(IntegrationsController.class);
+    private static final Logger logger = LogManager.getLogger(IntegrationsController .class);
 
     // Dependencies
     private IntegrationService integrationService;
@@ -136,7 +136,8 @@ class IntegrationsController {
 public class IntegrationController {
 
     // Logger
-    private static final Logger logger = LoggerFactory.getLogger(IntegrationController.class);
+    @SuppressWarnings("unused")
+    private static final Logger logger = LogManager.getLogger(IntegrationController.class);
 
     // Service to interact with the data layer.
     private IntegrationService integrationService;
