@@ -20,6 +20,7 @@ import com.aau.p3.performancedashboard.model.User;
 import com.aau.p3.performancedashboard.repository.AuthorityRepository;
 import com.aau.p3.performancedashboard.security.AuthorityConstant;
 
+import jakarta.annotation.PostConstruct;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -77,12 +78,6 @@ public class MongoInitializer {
 
         Authority tvAuthority = new Authority();
         tvAuthority.setName(AuthorityConstant.TV);
-
-        List<Authority> authorityTest = authorityRepository.findAll().collectList()
-        .doOnNext(authorityList -> logger.debug("Authorities: " + authorityList.toString()))
-        .switchIfEmpty(Mono.error(new IllegalArgumentException("No authorities found")))
-        .doOnError(e -> logger.error("Error getting authorities", e))
-        .block();
 
         return Flux.just(adminAuthority, agentAuthority, supervisorAuthority, tvAuthority)
             .flatMap(authority -> authorityRepository.existsByName(authority.getName())

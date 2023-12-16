@@ -8,7 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.aau.p3.performancedashboard.repository.UserRepository;
 import com.aau.p3.performancedashboard.model.User;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
  * It interacts with the UserRepository to fetch user information and creates
  * Spring Security User objects based on the retrieved data.
  */
-@Component
+@Service("reactiveUserDetailsServiceImpl")
 public class ReactiveUserDetailsServiceImpl implements ReactiveUserDetailsService {
 
     // Logger

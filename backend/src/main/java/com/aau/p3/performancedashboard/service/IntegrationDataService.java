@@ -51,11 +51,13 @@ public class IntegrationDataService {
 	 * Finds all integration data by integration ID and pageable.
 	 *
 	 * @param integrationId the ID of the integration
-	 * @param pageable the pageable object for pagination
-	 * @return a Mono of Page<IntegrationDataResponse> containing the integration data
+	 * @param pageable      the pageable object for pagination
+	 * @return a Mono of Page<IntegrationDataResponse> containing the integration
+	 *         data
 	 */
 	public Mono<Page<IntegrationDataResponse>> findAllBy(String integrationId, Pageable pageable) {
-		logger.debug("Finding all data for integration with id: " + integrationId + " and pageable: " + pageable.toString());
+		logger.debug(
+				"Finding all data for integration with id: " + integrationId + " and pageable: " + pageable.toString());
 		return integrationService.findById(integrationId)
 				.flatMap(integration -> {
 					if (!integration.getType().equals("internal")) {
@@ -69,12 +71,15 @@ public class IntegrationDataService {
 						Query query = new Query().with(pageable);
 
 						// Find the data and count the total number of elements
-						logger.debug("Finding data in collection: " + dataCollection	+ " with query: " + query.toString());
+						logger.debug(
+								"Finding data in collection: " + dataCollection + " with query: " + query.toString());
 						Flux<IntegrationDataResponse> data = mongoTemplate.find(query, IntegrationDataResponse.class,
 								dataCollection);
 						Mono<Long> count = mongoTemplate.count(new Query(), dataCollection);
 
-						count.doOnNext(value -> logger.debug("Found " + value + " elements in collection: " + dataCollection)).subscribe();
+						count.doOnNext(
+								value -> logger.debug("Found " + value + " elements in collection: " + dataCollection))
+								.subscribe();
 
 						// Return a Mono emitting a Page of IntegrationDataResponse objects
 						return data
@@ -134,8 +139,9 @@ public class IntegrationDataService {
 	/**
 	 * Saves integration data for a given integration ID.
 	 *
-	 * @param integrationId The ID of the integration.
-	 * @param integrationDataRequest The request object containing the integration data to be saved.
+	 * @param integrationId          The ID of the integration.
+	 * @param integrationDataRequest The request object containing the integration
+	 *                               data to be saved.
 	 * @return A Mono emitting the IntegrationDataResponse after saving the data.
 	 */
 	public Mono<IntegrationDataResponse> saveIntegrationData(String integrationId,
