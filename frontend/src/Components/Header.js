@@ -50,7 +50,7 @@ function Header() {
                 <button id="createButton" className="block py-2 px-3 rounded md:p-0" onClick={(e) => dropDownFocus(open)}>Create new &#11206;</button>
               </li>
               {open && (
-                <ul className="absolute bg-green-700 w-max rounded-lg border-green-900 border-solid border-2 p-2 mt-2 rounded-tl-none text-green-50">
+                <ul className="absolute z-50 bg-green-700 w-max rounded-lg border-green-900 border-solid border-2 p-2 mt-2 rounded-tl-none text-green-50">
                   <li className="border-solid border-b-2 hover:border-green-200  border-green-700" >
                     <a href="/newmetric" className="block rounded md:bg-transparent md:p-0">New metric</a>
                   </li>
@@ -61,7 +61,7 @@ function Header() {
                     <a href="/newintergration" className="block rounded md:bg-transparent md:p-0">New integration</a>
                   </li>
                   <li className="border-solid border-b-2 hover:border-green-200 border-green-700" >
-                    <a href="/supervisor" className="block rounded md:bg-transparent md:p-0">view integrations</a>
+                    <a href="/viewintergrations" className="block rounded md:bg-transparent md:p-0">view integrations</a>
                   </li>
                 </ul>
               )}
