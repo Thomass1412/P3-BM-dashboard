@@ -43,9 +43,8 @@ function GetIntegration() {
   return (
     <div className="flex flex-col relative text-black items-center h-full w-full">
       <div className="flex flex-col text-black w-full">
-        <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full sm:px-6 lg:px-8">
-            <div className="overflow-hidden">
+        <div className="sm:-mx-6 lg:-mx-8">
+          <div className="min-w-full sm:px-6 lg:px-8">
               <table className="min-w-full text-left text-xl font-light">
                 <thead className="border-b text-xl dark:border-neutral-500">
                   <tr className='bg-green-50'>
@@ -64,7 +63,6 @@ function GetIntegration() {
                   ))}
                 </tbody>
               </table>
-            </div>
           </div>
         </div>
       </div>
