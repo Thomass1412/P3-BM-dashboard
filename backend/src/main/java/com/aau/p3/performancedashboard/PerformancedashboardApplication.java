@@ -1,7 +1,5 @@
 package com.aau.p3.performancedashboard;
 
-import java.util.Arrays;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
@@ -28,10 +26,11 @@ import org.springframework.context.ApplicationContext;
 public class PerformancedashboardApplication {
 
 	public static void main(String[] args) {
+		@SuppressWarnings("unused")
 		ApplicationContext context = SpringApplication.run(PerformancedashboardApplication.class, args);
 
 		// Print the names of all beans in the application context
-        Arrays.stream(context.getBeanDefinitionNames()).forEach(System.out::println);
+        //Arrays.stream(context.getBeanDefinitionNames()).forEach(System.out::println);
 	}
 
 }

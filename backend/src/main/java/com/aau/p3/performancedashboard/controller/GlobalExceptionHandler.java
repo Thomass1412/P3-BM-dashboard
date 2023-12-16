@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.aau.p3.performancedashboard.exceptions.IntegrationNotFoundException;
+import com.aau.p3.performancedashboard.exceptions.NotFoundException;
 import com.aau.p3.performancedashboard.payload.response.ErrorResponse;
-
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -34,8 +34,10 @@ public class GlobalExceptionHandler {
             return handleMethodArgumentNotValidException((MethodArgumentNotValidException) ex);
         } else if (ex instanceof AuthenticationException) {
             return handleAuthenticationException((AuthenticationException) ex);
-        } else if(ex instanceof AccessDeniedException) {
+        } else if (ex instanceof AccessDeniedException) {
             return handleAccessDeniedException((AccessDeniedException) ex);
+        } else if (ex instanceof NotFoundException) {
+            return handleNotFoundException((NotFoundException) ex);
         } else {
             return handleGenericException(ex);
         }
@@ -77,7 +79,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AuthenticationException.class)
     protected ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ex) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        ErrorResponse response = new ErrorResponse("Error authenticating.", status.toString() , ex.getMessage());
+        ErrorResponse response = new ErrorResponse("Error authenticating.", status.toString(), ex.getMessage());
         return ResponseEntity.status(status).body(response);
     }
 
@@ -85,7 +87,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(AccessDeniedException.class)
     protected ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
         HttpStatus status = HttpStatus.FORBIDDEN;
-        ErrorResponse response = new ErrorResponse("Access denied.", status.toString() , ex.getMessage());
+        ErrorResponse response = new ErrorResponse("Access denied.", status.toString(), ex.getMessage());
+        return ResponseEntity.status(status).body(response);
+    }
+
+    @ResponseBody
+    @ExceptionHandler(NotFoundException.class)
+    protected ResponseEntity<ErrorResponse> handleNotFoundException(NotFoundException ex) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        ErrorResponse response = new ErrorResponse("Resource not found.", status.toString(), ex.getMessage());
         return ResponseEntity.status(status).body(response);
     }
 }

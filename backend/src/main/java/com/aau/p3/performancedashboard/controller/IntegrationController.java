@@ -136,6 +136,7 @@ class IntegrationsController {
 public class IntegrationController {
 
     // Logger
+    @SuppressWarnings("unused")
     private static final Logger logger = LogManager.getLogger(IntegrationController.class);
 
     // Service to interact with the data layer.

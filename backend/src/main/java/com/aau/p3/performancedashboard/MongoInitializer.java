@@ -1,7 +1,6 @@
 package com.aau.p3.performancedashboard;
 
 import java.util.AbstractMap;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +19,6 @@ import com.aau.p3.performancedashboard.model.User;
 import com.aau.p3.performancedashboard.repository.AuthorityRepository;
 import com.aau.p3.performancedashboard.security.AuthorityConstant;
 
-import jakarta.annotation.PostConstruct;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -53,9 +51,11 @@ public class MongoInitializer {
     public void onApplicationEvent(ContextRefreshedEvent event) {
         logger.debug("Processing setup steps");
         createDefaultAuthorities()
+                .doOnSuccess(v -> logger.debug("Finished creating default authorities"))
+                .doOnError(e -> logger.error("Error creating default authorities", e))
                 .then(createDefaultAdmin())
-                .doOnSuccess(v -> logger.debug("Finished processing setup steps"))
-                .doOnError(e -> logger.error("Error processing setup steps", e))
+                .doOnSuccess(v -> logger.debug("Finished creating default admin"))
+                .doOnError(e -> logger.error("Error creating default admin", e))
                 .subscribe();
     }
 
@@ -103,16 +103,12 @@ public class MongoInitializer {
         Authority adminAuthority = new Authority();
         adminAuthority.setName(AuthorityConstant.ADMIN);
 
-        Authority agentAuthority = new Authority();
-        agentAuthority.setName(AuthorityConstant.AGENT);
-
         User adminUser = new User();
         adminUser.setLogin(environment.getProperty("admin.username"));
         logger.debug("Password: " + environment.getProperty("admin.password"));
         adminUser.setPassword(encoder.encode(environment.getProperty("admin.password")));
         adminUser.setEmail(environment.getProperty("admin.email"));
         adminUser.getAuthorities().add(adminAuthority);
-        adminUser.getAuthorities().add(agentAuthority);
 
         return mongoTemplate.exists(Query.query(Criteria.where("login").is(adminUser.getLogin())), User.class, "users")
                 .flatMap(exists -> {

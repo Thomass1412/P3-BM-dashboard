@@ -4,7 +4,10 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.aau.p3.performancedashboard.converter.UserConverter;
+import com.aau.p3.performancedashboard.exceptions.NotFoundException;
 import com.aau.p3.performancedashboard.model.Authority;
 import com.aau.p3.performancedashboard.model.User;
 import com.aau.p3.performancedashboard.payload.request.RegisterRequest;
@@ -45,7 +49,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
-import com.aau.p3.performancedashboard.repository.AuthorityRepository;
 
 @SecurityScheme(name = "bearerAuth", type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT")
 @SecurityRequirement(name = "bearerAuth")
@@ -118,17 +121,12 @@ public class UserController {
 
                         List<String> authorities = registerRequest.getAuthorities();
 
-                        authorityRepository.findAll()
-                                .collectList()
-                                .doOnNext(authorityList -> logger.debug("Authorities: " + authorityList.toString()))
-                                .subscribe();
-
                         if (authorities != null) {
                             return Flux.fromIterable(authorities)
                                     .flatMap(authorityName -> {
                                         Query query = new Query();
                                         query.addCriteria(Criteria.where("name").is(authorityName));
-                                        return mongoTemplate.findOne(query, Authority.class)
+                                        return mongoTemplate.findOne(query, Authority.class, "authorities")
                                                 .switchIfEmpty(Mono.error(new IllegalArgumentException(
                                                         "Authority " + authorityName + " does not exist")));
                                     })
@@ -156,9 +154,11 @@ public class UserController {
     }
 
     /**
-     * Gets all users.
+     * Retrieves a user by the provided user ID.
      *
-     * @return a Flux of ResponseEntity containing the user responses
+     * @param userId the ID of the user to retrieve
+     * @return a Mono containing the ResponseEntity with the user response if found,
+     *         or ResponseEntity.notFound() if the user is not found
      */
     @Operation(summary = "Get user by ID", description = "Fetches a user by the provided user ID.")
     @ApiResponses({
@@ -170,12 +170,23 @@ public class UserController {
             })
     })
     @GetMapping("/{id}")
-    public Mono<ResponseEntity<UserResponse>> getUserById(@PathVariable(value = "id") String userId) {
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR') or hasRole('ROLE_AGENT')")
+    public Mono<UserResponse> getUserById(@PathVariable(value = "id") String userId, Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String currentUsername = userDetails.getUsername();
+
+        // Check if the user is an agent and is trying to access another user's data
+        // If so, return an error. Only admins and supervisors can access other users'.
         return userRepository.findById(userId)
-                .doOnSuccess(user -> logger.debug("User fetched successfully: {}", user))
-                .doOnError(error -> logger.error("Error occurred while fetching user: {}", error.getMessage()))
-                .map(userConverter::convertToResponse)
-                .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.notFound().build());
+                .flatMap(user -> {
+                    if (userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_AGENT"))
+                            && !user.getLogin().equals(currentUsername)) {
+                        return Mono.error(new AccessDeniedException("Access denied."));
+                    }
+
+                    UserResponse userResponse = userConverter.convertToResponse(user);
+                    return Mono.just(userResponse);
+                })
+                .switchIfEmpty(Mono.error(new NotFoundException("User not found.")));
     }
 }

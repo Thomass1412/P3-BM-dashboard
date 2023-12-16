@@ -91,6 +91,7 @@ class ApiKeysController {
 public class ApiKeyController {
 
     // Logger
+    @SuppressWarnings("unused")
     private static final Logger logger = LogManager.getLogger(ApiKeysController.class);
 
     // Dependencies

@@ -56,6 +56,7 @@ public class SecurityConfiguration {
     // Autowired dependencies
     private final ReactiveUserDetailsServiceImpl reactiveUserDetailsService;
     private final TokenProvider tokenProvider;
+    @SuppressWarnings("unused")
     private final Environment environment;
 
     // Constructor with autowired dependencies
