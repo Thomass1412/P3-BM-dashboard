@@ -82,7 +82,13 @@ public class IntegrationService {
     // Check if integration with given name already exists, or else create it
     return integrationRepository.findByName(integrationRequest.getName())
         .hasElement()
-        .flatMap(exists -> exists ? Mono.error(new IllegalArgumentException("Integration with name '" + integrationRequest.getName() + "' already exists.")) : createInternalIntegration(integrationRequest));
+        .flatMap(exists -> {
+          if (exists) {
+            return Mono.error(new IllegalArgumentException("Integration with name '" + integrationRequest.getName() + "' already exists."));
+          } else {
+            return createInternalIntegration(integrationRequest);
+          }
+        });
   }
 
   /**
