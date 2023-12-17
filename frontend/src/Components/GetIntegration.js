@@ -3,7 +3,7 @@ import { useSnackbar } from './SnackbarProvider'; // Import the Snackbar hook
 
 function GetIntegration() {
   const [data, setData] = useState([]);
-  const [maxPage, setMaxPage] = useState();
+  const [maxPage, setMaxPage] = useState(1);
   const [page, setPage] = useState(0);
   const { showSnackbar } = useSnackbar(); // Use the Snackbar hook
 
@@ -32,7 +32,6 @@ function GetIntegration() {
   };
 
   useEffect(() => {
-    console.log(page);
     handleClick();
   }, [page]);
 

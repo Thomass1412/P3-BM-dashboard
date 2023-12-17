@@ -13,7 +13,7 @@ export default function Page() {
       <div className="col-span-6"></div>
       <div className="row-span-5 col-span-2 bg-green-50 bg-opacity-95 p-4">
         <div className="flexCenterC">
-          <h1 className="lg:text-4xl mb-8 mt-8 text-4xl font-extrabold text-black">
+          <h1 className="lg:text-4xl mb-6 mt-8 text-4xl font-extrabold text-black">
             Login
           </h1>
         </div>
