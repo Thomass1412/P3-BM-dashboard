@@ -58,10 +58,13 @@ function Header() {
                     <a href="/supervisor" className="block rounded md:bg-transparent md:p-0">View metrics</a>
                   </li>
                   <li className="border-solid border-b-2 hover:border-green-200  border-green-700" >
-                    <a href="/newintergration" className="block rounded md:bg-transparent md:p-0">New integration</a>
+                    <a href="/newintegration" className="block rounded md:bg-transparent md:p-0">New integration</a>
                   </li>
                   <li className="border-solid border-b-2 hover:border-green-200 border-green-700" >
-                    <a href="/supervisor" className="block rounded md:bg-transparent md:p-0">view integrations</a>
+                    <a href="/integrations" className="block rounded md:bg-transparent md:p-0">view integrations</a>
+                  </li>
+                  <li className="border-solid border-b-2 hover:border-green-200 border-green-700" >
+                    <a href="/newuser" className="block rounded md:bg-transparent md:p-0">Create new user</a>
                   </li>
                 </ul>
               )}
