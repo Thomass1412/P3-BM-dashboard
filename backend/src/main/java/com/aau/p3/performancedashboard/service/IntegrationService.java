@@ -20,7 +20,7 @@ import com.aau.p3.performancedashboard.payload.request.CreateIntegrationRequest;
 import com.aau.p3.performancedashboard.payload.response.IntegrationResponse;
 import com.aau.p3.performancedashboard.repository.IntegrationRepository;
 import com.aau.p3.performancedashboard.repository.InternalIntegrationRepository;
-import com.aau.p3.performancedashboard.schema.MongoSchemaRetriever;
+import com.aau.p3.performancedashboard.integrationSchema.MongoSchemaRetriever;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 
 import reactor.core.publisher.Mono;

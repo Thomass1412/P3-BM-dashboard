@@ -131,9 +131,9 @@ public class UserController {
                     @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
             })
     })
-    @GetMapping("/{id}")
+    @GetMapping("/{userId}")
     @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR') or hasRole('ROLE_AGENT')")
-    public Mono<UserResponse> getUserById(@PathVariable(value = "id") String userId,
+    public Mono<UserResponse> getUserById(@PathVariable(value = "userId") String userId,
             Authentication authentication) {
         return userService.getUserById(userId, authentication);
     }
@@ -157,13 +157,13 @@ public class UserController {
                     @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
             })
     })
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{userId}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public Mono<ResponseEntity<Void>> deleteUserById(@PathVariable(value = "id") String userId) {
+public Mono<ResponseEntity<MessageResponse>> deleteUserById(@PathVariable(value = "userId") String userId) {
         return userService.deleteUserById(userId)
-                .then(Mono.just(new ResponseEntity<Void>(HttpStatus.OK)))
-                .onErrorResume(e -> Mono.just(new ResponseEntity<Void>(HttpStatus.NOT_FOUND)));
-    }
+                        .then(Mono.just(new ResponseEntity<MessageResponse>(new MessageResponse("User deleted successfully"), HttpStatus.OK)))
+                        .onErrorResume(e -> Mono.just(new ResponseEntity<MessageResponse>(new MessageResponse("User not found"), HttpStatus.NOT_FOUND)));
+}
 
     @Operation(summary = "Set user access level", description = "Allows an admin to set the access level of another user. Takes a user ID as a path variable and a new role as a request parameter.")
     @ApiResponses(value = {
@@ -171,10 +171,10 @@ public class UserController {
                     @Content(mediaType = "application/json", schema = @Schema(implementation = UserResponse.class)) }),
             @ApiResponse(responseCode = "404", description = "User not found", content = @Content),
             @ApiResponse(responseCode = "403", description = "Access denied", content = @Content) })
-    @PutMapping("/{id}/role")
+    @PutMapping("/{userId}/role")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public Mono<ResponseEntity<UserResponse>> setUserAccess(
-            @PathVariable(value = "id") @Parameter(description = "ID of the user to upgrade") String userId,
+            @PathVariable(value = "userId") @Parameter(description = "ID of the user to upgrade") String userId,
             @RequestParam @Parameter(description = "New role for the user", example = "ROLE_AGENT") String newRole,
             Authentication authentication) {
 

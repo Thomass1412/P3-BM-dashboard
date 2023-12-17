@@ -22,4 +22,8 @@ public class MetricResponse {
     @NotBlank(message = "Dependent integration ids must not be empty")
     @Schema(name = "dependentIntegrationIds", example = "[\"655a40f451a6f25c2b736e30\"]", required = true)
     private List<String> dependentIntegrationIds;
+
+    private List<String> dependentMetricIds;
+
+    private List<MetricOperationResponse> metricOperations;
 }

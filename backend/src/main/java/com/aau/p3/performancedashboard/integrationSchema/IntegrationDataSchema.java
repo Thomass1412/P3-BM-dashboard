@@ -1,4 +1,4 @@
-package com.aau.p3.performancedashboard.payload.request;
+package com.aau.p3.performancedashboard.integrationSchema;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class IntegrationDataSchemaRequest {
+public class IntegrationDataSchema {
 
     /**
      * The name of the IntegrationDataSchema.
