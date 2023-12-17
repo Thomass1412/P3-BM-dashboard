@@ -42,6 +42,7 @@ function Login() {
       // Handle success response
       console.log(`HTTP status: ${response.status}`);
       console.log("Success:", data);
+      navigate("/supervisor")
       
     } catch (error) {
       // Handle errors here

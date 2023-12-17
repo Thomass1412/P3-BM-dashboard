@@ -4,6 +4,8 @@ import { useSnackbar } from './SnackbarProvider'; // Import the Snackbar hook
 function GetIntegration() {
   const [data, setData] = useState([]);
   const [integrationdata, setIntegrationData] = useState([]);
+  const [usernames, setUsernames] = useState([]);
+  const [parentID, setparentID] = useState();
   const [maxPage, setMaxPage] = useState(1);
   const [page, setPage] = useState(0);
   const { showSnackbar } = useSnackbar(); // Use the Snackbar hook
@@ -25,22 +27,82 @@ function GetIntegration() {
       showSnackbar('error', errorMessage);
     }
   };
+
+  const getIntegrationData = async() =>{
+    try {
+      const response = await fetch('http://localhost/api/v1/integration/'+parentID+'/data/pageable?page=0&size=10');
+      if (!response.ok) {
+        // Handle non-OK responses
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const responseData = await response.json();
+      setIntegrationData(responseData.content);
+      console.log('Success: 11', responseData);
+    } catch (error) {
+      const errorMessage = integrationdata.messages.join(', ');
+    }
+  };
+
+  const getusernames = async () => {
+    const usernamesMap = {};
+  
+    try {
+      for (const integration of integrationdata) {
+        const token = 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNzAyOTI0ODE0LCJpYXQiOjE3MDI4Mzg0MTR9.PgwOZyE-2cvUaoYpvvLvZAPRX1eKQA_5M7SYO1a0v8BLEvZj-VY9b0FPnAzAwB8K6_5s0YIcjS-SUezjKcKvXg';
+  
+        const response = await fetch('http://localhost/api/v1/user/' + integration.userId, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': token,
+          },
+        });
+  
+        if (!response.ok) {
+          // Handle non-OK responses
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+  
+        const responseData = await response.json();
+        usernamesMap[integration.id] = responseData.login;
+        console.log('Success: user', usernamesMap);
+      }
+  
+      // After all requests are done, set the usernames
+      setUsernames(usernamesMap);
+    } catch (error) {
+      // Handle errors here
+      console.error('Error:', error);
+    }
+  };
+
   const handleNextClick = (e) => {
     setPage(page + 1);
   };
   const handleIntegrationClick = (e) => {
-    console.log(e);
-    //setIntegrationData(getIntegrationdata);
+    setparentID(e.target.parentNode.getAttribute('id'))
   };
   const handlePrevClick = (e) => {
     setPage(page - 1);
   };
 
   useEffect(() => {
-    handleClick();
+    handleLoad();
   }, [page]);
 
-  const handleClick = async () => {
+  useEffect(() => {
+    if(parentID){
+      getIntegrationData();
+    }
+  }, [parentID]);
+
+  useEffect(() => {
+    if(integrationdata.length > 0){
+      getusernames();
+    }
+  }, [integrationdata]);
+
+  const handleLoad = async () => {
     await getData();
   };
 
@@ -58,7 +120,7 @@ function GetIntegration() {
             </thead>
             <tbody>
               {data.map((integration) => (
-                <tr className="py-4 even:bg-green-200 odd:bg-green-50 hover:bg-blend-darken hover:bg-gray-300" key={integration.id} onClick={handlePrevClick}>
+                <tr id={integration.id} className="py-4 even:bg-green-200 odd:bg-green-50 hover:bg-blend-darken hover:bg-gray-300" key={integration.id} onClick={handleIntegrationClick}>
                   <td className="whitespace-nowrap px-6 py-4">{integration.id}</td>
                   <td className="whitespace-nowrap px-6 py-4">{integration.name}</td>
                   <td className="whitespace-nowrap px-6 py-4">{integration.type}</td>
@@ -101,11 +163,16 @@ function GetIntegration() {
               </tr>
             </thead>
             <tbody>
-              {data.map((integration) => (
-                <tr className="py-4 even:bg-green-200 odd:bg-green-50 hover:bg-blend-darken hover:bg-gray-300" key={integration.id}>
-                  <td className="whitespace-nowrap px-6 py-4">{integration.id}</td>
-                  <td className="whitespace-nowrap px-6 py-4">{integration.name}</td>
-                  <td className="whitespace-nowrap px-6 py-4">{integration.type}</td>
+              {integrationdata.map((integrationdata) => (
+                <tr className="py-4 even:bg-green-200 odd:bg-green-50 hover:bg-blend-darken hover:bg-gray-300" key={integrationdata.id}>
+                  <td className="whitespace-nowrap px-6 py-4">{integrationdata.id}</td>
+                  <td className="whitespace-nowrap px-6 py-4">{usernames[integrationdata.Id]}</td>
+                  <td className="whitespace-nowrap px-6 py-4">{integrationdata.timestamp}</td>
+                  {Object.keys(integrationdata.data).map((key) => (
+                    <td className="whitespace-nowrap px-6 py-4" key={key}>
+                      {`${key}: ${integrationdata.data[key]}`}
+                    </td>
+                  ))}
                 </tr>
               ))}
             </tbody>
@@ -114,28 +181,6 @@ function GetIntegration() {
     </div>
   );
 }
-
-
-function GetIntegrationdata(id){
-  const [data, setData] = useState([]);
-
-  const getData = async () => {
-    try {
-      const response = await fetch('http://localhost/api/v1/integration/'+id+'/data/pageable?page=0&size=10');
-      if (!response.ok) {
-        // Handle non-OK responses
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      const responseData = await response.json();
-      setData(responseData.content);
-      console.log('Success:', responseData);
-    } catch (error) {
-      const errorMessage = data.messages.join(', ');
-    }
-  };
-
-  return data;
-};
 
 
 export default GetIntegration;
