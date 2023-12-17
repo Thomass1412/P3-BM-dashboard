@@ -45,10 +45,6 @@ public class CustomAuthorityRepositoryImpl implements CustomAuthorityRepository 
         logger.debug("Checking if authority exists by name: {}", name);
         Query query = Query.query(Criteria.where("name").regex("^" + Pattern.quote(name) + "$", "i"));
 
-        return mongoTemplate.exists(query, Authority.class, "authorities")
-                .map(exists -> {
-                    logger.debug("Exists by name: {}, result: {}", name, exists);
-                    return exists;
-                });
+        return mongoTemplate.exists(query, Authority.class, "authorities");
     }
 }
