@@ -14,16 +14,14 @@ export default function Page() {
                 <div className="mx-8">
                     <h1 className="flex items-center justify-center rounded-t-lg w-1/4 text-2xl font-extrabold text-green-100 bg-green-700">DashBoard Preview</h1>
                 </div>
-                <div className="p-1 flex-1 grid grid-cols-4 grid-rows-3 gap-1 mx-8 mb-4 bg-green-50 border-green-700 border-4 rounded-lg rounded-tl-none">
-                    {leaderboard}
-                    <div className="col-span-1 bg-green-200 rounded-md flexCenterC justify-center text-green-700 text-5xl">+</div>
-                    <div className="col-span-1 bg-green-200 rounded-md flexCenterC justify-center text-green-700 text-5xl">+</div>
-                    <div className="col-span-1 bg-green-200 rounded-md flexCenterC justify-center text-green-700 text-5xl">+</div>
-                    <div className="col-span-1 bg-green-200 rounded-md flexCenterC justify-center text-green-700 text-5xl">+</div>
-                    <div className="col-span-1 bg-green-200 rounded-md flexCenterC justify-center text-green-700 text-5xl">+</div>
-                    <div className="col-span-1 bg-green-200 rounded-md flexCenterC justify-center text-green-700 text-5xl">+</div>
-                    <div className="col-span-1 bg-green-200 rounded-md flexCenterC justify-center text-green-700 text-5xl">+</div>
-                    <div className="col-span-1 bg-green-200 rounded-md flexCenterC justify-center text-green-700 text-5xl">+</div>
+                <div className="flex-1 flex flex-row flex-wrap mx-8 mb-4 overflow-hidden bg-green-50 border-green-700 border-4 rounded-lg rounded-tl-none">
+                    <div className="border-green-700 h-1/2 w-1/3 border "></div>
+                    <div className="border-green-700 h-1/2 w-1/3 border "></div>
+                    <div className="border-green-700 h-1/2 w-1/3 border "></div>
+                    <div className="border-green-700 h-1/2 w-1/3 border "></div>
+                    <div className="border-green-700 h-1/2 w-1/3 border "></div>
+                    <div className="border-green-700 h-1/2 w-1/3 border "></div>
+
                 </div>
             </div>
             <div className="flex flex-col col-span-1 row-span-2">
