@@ -2,6 +2,7 @@ package com.aau.p3.performancedashboard.payload.response;
 
 import java.util.List;
 import java.util.Date;
+import java.util.LinkedList;
 
 import com.aau.p3.performancedashboard.payload.MetricUserCount;
 
@@ -19,5 +20,5 @@ public class MetricResultResponse {
     private String metricName;
     private Date startDate;
     private Date endDate;
-    private List<MetricUserCount> metricUserCounts;
+    private List<MetricUserCount> metricUserCounts = new LinkedList<>();
 }

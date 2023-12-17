@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.aau.p3.performancedashboard.converter.MetricConverter;
 import com.aau.p3.performancedashboard.events.IntegrationDataEvent;
 import com.aau.p3.performancedashboard.exceptions.IntegrationNotFoundException;
+import com.aau.p3.performancedashboard.model.Integration;
 import com.aau.p3.performancedashboard.model.Metric;
 import com.aau.p3.performancedashboard.payload.MetricUserCount;
 import com.aau.p3.performancedashboard.payload.request.CreateIntegrationDataRequest;
@@ -28,6 +29,8 @@ import reactor.core.publisher.Mono;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -190,9 +193,44 @@ public class MetricService implements PropertyChangeListener {
     }
 
     private void metricTester(IntegrationDataEvent event) {
+        // Extract event
         String integrationId = event.getIntegrationId();
+        Integration integration = integrationService.findById(integrationId).block();
+
+        String collectionName = integration.getDataCollection();
+
         CreateIntegrationDataRequest integrationDataRequest = event.getIntegrationDataRequest();
-        
+
+        // Set dates
+        Date endDate = new Date(); // get the latest.
+        Date startDate;
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
+            startDate = dateFormat.parse("2023-09-05T12:08:34.000+00:00");
+        } catch (ParseException e) {
+            // Handle the exception
+            startDate = null; // or provide a default value
+        }
+
+        // Create initial MetricResultResponse with empty counts
+        MetricResultResponse initialMetricResultResponse = new MetricResultResponse();
+        initialMetricResultResponse.setStartDate(startDate);
+        initialMetricResultResponse.setEndDate(endDate);
+        initialMetricResultResponse.setMetricUserCounts(new ArrayList<>());
+
+        // Perform aggregations
+        Mono<MetricResultResponse> resultMono = Mono.just(initialMetricResultResponse)
+                .flatMap(response -> metricCountDocumentsByCriteria(response, collectionName, OPERATOR.PLUS))
+                .flatMap(response -> metricCountDocumentsByCriteria(response, collectionName, OPERATOR.MINUS))
+                .flatMap(response -> metricCountDocumentsByCriteria(response, collectionName, OPERATOR.PLUS));
+
+        // Subscribe to the final result and log
+        resultMono.subscribe(finalResponse -> {
+            logger.debug("Final Metric result response: " + finalResponse);
+            finalResponse.getMetricUserCounts().forEach(metricUserCount -> {
+                logger.debug("Metric user count: " + metricUserCount);
+            });
+        });
     }
 
     private enum OPERATOR {
@@ -202,39 +240,45 @@ public class MetricService implements PropertyChangeListener {
     public Mono<MetricResultResponse> metricCountDocumentsByCriteria(MetricResultResponse metricResultResponse,
             String collectionName, OPERATOR operator) {
 
-        // Create the match operation to filter documents between the start and end
-        // dates
+        logger.debug("Metric result response: " + metricResultResponse);
+        logger.debug("Collection name: " + collectionName);
+        logger.debug("Operator: " + operator);
+        logger.debug("Metric user counts: " + metricResultResponse.getMetricUserCounts());
+
         Criteria dateCriteria = Criteria.where("timestamp").gte(metricResultResponse.getStartDate())
                 .lte(metricResultResponse.getEndDate());
         MatchOperation matchOperation = Aggregation.match(dateCriteria);
 
-        // Create the group operation to group by userId and count the number of
-        // documents
         GroupOperation groupOperation = Aggregation.group("userId").count().as("count");
-
-        // Create the aggregation pipeline with the match and group operations
         Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
 
-        // Perform the aggregation query.
-        return mongoTemplate.aggregate(aggregation, collectionName, MetricUserCount.class)
+        return mongoTemplate.aggregate(aggregation, collectionName, Map.class)
                 .collectList()
-                .flatMap(metricUserCounts -> {
-                    // Process the aggregated results based on the operator.
-                    Map<String, MetricUserCount> currentCounts = metricResultResponse.getMetricUserCounts().stream()
-                            .collect(Collectors.toMap(MetricUserCount::getUserId, count -> count));
+                .flatMap(aggregatedResults -> {
+                    // Map for storing updated counts
+                    Map<String, MetricUserCount> updatedCounts = new HashMap<>();
 
-                    metricUserCounts.forEach(count -> {
-                        // Apply the operator to each count.
-                        MetricUserCount currentCount = currentCounts.getOrDefault(count.getUserId(),
-                                new MetricUserCount(count.getUserId(), 0));
-                        int updatedValue = applyOperator(currentCount.getCount(), count.getCount(), operator);
+                    // Initialize with existing counts
+                    for (MetricUserCount count : metricResultResponse.getMetricUserCounts()) {
+                        updatedCounts.put(count.getUserId(), new MetricUserCount(count.getUserId(), count.getCount()));
+                    }
+
+                    // Update counts based on aggregation results
+                    for (Map<?, ?> result : aggregatedResults) {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> resultMap = (Map<String, Object>) result;
+
+                        String userId = (String) resultMap.get("_id");
+                        int newCount = ((Number) resultMap.get("count")).intValue();
+
+                        MetricUserCount currentCount = updatedCounts.getOrDefault(userId,
+                                new MetricUserCount(userId, 0));
+                        int updatedValue = applyOperator(currentCount.getCount(), newCount, operator);
                         currentCount.setCount(updatedValue);
-                        currentCounts.put(count.getUserId(), currentCount);
-                    });
+                        updatedCounts.put(userId, currentCount);
+                    }
 
-                    // Update the metricResultResponse with the new counts.
-                    List<MetricUserCount> updatedCounts = new ArrayList<>(currentCounts.values());
-                    metricResultResponse.setMetricUserCounts(updatedCounts);
+                    metricResultResponse.setMetricUserCounts(new ArrayList<>(updatedCounts.values()));
                     return Mono.just(metricResultResponse);
                 });
     }
@@ -243,9 +287,10 @@ public class MetricService implements PropertyChangeListener {
      * Applies the specified operator to the current value and the new value.
      * 
      * @param currentValue the current value
-     * @param newValue the new value
-     * @param operator the operator to apply
-     * @return the result of applying the operator to the current value and the new value
+     * @param newValue     the new value
+     * @param operator     the operator to apply
+     * @return the result of applying the operator to the current value and the new
+     *         value
      */
     private int applyOperator(int currentValue, int newValue, OPERATOR operator) {
         switch (operator) {
