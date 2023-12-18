@@ -8,6 +8,9 @@ import org.springframework.stereotype.Service;
 import com.aau.p3.performancedashboard.converter.MetricConverter;
 import com.aau.p3.performancedashboard.events.IntegrationDataEvent;
 import com.aau.p3.performancedashboard.exceptions.IntegrationNotFoundException;
+import com.aau.p3.performancedashboard.exceptions.MetricNotFoundException;
+import com.aau.p3.performancedashboard.metricBuilder.MetricOperation;
+import com.aau.p3.performancedashboard.metricBuilder.MetricOperationEnum;
 import com.aau.p3.performancedashboard.model.Integration;
 import com.aau.p3.performancedashboard.model.Metric;
 import com.aau.p3.performancedashboard.payload.MetricUserCount;
@@ -36,7 +39,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -107,65 +109,137 @@ public class MetricService implements PropertyChangeListener {
         }
     }
 
-    public Flux<Double> getCountsByUser(String collectionName) {
-        MatchOperation matchOperation = new MatchOperation(Criteria.where("Field1").is("Bwa"));
+    /*
+     * private void updateMetricsForIntegration(IntegrationDataEvent
+     * integrationDataEvent) {
+     * String integrationId = integrationDataEvent.getIntegrationId();
+     * CreateIntegrationDataRequest integrationDataRequest =
+     * integrationDataEvent.getIntegrationDataRequest();
+     * 
+     * // Get metrics for the integration
+     * List<String> metricIds = metrics.get(integrationId);
+     * if (metricIds != null) {
+     * logger.debug("Found metrics for integration with ID: " + integrationId);
+     * logger.debug("Metrics: " + metricIds);
+     * 
+     * // Update metrics
+     * for (String metricId : metricIds) {
+     * logger.debug("Updating metric with ID: " + metricId);
+     * updateMetric(metricId, integrationDataRequest);
+     * }
+     * } else {
+     * logger.debug("No metrics found for integration with ID: " + integrationId);
+     * }
+     * 
+     * }
+     */
 
-        GroupOperation groupOperation = Aggregation.group("userId").count().as("count");
+    private Mono<MetricResultResponse> calculateMetric(String metricId, Date startDate, Date endDate) {
+        return metricRepository.findById(metricId)
+                .switchIfEmpty(Mono.error(new MetricNotFoundException("Metric not found with ID: " + metricId)))
+                .flatMap(metric -> {
+                    // Step 2: Parse the Metric's MetricOperations and perform calculations
+                    MetricResultResponse initialMetricResultResponse = new MetricResultResponse();
+                    initialMetricResultResponse.setStartDate(startDate);
+                    initialMetricResultResponse.setEndDate(endDate);
+                    initialMetricResultResponse.setMetricUserCounts(new ArrayList<>());
 
-        Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
+                    MetricOperationEnum previousOperator = null; // Track the previous operator
+                    MetricResultResponse finalMetricResultResponse;
 
-        return mongoTemplate.aggregate(aggregation, collectionName, Double.class);
+                    // Iterate through the MetricOperations
+                    for (MetricOperation metricOperation : metric.getMetricOperations()) {
+                        
+                        // Invalid operation
+                        if (previousOperator != null && isBigFourOperation(metricOperation.getOperation())) {
+                            // If the previous was not null, and the requested is big 4, this means plus plus or minus minus. Ignore for now
+                            metricOperation.setOperator(previousOperator);
+                        }
+
+                        // If the operation is big four, set the operator to the previous operator
+                        if (isBigFourOperation(metricOperation.getOperation())) {
+                            // Store the current operator for the next MetricOperation
+                            MetricOperationEnum currentOperator = metricOperation.getOperation();
+                            previousOperator = currentOperator;
+                        }
+
+                        if (MetricOperationEnum.COUNT.equals(metricOperation.getOperation())) {
+                            // If it's a COUNT operation, invoke metricCountDocumentsByCriteria based on the
+                            // criteria
+                            finalMetricResultResponse = metricCountDocumentsByCriteria(initialMetricResultResponse,
+                                    integration.getDataCollection(),
+                                    MetricOperationEnum.valueOf(metricOperation.getOperator().name()),
+                                    metricOperation.getCriteria());
+                        }
+                    }
+
+                    return Mono.just(initialMetricResultResponse);
+                });
     }
+
+    private boolean isBigFourOperation(MetricOperationEnum operation) {
+        return operation == MetricOperationEnum.ADD ||
+                operation == MetricOperationEnum.SUBTRACT ||
+                operation == MetricOperationEnum.MULTIPLY ||
+                operation == MetricOperationEnum.DIVIDE;
+    }
+    /*
+     * public Flux<Double> getCountsByUser(String collectionName) {
+     * MatchOperation matchOperation = new
+     * MatchOperation(Criteria.where("Field1").is("Bwa"));
+     * 
+     * GroupOperation groupOperation =
+     * Aggregation.group("userId").count().as("count");
+     * 
+     * Aggregation aggregation = Aggregation.newAggregation(matchOperation,
+     * groupOperation);
+     * 
+     * return mongoTemplate.aggregate(aggregation, collectionName, Double.class);
+     * }
+     */
 
     public Mono<MetricResponse> createMetric(CreateMetricRequest createMetricRequest) {
         logger.debug("Creating metric with name: " + createMetricRequest.getName());
 
-        Metric metric = new Metric();
-        metric.setName(createMetricRequest.getName());
-        metric.setDependentIntegrationIds(createMetricRequest.getDependentIntegrationIds());
+        // Use the converter to create the Metric entity
+        Metric metric = metricConverter.convertToEntity(createMetricRequest);
 
-        // 1. Ensure that an integration with the same name does not already exist
-        // 2. Ensure that all dependent integrations exist
-        // 3. Create the metric
+        logger.debug("HERE! Metric: " + metric);
+        // Check if a metric with the given name already exists
         return metricRepository.existsByName(createMetricRequest.getName())
                 .flatMap(metricExists -> {
                     if (metricExists) {
-                        // Metric with the given name already exists, raise an exception
+                        logger.error("Metric with name '" + createMetricRequest.getName() + "' already exists.");
                         return Mono.error(new IllegalArgumentException(
                                 "Metric with name '" + createMetricRequest.getName() + "' already exists."));
                     } else {
-                        // Metric with the given name does not exist, proceed to check dependent
-                        // integrations
+                        logger.debug("Metric with name '" + createMetricRequest.getName()
+                                + "' does not exist. Proceeding with creation.");
                         List<String> notFoundIds = new ArrayList<>();
-
-                        return Flux.fromIterable(createMetricRequest.getDependentIntegrationIds())
-                                .flatMap(id -> integrationService.findById(id)
-                                        .switchIfEmpty(Mono.fromRunnable(() -> notFoundIds.add(id))))
-                                .then(Mono.defer(() -> {
-                                    // If any dependent integration is not found, raise an exception
+                        return Flux.fromIterable(metric.getDependentIntegrationIds())
+                                .flatMap(id -> {
+                                    logger.debug("Checking existence of integration with ID: " + id);
+                                    return integrationService.findById(id)
+                                            .doOnNext(integration -> logger.debug("Found integration with ID: " + id))
+                                            .switchIfEmpty(Mono.fromRunnable(() -> {
+                                                logger.warn("Integration with ID " + id + " not found.");
+                                                notFoundIds.add(id);
+                                            }));
+                                })
+                                .collectList()
+                                .flatMap(list -> {
                                     if (!notFoundIds.isEmpty()) {
+                                        logger.error("Some dependent integrations not found: " + notFoundIds);
                                         return Mono.error(new IntegrationNotFoundException(notFoundIds));
                                     } else {
-                                        // All dependent integrations are found, continue with the next step
-                                        return Mono.just(true);
+                                        logger.debug("All dependent integrations found. Proceeding to insert metric.");
+                                        return mongoTemplate.insert(metric)
+                                                .doOnSuccess(createdMetric -> logger
+                                                        .debug("Successfully created metric with ID: "
+                                                                + createdMetric.getId()))
+                                                .map(metricConverter::convertToResponse);
                                     }
-                                }));
-                    }
-                })
-                .flatMap(isValid -> {
-                    // isValid is true only if metric does not exist and all dependent integrations
-                    // are found
-                    if (isValid) {
-                        // Insert the metric into MongoDB
-                        return mongoTemplate.insert(metric)
-                                .doOnNext(createdMetric -> {
-                                    for (String integrationId : createdMetric.getDependentIntegrationIds()) {
-                                        metrics.computeIfAbsent(integrationId, k -> new ArrayList<>())
-                                                .add(createdMetric.getId());
-                                    }
-                                }).map(metricConverter::convertToResponse);
-                    } else {
-                        return Mono.empty(); // Or return an appropriate response or error
+                                });
                     }
                 });
     }
@@ -218,11 +292,19 @@ public class MetricService implements PropertyChangeListener {
         initialMetricResultResponse.setEndDate(endDate);
         initialMetricResultResponse.setMetricUserCounts(new ArrayList<>());
 
+        // Make some criteria
+        Map<String, String> customCriteria = new HashMap<>();
+        customCriteria.put("data.Publikation", "Berlingske");
+        customCriteria.put("data.Type", "Aktivt salg");
+
         // Perform aggregations
         Mono<MetricResultResponse> resultMono = Mono.just(initialMetricResultResponse)
-                .flatMap(response -> metricCountDocumentsByCriteria(response, collectionName, OPERATOR.PLUS))
-                .flatMap(response -> metricCountDocumentsByCriteria(response, collectionName, OPERATOR.MINUS))
-                .flatMap(response -> metricCountDocumentsByCriteria(response, collectionName, OPERATOR.PLUS));
+                .flatMap(response -> metricCountDocumentsByCriteria(response, collectionName, MetricOperationEnum.ADD,
+                        customCriteria))
+                .flatMap(response -> metricCountDocumentsByCriteria(response, collectionName,
+                        MetricOperationEnum.SUBTRACT, customCriteria))
+                .flatMap(response -> metricCountDocumentsByCriteria(response, collectionName, MetricOperationEnum.ADD,
+                        customCriteria));
 
         // Subscribe to the final result and log
         resultMono.subscribe(finalResponse -> {
@@ -233,21 +315,26 @@ public class MetricService implements PropertyChangeListener {
         });
     }
 
-    private enum OPERATOR {
-        PLUS, MINUS, MULTIPLY, DIVIDE
-    }
-
     public Mono<MetricResultResponse> metricCountDocumentsByCriteria(MetricResultResponse metricResultResponse,
-            String collectionName, OPERATOR operator) {
+            String collectionName, MetricOperationEnum operator, Map<String, String> customCriteria) {
 
         logger.debug("Metric result response: " + metricResultResponse);
         logger.debug("Collection name: " + collectionName);
         logger.debug("Operator: " + operator);
+        logger.debug("Additional Criteria: " + customCriteria);
         logger.debug("Metric user counts: " + metricResultResponse.getMetricUserCounts());
 
+        // Create criteria for the date
         Criteria dateCriteria = Criteria.where("timestamp").gte(metricResultResponse.getStartDate())
                 .lte(metricResultResponse.getEndDate());
-        MatchOperation matchOperation = Aggregation.match(dateCriteria);
+
+        // Create the final criteria, date and custom
+        Criteria dynamicCriteria = new Criteria().andOperator(dateCriteria);
+        for (Map.Entry<String, String> entry : customCriteria.entrySet()) {
+            dynamicCriteria = dynamicCriteria.and(entry.getKey()).is(entry.getValue());
+        }
+
+        MatchOperation matchOperation = Aggregation.match(dynamicCriteria);
 
         GroupOperation groupOperation = Aggregation.group("userId").count().as("count");
         Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation);
@@ -292,11 +379,11 @@ public class MetricService implements PropertyChangeListener {
      * @return the result of applying the operator to the current value and the new
      *         value
      */
-    private int applyOperator(int currentValue, int newValue, OPERATOR operator) {
+    private int applyOperator(int currentValue, int newValue, MetricOperationEnum operator) {
         switch (operator) {
-            case PLUS:
+            case ADD:
                 return currentValue + newValue;
-            case MINUS:
+            case SUBTRACT:
                 return currentValue - newValue;
             case MULTIPLY:
                 return currentValue * newValue;
@@ -308,6 +395,7 @@ public class MetricService implements PropertyChangeListener {
                     return currentValue;
                 }
             default:
+                logger.error("Invalid operator: " + operator);
                 return currentValue;
         }
     }

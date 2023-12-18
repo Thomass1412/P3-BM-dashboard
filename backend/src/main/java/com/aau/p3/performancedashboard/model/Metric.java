@@ -37,8 +37,4 @@ public class Metric {
     private List<String> dependentMetricIds;
 
     private List<MetricOperation> metricOperations;
-
-    private List<String> criteria;
-
-
 }

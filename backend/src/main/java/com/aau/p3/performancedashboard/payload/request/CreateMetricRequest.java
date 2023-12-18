@@ -19,14 +19,15 @@ public class CreateMetricRequest {
     @Schema(name = "name", example = "Berlingske salg", required = true)
     private String name;
 
-    @NotEmpty(message = "Dependent integration ids must not be empty")
-    @Schema(name = "dependentIntegrationIds", example = "[\"657dc70fc773a63db12e5f97\"]", required = true)
-    private List<String> dependentIntegrationIds;
+    //@NotEmpty(message = "Dependent integration ids must not be empty")
+    //@Schema(name = "dependentIntegrationIds", example = "[\"657dc70fc773a63db12e5f97\"]", required = true)
+    //private List<String> dependentIntegrationIds;
 
-    @Schema(name = "dependentMetricIds", example = "[\"657dc70fc773a63db12e5f97\"]", required = false)
-    private List<String> dependentMetricIds;
+    //@Schema(name = "dependentMetricIds", example = "[\"657dc70fc773a63db12e5f97\"]", required = false)
+    //private List<String> dependentMetricIds;
 
     @Valid
+    @Schema(name = "metricOperations", example = " ",  required = true)
     private List<MetricOperation> metricOperations;
 
 }
