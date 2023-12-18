@@ -138,6 +138,16 @@ public class UserController {
         return userService.getUserById(userId, authentication);
     }
 
+    @GetMapping("/{login}")
+    @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR') or hasRole('ROLE_AGENT')")
+    public Mono<ResponseEntity<String>> getIdByDisplayName(@PathVariable("login") String login,
+        Authentication authentication) {
+        return userService.getUserIdByLogin(login)
+            .map(userId -> ResponseEntity.ok(userId))
+            .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()));
+    }
+
+
     /**
      * Deletes a user by their ID.
      *

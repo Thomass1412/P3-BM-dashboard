@@ -133,6 +133,12 @@ public class UserService {
                 .switchIfEmpty(Mono.error(new NotFoundException("User not found.")));
     }
 
+    public Mono<String> getUserIdByLogin(String username) {
+        return userRepository.findByLogin(username)
+                .flatMap(user -> Mono.just(user.getId()))
+                .switchIfEmpty(Mono.error(new NotFoundException("User not found.")));
+    }
+
     public Mono<Void> deleteUserById(String userId) {
         return userRepository.findById(userId)
                 .flatMap(user -> userRepository.delete(user))
