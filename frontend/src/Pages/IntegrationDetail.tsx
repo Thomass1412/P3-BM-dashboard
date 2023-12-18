@@ -21,7 +21,7 @@ const IntegrationDetail = () => {
     // Fetch the integration details
     const fetchIntegrationDetail = async () => {
       try {
-        const detailResponse = await fetch(`/api/v1/integration/${integrationId}`);
+        const detailResponse = await fetch(`http://localhost/api/v1/integration/${integrationId}`);
         if (!detailResponse.ok) {
           throw new Error(`HTTP error! status: ${detailResponse.status}`);
         }
@@ -29,7 +29,7 @@ const IntegrationDetail = () => {
         setIntegration(detailData);
 
         // Fetch the integration schema
-        const schemaResponse = await fetch(`/api/v1/integration/${integrationId}/schema`);
+        const schemaResponse = await fetch(`http://localhost/api/v1/integration/${integrationId}/schema`);
         if (!schemaResponse.ok) {
           throw new Error(`HTTP error! status: ${schemaResponse.status}`);
         }
@@ -37,7 +37,7 @@ const IntegrationDetail = () => {
         setSchema(schemaData);
 
         // Fetch the integration data
-        const dataResponse = await fetch(`/api/v1/integration/${integrationId}/data/pageable`);
+        const dataResponse = await fetch(`http://localhost/api/v1/integration/${integrationId}/data/pageable`);
         if (!dataResponse.ok) {
             throw new Error(`HTTP error! status: ${dataResponse.status}`);
         }
@@ -46,7 +46,8 @@ const IntegrationDetail = () => {
         // If the data is under a property like 'content' or 'data', adjust as necessary
         setData(dataData.content || dataData.data || []);
       } catch (error) {
-        console.error('Fetching integration failed:', error);
+        console.error('Error fetching:', error);
+    console.error('Response:', error.response);
       }
     };
 
@@ -58,25 +59,28 @@ const IntegrationDetail = () => {
   }
 
   return (
-    <div className="container mx-auto my-8">
-    <Header />
-    <h1 className="text-2xl font-bold mb-4">{integration && (integration as Integration).name}</h1>
-      
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">Schema</h2>
-        <SchemaComponent schema={schema} />
-      </section>
+    <div className="w-full mx-auto bg-green-50">
+      <Header />
+      <div className=' m-24 text-black'>
+        <h1 className="text-2xl font-bold mb-4">{integration && (integration as Integration).name}</h1>
+        
+        <section className=" mb-8">
+          <h2 className="text-xl font-semibold mb-2">Schema</h2>
+          <SchemaComponent schema={schema} />
+        </section>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">Submit New Data</h2>
-        <DataForm integrationId={integrationId} schema={schema} />
-      </section>
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-2">Submit New Data</h2>
+          <DataForm integrationId={integrationId} schema={schema} />
+        </section>
 
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-2">Integration Data</h2>
-        <DataTable data={data} />
-      </section>
+        <section className="mb-8">
+          <h2 className="text-xl font-semibold mb-2">Integration Data</h2>
+          <DataTable data={data} />
+        </section>
+      </div>
     </div>
+    
   );
 };
 

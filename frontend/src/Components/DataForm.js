@@ -16,7 +16,7 @@ const DataForm = ({ integrationId, schema }) => {
     };
 
     try {
-      const response = await fetch(`/api/v1/integration/${integrationId}`, {
+      const response = await fetch(`http://localhost/api/v1/integration/${integrationId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
