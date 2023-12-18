@@ -111,14 +111,6 @@ function GetIntegration() {
     await getData();
   };
 
-  const formatDate = (timestamp) => {
-    const date = new Date(timestamp);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
-
   return (
     <div className="flex flex-row relative text-black h-full w-full">
       <div className="flex flex-col relative text-black items-center h-full w-full">

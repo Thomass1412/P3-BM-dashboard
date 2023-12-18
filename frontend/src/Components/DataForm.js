@@ -38,8 +38,7 @@ const DataForm = ({ integrationId, schema }) => {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const responseData = await response.json();
-      console.log(responseData.login)
-      return responseData.login;
+      return responseData.id;
 
     }catch(error) {
       console.error('Error submitting data:', error);
@@ -49,32 +48,38 @@ const DataForm = ({ integrationId, schema }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();  
-    console.log(getNameId())  
-    const payload = {
-      userId: getNameId(),
-      timestamp: new Date().toISOString(),
-      data: formData, // assuming 'data' is the nested object required by the API
-    };
-    console.log(JSON.stringify(payload))
     try {
-      const response = await fetch(`http://localhost/api/v1/integration/${integrationId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer '+ document.cookie.split("=")[1],
-        },
-        body: JSON.stringify(payload),
-      });
+      const loginId = await getNameId();
+      console.log("her "+loginId);
+      const payload = {
+        userId: loginId,
+        timestamp: new Date().toISOString(),
+        data: formData, // assuming 'data' is the nested object required by the API
+      };
       console.log(JSON.stringify(payload))
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      try {
+        const response = await fetch(`http://localhost/api/v1/integration/${integrationId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer '+ document.cookie.split("=")[1],
+          },
+          body: JSON.stringify(payload),
+        });
+        console.log(JSON.stringify(payload))
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.json();
+        console.log('Data submitted:', result);
+        console.log('Success: ', result);
+      } catch (error) {
+        console.error('Error submitting data:', error);
       }
-      const result = await response.json();
-      console.log('Data submitted:', result);
-      console.log('Success: ', result);
     } catch (error) {
-      console.error('Error submitting data:', error);
+      console.error('Error:', error);
     }
+    
   };
 
   // Dynamically create form inputs based on the schema
