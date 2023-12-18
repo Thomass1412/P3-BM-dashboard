@@ -28,6 +28,7 @@ const DataForm = ({ integrationId, schema }) => {
       }
       const result = await response.json();
       console.log('Data submitted:', result);
+      console.log('Success: ', result);
     } catch (error) {
       console.error('Error submitting data:', error);
     }
