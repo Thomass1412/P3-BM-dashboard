@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
 
 function Login() {
   const [loginInfo, setLoginInfo] = useState({
@@ -42,6 +43,7 @@ function Login() {
       // Handle success response
       console.log(`HTTP status: ${response.status}`);
       console.log("Success:", data.token);
+      Cookies.set('login', data.token, { expires: 7 });
 
       navigate("/supervisor")
       

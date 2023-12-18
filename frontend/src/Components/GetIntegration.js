@@ -44,6 +44,7 @@ function GetIntegration() {
     }
   };
 
+
   const getusernames = async (userID) => {
     try {
       const token = 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNzAyOTI0ODE0LCJpYXQiOjE3MDI4Mzg0MTR9.PgwOZyE-2cvUaoYpvvLvZAPRX1eKQA_5M7SYO1a0v8BLEvZj-VY9b0FPnAzAwB8K6_5s0YIcjS-SUezjKcKvXg';
@@ -51,7 +52,7 @@ function GetIntegration() {
         method: 'GET',
           headers: {
             'Accept': 'application/json',
-            'Authorization': token,
+            'Authorization': 'Bearer '+ document.cookie.split("=")[1],
           },
         });
 

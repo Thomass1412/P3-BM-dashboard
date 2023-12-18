@@ -1,28 +1,71 @@
 import React, { useState } from 'react';
+import { jwtDecode } from "jwt-decode";
 
 const DataForm = ({ integrationId, schema }) => {
   const [formData, setFormData] = useState({});
+  const [name, setName] = useState();
+
+  const getCookie= (name) => {
+    let cookieArray = document.cookie.split(';'); // Split the cookie string into an array
+    let cookieName = name + "="; // Create the cookie name with equals sign
+
+    for (let cookie of cookieArray) {
+        cookie = cookie.trim(); // Trim whitespace
+        if (cookie.indexOf(cookieName) == 0) { // If the cookie's name is found at the beginning of the string
+            return cookie.substring(cookieName.length, cookie.length); // Return the value of the cookie
+        }
+    }
+    return ""; // Return empty string if the cookie is not found
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
+  const getNameId = async ()=>{
+    try{
+      const response = await fetch('http://localhost/api/v1/user/idByLogin/'+jwtDecode(document.cookie.split("=")[1]).sub, {
+        method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': 'Bearer '+ document.cookie.split("=")[1],
+          },
+        });
+
+      if (!response.ok) {
+        // Handle non-OK responses
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const responseData = await response.json();
+      console.log(responseData.login)
+      return responseData.login;
+
+    }catch(error) {
+      console.error('Error submitting data:', error);
+    }
+    return "";
+  }
+
   const handleSubmit = async (event) => {
-    event.preventDefault();
+    event.preventDefault();  
+    console.log(getNameId())  
     const payload = {
+      userId: getNameId(),
       timestamp: new Date().toISOString(),
       data: formData, // assuming 'data' is the nested object required by the API
     };
-
+    console.log(JSON.stringify(payload))
     try {
       const response = await fetch(`http://localhost/api/v1/integration/${integrationId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer '+ document.cookie.split("=")[1],
         },
         body: JSON.stringify(payload),
       });
+      console.log(JSON.stringify(payload))
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
