@@ -14,9 +14,14 @@ export default function IntegrationForm() {
     setFormFields(values);
   };
 
+  const getUser = async() =>{
+    
+  }
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     const payload = {
+      userId: userid,
       name: integrationName,
       type: 'internal', // Adjust this if it should be dynamic as well
       schema: formFields,
