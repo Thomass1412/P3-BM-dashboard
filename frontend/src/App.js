@@ -7,6 +7,9 @@ import NewIntergration from "./Pages/newIntergrationPage.tsx";
 import NewMetric from "./Pages/newMetricPage.tsx";
 import GetInt from "./Pages/getntgrationpage.tsx";
 import SnackbarProvider from "./Components/SnackbarProvider.js";
+import CreateNewUser from "./Pages/CreateUserPage.tsx";
+import IntegrationDetail from "./Pages/IntegrationDetail.tsx"; // Make sure to create this component
+import IntegrationsList from './Pages/IntegrationsList.tsx';
 
 export default function App() {
   return (
@@ -20,6 +23,9 @@ export default function App() {
           <Route path="/newintergration" element={<NewIntergration />}/>
           <Route path="/newMetric" element={<NewMetric />}/>
           <Route path="/viewintergrations" element={<GetInt />}/>
+          <Route path="/newuser" element={<CreateNewUser />}/>
+          <Route path="/integrations" element={<IntegrationsList />}/>
+          <Route path="/integrations/:integrationId" element={<IntegrationDetail />}/>
         </Routes>
       </SnackbarProvider>
     </BrowserRouter>

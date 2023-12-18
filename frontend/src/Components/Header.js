@@ -63,6 +63,9 @@ function Header() {
                   <li className="border-solid border-b-2 hover:border-green-200 border-green-700" >
                     <a href="/viewintergrations" className="block rounded md:bg-transparent md:p-0">view integrations</a>
                   </li>
+                  <li className="border-solid border-b-2 hover:border-green-200 border-green-700" >
+                    <a href="/newuser" className="block rounded md:bg-transparent md:p-0">Create new user</a>
+                  </li>
                 </ul>
               )}
             </div>
