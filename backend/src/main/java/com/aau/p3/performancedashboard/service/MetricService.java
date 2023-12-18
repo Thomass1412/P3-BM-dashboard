@@ -166,10 +166,10 @@ public class MetricService implements PropertyChangeListener {
                         if (MetricOperationEnum.COUNT.equals(metricOperation.getOperation())) {
                             // If it's a COUNT operation, invoke metricCountDocumentsByCriteria based on the
                             // criteria
-                            finalMetricResultResponse = metricCountDocumentsByCriteria(initialMetricResultResponse,
-                                    integration.getDataCollection(),
-                                    MetricOperationEnum.valueOf(metricOperation.getOperator().name()),
-                                    metricOperation.getCriteria());
+                            //finalMetricResultResponse = metricCountDocumentsByCriteria(initialMetricResultResponse,
+                            //        integration.getDataCollection(),
+                            //        MetricOperationEnum.valueOf(metricOperation.getOperator().name()),
+                             //       metricOperation.getCriteria());
                         }
                     }
 
