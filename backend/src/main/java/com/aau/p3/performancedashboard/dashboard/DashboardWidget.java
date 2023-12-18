@@ -1,7 +1,5 @@
 package com.aau.p3.performancedashboard.dashboard;
 
-import com.aau.p3.performancedashboard.model.WidgetOptions;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -43,7 +41,7 @@ public class DashboardWidget {
     @Schema(
         name = "options",
         description = "Configuration options for the dashboard widget",
-        example = "{\"integrationId\":\"655a40f451a6f25c2b736e30\",\"metricId\":\"655a40f451a6f25c2b736e30\",\"sortedBy\":{\"userId\":\"asc\"},\"startDate\":\"2021-05-01T00:00:00.000Z\",\"endDate\":\"2021-05-01T00:00:00.000Z\",\"limit\":10}",
+        example = "{\"integrationId\":\"657f48d3c83b964281c1986b\",\"metricId\":\"655a40f451a6f25c2b736e30\",\"sortedBy\":{\"userId\":\"asc\"},\"startDateType\":\"THIS_DAY\",\"endDateType\":\"THIS_DAY\",\"limit\":10}",
         required = true
     )
     @Valid

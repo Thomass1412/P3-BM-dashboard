@@ -20,6 +20,12 @@ public class MetricConverter {
 
     private static final Logger logger = LogManager.getLogger(MetricConverter.class);
 
+    /**
+        * Converts a Metric object to a MetricResponse object.
+        *
+        * @param metric the Metric object to be converted
+        * @return the converted MetricResponse object
+        */
     public MetricResponse convertToResponse(Metric metric) {
         logger.debug("Converting Metric to MetricResponse.");
         logger.debug("Metric ID: " + metric.getId());
@@ -35,6 +41,12 @@ public class MetricConverter {
         return metricResponse;
     }
 
+    /**
+        * Converts a CreateMetricRequest object to a Metric object.
+        *
+        * @param creaateMetricRequest the CreateMetricRequest object to be converted
+        * @return the converted Metric object
+        */
     public Metric convertToEntity(CreateMetricRequest createMetricRequest) {
         logger.debug("Converting CreateMetricRequest to Metric.");
         logger.debug("Request Name: " + createMetricRequest.getName());

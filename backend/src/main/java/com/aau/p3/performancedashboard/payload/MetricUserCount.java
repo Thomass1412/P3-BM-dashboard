@@ -11,5 +11,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class MetricUserCount {
     private String userId;
+    private String displayName;
     private int count;
 }
