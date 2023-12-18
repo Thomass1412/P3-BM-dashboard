@@ -1,80 +1,123 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
-function IntegrationForm() {
-  // State to store the form data
-  const [formData, setFormData] = useState({
-    name: "",
-    type: "",
-  });
+export default function IntegrationForm() {
+  const [integrationName, setIntegrationName] = useState('');
+  const [formFields, setFormFields] = useState([{ name: '', type: 'text' }]);
 
-  // Function to handle the form input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+  const handleIntegrationNameChange = (event) => {
+    setIntegrationName(event.target.value);
   };
 
-  // Function to handle the form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleFieldChange = (index, event) => {
+    const values = [...formFields];
+    values[index][event.target.name] = event.target.value;
+    setFormFields(values);
+  };
 
-    /*
-      Access to fetch at 'http://localhost/api/v1/integration' from origin 'http://localhost:3000' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource. If an opaque response serves your needs, set the request's mode to 'no-cors' to fetch the resource with CORS disabled.
-    */
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const payload = {
+      name: integrationName,
+      type: 'internal', // Adjust this if it should be dynamic as well
+      schema: formFields,
+    };
+
     try {
-      const response = await fetch("http://localhost/api/v1/integrations", {
-        method: "POST",
-        mode: "cors", // See comment above
-        credentials: "omit",
+      const response = await fetch('/api/v1/integration', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          name: formData.name,
-          title: formData.type,
-        }),
+        body: JSON.stringify(payload),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
-      // Handle success response
-      console.log("Success:", data);
+      console.log(data);
+      // Handle response or redirect user
     } catch (error) {
-      // Handle errors here
-      console.error("Error:", error);
+      console.error(error);
+      // Handle error
     }
   };
 
+  const addField = () => {
+    setFormFields([...formFields, { name: '', type: 'text' }]);
+  };
+
+  const removeField = (index) => {
+    const values = [...formFields];
+    values.splice(index, 1);
+    setFormFields(values);
+  };
+
   return (
-    <div className="w-full m-5 rounded-3xl bg-sky-900 flex flex-col items-center justify-between p-2">
-      <h1 className="lg:text-4xl mb-5 mx-10 mt-5 text-4xl font-extrabold">
-        Post integration
-      </h1>
-      <form onSubmit={handleSubmit}>
-          <label className="mx-2" htmlFor="id">ID:
-            <input className="w-full rounded-3xl mb-3 text-white py-1 px-2"
-              type="text"
-              id="id"
-              name="id"
-              value={formData.name}
-              onChange={handleChange}
-            />
-          </label>
-          <label htmlFor="title">Title:
-            <input className="w-full rounded-3xl mb-3 text-white py-1 px-2"
-              type="text"
-              id="title"
-              name="title"
-              value={formData.type}
-              onChange={handleChange}
-            />
-          </label>
-        <button className="bg-sky-50 bg-opacity-50 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded-full mb-5" 
-          type="submit">Submit
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label htmlFor="integrationName" className="block text-sm font-medium text-gray-700">
+          Integration Name
+        </label>
+        <input
+          type="text"
+          id="integrationName"
+          name="integrationName"
+          value={integrationName}
+          onChange={handleIntegrationNameChange}
+          className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          placeholder="Enter integration name"
+        />
+      </div>
+
+      {formFields.map((field, index) => (
+        <div key={index} className="flex flex-col space-y-2">
+          <label htmlFor={`field-${index}`} className="block text-sm font-medium text-gray-700">Data Field</label>
+          <input
+            type="text"
+            name="name"
+            value={field.name}
+            onChange={(event) => handleFieldChange(index, event)}
+            className="px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            placeholder="Field name"
+          />
+          <label htmlFor={`field-${index}`} className="block text-sm font-medium text-gray-700">Data Type</label>
+          <select
+            name="type"
+            value={field.type}
+            onChange={(event) => handleFieldChange(index, event)}
+            className="px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          >
+            <option value="text">Text</option>
+            <option value="date">Date</option>
+            <option value="number">Number</option>
+          </select>
+          <button
+            type="button"
+            onClick={() => removeField(index)}
+            className="px-4 py-1 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+          >
+            Delete Field
+          </button>
+        </div>
+      ))}
+
+      <div className="flex justify-between">
+        <button
+          type="button"
+          onClick={addField}
+          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          Add Field
         </button>
-      </form>
-    </div>
+        <button
+          type="submit"
+          className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+        >
+          Submit
+        </button>
+      </div>
+    </form>
   );
 }
-
-export default IntegrationForm;
