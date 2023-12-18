@@ -146,11 +146,5 @@ public class IntegrationServiceTests {
         Mockito.verify(integrationRepository).findByName(validRequest.getName());
         Mockito.verify(integrationRepository, Mockito.never()).save(Mockito.any());
     }
-    public Mono<IntegrationResponse> createIntegration(CreateIntegrationRequest integrationRequest) {
-        // Check if integration with given name already exists, or else create it
-        return integrationRepository.findByName(integrationRequest.getName())
-            .hasElement()
-            .flatMap(exists -> exists ? Mono.error(new IllegalArgumentException("Integration with name '" + integrationRequest.getName() + "' already exists.")) : integrationService.createInternalIntegration(integrationRequest));
-    }
 }
 
