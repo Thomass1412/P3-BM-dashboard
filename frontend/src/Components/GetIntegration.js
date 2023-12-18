@@ -149,7 +149,7 @@ function GetIntegration() {
           </div>
         </div>
       </div>
-      <div className="flex flex-col relative text-black items-center h-full w-1/2 border-l-2 border-green-700">
+      <div className="flex flex-col relative text-black items-center h-[83vh] w-1/2 border-l-2 border-green-700 overflow-y-scroll overflow-x-hidden">
         <div className='mx-8 w-full py-4'>
           <h1 className="flex items-center justify-center px-8 font-extrabold text-left text-xl pb-4 border-b dark:border-neutral-500 ">Intgration data</h1>
         </div>
@@ -162,17 +162,20 @@ function GetIntegration() {
                 <th scope="col" className="px-6 pb-3">Data</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className=''>
               {integrationdata.map((integrationdata) => (
-                <tr className="py-4 even:bg-green-200 odd:bg-green-50 hover:bg-blend-darken hover:bg-gray-300" key={integrationdata.id}>
+                <tr className="py-4 even:bg-green-200 odd:bg-green-50" key={integrationdata.id}>
                   <td className="whitespace-nowrap px-6 py-4">{integrationdata.id}</td>
                   <td className="whitespace-nowrap px-6 py-4">{usernames[integrationdata.Id]}</td>
                   <td className="whitespace-nowrap px-6 py-4">{integrationdata.timestamp}</td>
-                  {Object.keys(integrationdata.data).map((key) => (
-                    <td className="whitespace-nowrap px-6 py-4" key={key}>
-                      {`${key}: ${integrationdata.data[key]}`}
-                    </td>
-                  ))}
+                  <div className='flex flex-col'>
+                    {Object.keys(integrationdata.data).map((key) => (
+                      <td className="whitespace-nowrap px-6" key={key}>
+                        {`${key}: ${integrationdata.data[key]}`}
+                      </td>
+                    ))}
+                  </div>
+                  
                 </tr>
               ))}
             </tbody>
