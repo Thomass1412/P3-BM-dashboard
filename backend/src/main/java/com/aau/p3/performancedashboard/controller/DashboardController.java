@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.aau.p3.performancedashboard.model.Dashboard;
 import com.aau.p3.performancedashboard.payload.request.CreateDashboardRequest;
+import com.aau.p3.performancedashboard.payload.response.DashboardCalulatedResponse;
 import com.aau.p3.performancedashboard.payload.response.DashboardResponse;
 import com.aau.p3.performancedashboard.payload.response.ErrorResponse;
 import com.aau.p3.performancedashboard.payload.response.MessageResponse;
@@ -90,4 +91,11 @@ public class DashboardController {
         return this.dashboardService.deleteDashboard(dashboardId)
                 .map(messageResponse -> ResponseEntity.ok(messageResponse));
     }
+
+    @GetMapping(path = "/{dashboardId}", produces = "application/json")
+@PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR')")
+public Mono<ResponseEntity<DashboardCalulatedResponse>> calculateDashboard(@RequestParam String dashboardId) {
+        return this.dashboardService.calculateDashboard(dashboardId)
+                .map(dashboardCalculatedResponse -> ResponseEntity.ok(dashboardCalculatedResponse));
+}
 }
