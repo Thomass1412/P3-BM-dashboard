@@ -113,7 +113,7 @@ const DataForm = ({ integrationId, schema }) => {
       <h3 className="text-lg font-semibold mb-4">Submit New Data</h3>
       {renderFormFields()}
       <div className="flex items-center justify-between mt-4">
-        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+        <button className="bg-green-600 hover:bg-green-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
           Submit
         </button>
       </div>

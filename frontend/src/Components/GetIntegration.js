@@ -4,11 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 function GetIntegration() {
   const [data, setData] = useState([]);
-  const [integrationdata, setIntegrationData] = useState([]);
-  const [parentID, setparentID] = useState();
   const [maxPage, setMaxPage] = useState(1);
   const [page, setPage] = useState(0);
-  const [usernames, setUsernames] = useState([]);
   const { showSnackbar } = useSnackbar(); // Use the Snackbar hook
 
   const getData = async () => {
@@ -26,21 +23,6 @@ function GetIntegration() {
     } catch (error) {
       const errorMessage = data.messages.join(', ');
       showSnackbar('error', errorMessage);
-    }
-  };
-
-  const getIntegrationData = async() =>{
-    try {
-      const response = await fetch('http://localhost/api/v1/integration/'+parentID+'/data/pageable?page=0&size=50');
-      if (!response.ok) {
-        // Handle non-OK responses
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      const responseData = await response.json();
-      setIntegrationData(responseData.content);
-      console.log('Success: 11', responseData);
-    } catch (error) {
-      const errorMessage = integrationdata.messages.join(', ');
     }
   };
 
@@ -89,11 +71,6 @@ function GetIntegration() {
     handleLoad();
   }, [page]);
 
-  useEffect(() => {
-    if(parentID){
-      getIntegrationData();
-    }
-  }, [parentID]);
 
   useEffect(() => {
     if (integrationdata.length > 0) {
@@ -111,6 +88,17 @@ function GetIntegration() {
     await getData();
   };
 
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${hours}:${minutes} - ${day}/${month}/${year}`;
+  };
+
   return (
     <div className="flex flex-row relative text-black h-full w-full">
       <div className="flex flex-col relative text-black items-center h-full w-full">
@@ -121,6 +109,7 @@ function GetIntegration() {
                 <th scope="col" className="px-6 py-4">Id</th>
                 <th scope="col" className="px-6 py-4">Name</th>
                 <th scope="col" className="px-6 py-4">Type</th>
+                <th scope="col" className="px-6 py-4">Last updated</th>
               </tr>
             </thead>
             <tbody>
@@ -129,6 +118,7 @@ function GetIntegration() {
                   <td className="whitespace-nowrap px-6 py-4">{integration.id}</td>
                   <td className="whitespace-nowrap px-6 py-4">{integration.name}</td>
                   <td className="whitespace-nowrap px-6 py-4">{integration.type}</td>
+                  <td className="whitespace-nowrap px-6 py-4">{formatDate(integration.lastUpdated)}</td>
                 </tr>
               ))}
             </tbody>

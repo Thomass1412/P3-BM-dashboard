@@ -59,7 +59,7 @@ export default function IntegrationForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4 text-black">
       <div>
         <label htmlFor="integrationName" className="block text-sm font-medium text-gray-700">
           Integration Name
@@ -76,7 +76,7 @@ export default function IntegrationForm() {
       </div>
 
       {formFields.map((field, index) => (
-        <div key={index} className="flex flex-col space-y-2">
+        <div key={index} className="flex flex-col space-y-2 text-black">
           <label htmlFor={`field-${index}`} className="block text-sm font-medium text-gray-700">Data Field</label>
           <input
             type="text"

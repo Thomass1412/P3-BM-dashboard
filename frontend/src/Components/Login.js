@@ -69,7 +69,7 @@ function Login() {
           onChange={handleChange}
           placeholder="Username"
         />
-        <label className="mx-2 py-1 text-black left-0 absolute" htmlFor="username">
+        <label className="label mx-2 py-1 text-black left-0 absolute" htmlFor="username">
           Username{" "}
         </label>
         <input
@@ -80,7 +80,7 @@ function Login() {
           placeholder="Password"
           type="password"
         />
-        <label className="mx-2 py-1 text-black left-0 absolute" htmlFor="password">
+        <label className="label mx-2 py-1 text-black left-0 absolute" htmlFor="password">
           Password
         </label>
         <button
