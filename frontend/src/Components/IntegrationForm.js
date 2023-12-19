@@ -14,10 +14,6 @@ export default function IntegrationForm() {
     setFormFields(values);
   };
 
-  const getUser = async() =>{
-
-  }
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     const payload = {
