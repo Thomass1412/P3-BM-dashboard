@@ -19,7 +19,6 @@ import com.aau.p3.performancedashboard.payload.response.DashboardCalulatedRespon
 import com.aau.p3.performancedashboard.payload.response.DashboardResponse;
 import com.aau.p3.performancedashboard.payload.response.ErrorResponse;
 import com.aau.p3.performancedashboard.payload.response.MessageResponse;
-import com.aau.p3.performancedashboard.payload.response.MetricResponse;
 import com.aau.p3.performancedashboard.service.DashboardService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,6 +33,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+import java.time.Instant;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -45,7 +47,6 @@ import org.apache.logging.log4j.Logger;
 public class DashboardController {
 
     // Logger
-    @SuppressWarnings("unused")
     private static final Logger logger = LogManager.getLogger(DashboardController.class);
 
     // Dependencies
@@ -93,9 +94,24 @@ public class DashboardController {
     }
 
     @GetMapping(path = "/{dashboardId}", produces = "application/json")
-@PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR')")
-public Mono<ResponseEntity<DashboardCalulatedResponse>> calculateDashboard(@RequestParam String dashboardId) {
+    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR')")
+    public Mono<ResponseEntity<DashboardCalulatedResponse>> calculateDashboard(@RequestParam String dashboardId) {
+        logger.debug("Received calculate dashboard request for dashboardId: " + dashboardId);
+        Instant start = Instant.now(); // Record the start time
+
         return this.dashboardService.calculateDashboard(dashboardId)
-                .map(dashboardCalculatedResponse -> ResponseEntity.ok(dashboardCalculatedResponse));
-}
+                .map(dashboardCalculatedResponse -> {
+                    // Log the time taken to process the request
+                    Duration duration = Duration.between(start, Instant.now());
+                    logger.debug("Processed calculate dashboard request in " + duration.toMillis()
+                            + " ms");
+                    return ResponseEntity.ok(dashboardCalculatedResponse);
+                })
+                .doOnTerminate(() -> {
+                    // This will be called on completion or error
+                    Duration duration = Duration.between(start, Instant.now());
+                    logger.debug("Total time taken for calculate dashboard request: "
+                            + duration.toMillis() + " ms");
+                });
+    }
 }
