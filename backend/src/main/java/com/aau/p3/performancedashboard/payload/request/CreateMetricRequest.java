@@ -26,7 +26,7 @@ public class CreateMetricRequest {
     //private List<String> dependentMetricIds;
 
     @Valid
-    @Schema(name = "metricOperations", example = " ",  required = true)
+    @Schema(name = "metricOperations", description = "Operations for a metric to execute", required = true)
     private List<MetricOperation> metricOperations;
 
 }
