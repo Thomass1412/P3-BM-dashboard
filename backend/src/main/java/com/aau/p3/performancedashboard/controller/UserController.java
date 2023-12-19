@@ -138,6 +138,13 @@ public class UserController {
                 return userService.getUserById(userId, authentication);
         }
 
+        @GetMapping("/idByLogin/{login}")
+        @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_SUPERVISOR') or hasRole('ROLE_AGENT')")
+        public Mono<UserResponse> getIdByLogin(@PathVariable("login") String login,
+                Authentication authentication) {
+                return userService.getUserIdByLogin(login, authentication);
+        }
+
         /**
          * Deletes a user by their ID.
          *
