@@ -55,7 +55,14 @@ const IntegrationDetail = () => {
   }, [integrationId]);
 
   if (!integration) {
-    return <div>Loading integration details...</div>;
+    return (
+    <div className="w-full bg-green-50 h-full">
+      <Header />
+      <div className=' m-24 text-black'>
+        <div>Loading integration details...</div>
+      </div>
+    </div>
+      )
   }
 
   return (

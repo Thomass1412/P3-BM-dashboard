@@ -41,7 +41,7 @@ const DataTable = ({ data }) => {
     const getusernames = async (userID) => {
       try {
         const token = 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNzAyOTI0ODE0LCJpYXQiOjE3MDI4Mzg0MTR9.PgwOZyE-2cvUaoYpvvLvZAPRX1eKQA_5M7SYO1a0v8BLEvZj-VY9b0FPnAzAwB8K6_5s0YIcjS-SUezjKcKvXg';
-        const response = await fetch('http://localhost/api/v1/user/'+"657e1ff042cdee02f39569b4", {
+        const response = await fetch('http://localhost/api/v1/user/'+userID, {
           method: 'GET',
             headers: {
               'Accept': 'application/json',
@@ -70,9 +70,12 @@ const DataTable = ({ data }) => {
     const formatDate = (timestamp) => {
       const date = new Date(timestamp);
       const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+      const month = String(date.getMonth() + 1).padStart(2, '0');
       const year = date.getFullYear();
-      return `${day}/${month}/${year}`;
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      
+      return `${hours}:${minutes} - ${day}/${month}/${year}`;
     };
 
   
