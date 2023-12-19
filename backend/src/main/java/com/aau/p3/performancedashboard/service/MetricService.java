@@ -17,9 +17,13 @@ import com.aau.p3.performancedashboard.payload.request.CreateMetricRequest;
 import com.aau.p3.performancedashboard.payload.response.MessageResponse;
 import com.aau.p3.performancedashboard.payload.response.MetricResponse;
 import com.aau.p3.performancedashboard.payload.response.MetricResultResponse;
+import com.aau.p3.performancedashboard.payload.response.UserResponse;
 import com.aau.p3.performancedashboard.repository.MetricRepository;
 import com.aau.p3.performancedashboard.repository.UserRepository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -118,25 +122,28 @@ public class MetricService implements PropertyChangeListener {
             // metricTester(event);
         }
     }
+
     /**
      * Calculates the metric based on the provided parameters.
      *
-     * @param metricId     The ID of the metric to calculate.
-     * @param startDate    The start date for the calculation.
-     * @param endDate      The end date for the calculation.
-     * @param resultLimit  The maximum number of results to return.
-     * @param sortOrder    The sort order for the results.
+     * @param metricId    The ID of the metric to calculate.
+     * @param startDate   The start date for the calculation.
+     * @param endDate     The end date for the calculation.
+     * @param resultLimit The maximum number of results to return.
+     * @param sortOrder   The sort order for the results.
      * @return A Mono containing the MetricResultResponse.
      * @throws MetricNotFoundException if the metric with the given ID is not found.
      */
-    public Mono<MetricResultResponse> calculateMetric(String metricId, Date startDate, Date endDate, Integer resultLimit, String sortOrder) {
-        logger.debug("Calculating metric for metricId: " + metricId + ", startDate: " + startDate + ", endDate: " + endDate);
+    public Mono<MetricResultResponse> calculateMetric(String metricId, Date startDate, Date endDate,
+            Integer resultLimit, String sortOrder) {
+        logger.debug(
+                "Calculating metric for metricId: " + metricId + ", startDate: " + startDate + ", endDate: " + endDate);
 
         return metricRepository.findById(metricId)
                 .switchIfEmpty(Mono.error(new MetricNotFoundException("Metric not found with ID: " + metricId)))
                 .flatMap(metric -> {
                     logger.debug("Found metric with ID: " + metricId);
-                    
+
                     AtomicReference<MetricOperationEnum> currentOperator = new AtomicReference<>(
                             MetricOperationEnum.ADD);
 
@@ -151,7 +158,8 @@ public class MetricService implements PropertyChangeListener {
                                     logger.debug("Count operation found. Proceeding to count.");
                                     return integrationService.findById(metricOperation.getTargetIntegration())
                                             .flatMap(integration -> metricCount(integration.getDataCollection(),
-                                                    startDate, endDate, metricOperation.getCriteria(), resultLimit, Optional.of(sortOrder)))
+                                                    startDate, endDate, metricOperation.getCriteria(), resultLimit,
+                                                    Optional.of(sortOrder)))
                                             .map(counts -> new AbstractMap.SimpleEntry<>(currentOperator.get(),
                                                     counts));
                                 } else {
@@ -175,7 +183,7 @@ public class MetricService implements PropertyChangeListener {
                                 logger.debug("Creating MetricResultResponse...");
                                 MetricResultResponse response = new MetricResultResponse();
                                 response.setMetricId(metricId);
-                                response.setMetricName(metric.getName());                                
+                                response.setMetricName(metric.getName());
                                 response.setStartDate(startDate);
                                 response.setEndDate(endDate);
                                 response.setMetricUserCounts(combinedCounts);
@@ -184,10 +192,12 @@ public class MetricService implements PropertyChangeListener {
                                 // Sort the counts
                                 if ("DESC".equalsIgnoreCase(sortOrder)) {
                                     logger.debug("Sorting counts in descending order");
-                                    response.getMetricUserCounts().sort((o1, o2) -> Integer.compare(o2.getCount(), o1.getCount()));
+                                    response.getMetricUserCounts()
+                                            .sort((o1, o2) -> Integer.compare(o2.getCount(), o1.getCount()));
                                 } else {
                                     logger.debug("Sorting counts in ascending order");
-                                    response.getMetricUserCounts().sort((o1, o2) -> Integer.compare(o1.getCount(), o2.getCount()));
+                                    response.getMetricUserCounts()
+                                            .sort((o1, o2) -> Integer.compare(o1.getCount(), o2.getCount()));
                                 }
 
                                 return response;
@@ -199,14 +209,20 @@ public class MetricService implements PropertyChangeListener {
     }
 
     /**
-     * Combines the counts from two lists of MetricUserCount objects using the specified operator.
-     * The counts are accumulated in a map, where the key is the user ID and the value is the MetricUserCount object.
-     * If a user ID already exists in the map, the counts are combined using the operator.
-     * If a user ID does not exist in the map, a new MetricUserCount object is created with a count of 0 and added to the map.
+     * Combines the counts from two lists of MetricUserCount objects using the
+     * specified operator.
+     * The counts are accumulated in a map, where the key is the user ID and the
+     * value is the MetricUserCount object.
+     * If a user ID already exists in the map, the counts are combined using the
+     * operator.
+     * If a user ID does not exist in the map, a new MetricUserCount object is
+     * created with a count of 0 and added to the map.
      * The final combined counts are returned as a list of MetricUserCount objects.
      *
-     * @param accumulatedCounts The list of MetricUserCount objects with accumulated counts.
-     * @param newCounts         The list of MetricUserCount objects with new counts to be combined.
+     * @param accumulatedCounts The list of MetricUserCount objects with accumulated
+     *                          counts.
+     * @param newCounts         The list of MetricUserCount objects with new counts
+     *                          to be combined.
      * @param operator          The operator to be used for combining the counts.
      * @return The combined counts as a list of MetricUserCount objects.
      */
@@ -263,10 +279,12 @@ public class MetricService implements PropertyChangeListener {
     }
 
     /**
-     * Checks if the given operation is one of the big four operations: ADD, SUBTRACT, MULTIPLY, or DIVIDE.
+     * Checks if the given operation is one of the big four operations: ADD,
+     * SUBTRACT, MULTIPLY, or DIVIDE.
      *
      * @param operation the operation to check
-     * @return true if the operation is one of the big four operations, false otherwise
+     * @return true if the operation is one of the big four operations, false
+     *         otherwise
      */
     private boolean isBigFourOperation(MetricOperationEnum operation) {
         return operation == MetricOperationEnum.ADD ||
@@ -295,11 +313,13 @@ public class MetricService implements PropertyChangeListener {
 
         MatchOperation matchOperation = Aggregation.match(dynamicCriteria);
         GroupOperation groupOperation = Aggregation.group("userId").count().as("count");
-        List<AggregationOperation> aggregationOperations = new ArrayList<>(Arrays.asList(matchOperation, groupOperation));
+        List<AggregationOperation> aggregationOperations = new ArrayList<>(
+                Arrays.asList(matchOperation, groupOperation));
 
         // Add sorting operation based on sortOrder
         if (sortOrder.isPresent()) {
-            Sort.Direction sortDirection = "DESC".equalsIgnoreCase(sortOrder.get()) ? Sort.Direction.DESC : Sort.Direction.ASC;
+            Sort.Direction sortDirection = "DESC".equalsIgnoreCase(sortOrder.get()) ? Sort.Direction.DESC
+                    : Sort.Direction.ASC;
             SortOperation sortOperation = Aggregation.sort(sortDirection, "count");
             aggregationOperations.add(sortOperation);
         }
@@ -339,6 +359,14 @@ public class MetricService implements PropertyChangeListener {
                                 return new ArrayList<>(countsMap.values());
                             });
                 });
+    }
+
+    public Mono<Page<MetricResponse>> findAllBy(Pageable pageable) {
+        return metricRepository.findAllBy(pageable)
+                .flatMap(metric -> Mono.just(metricConverter.convertToResponse(metric)))
+                .collectList()
+                .zipWith(metricRepository.count())
+                .map(tuple -> new PageImpl<>(tuple.getT1(), pageable, tuple.getT2()));
     }
 
     public Mono<MessageResponse> deleteMetric(String metricId) {

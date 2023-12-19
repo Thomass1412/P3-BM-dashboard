@@ -1,5 +1,8 @@
 package com.aau.p3.performancedashboard.controller;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -46,102 +49,111 @@ import org.apache.logging.log4j.Logger;
 @RequestMapping("/api/v1/metric")
 public class MetricController {
 
-    // Logger
-    private static final Logger logger = LogManager.getLogger(MetricController.class);
+        // Logger
+        private static final Logger logger = LogManager.getLogger(MetricController.class);
 
-    // Dependencies
-    private final MetricService metricService;
+        // Dependencies
+        private final MetricService metricService;
 
-    // Constructor injection
-    public MetricController(MetricService metricService) {
-        this.metricService = metricService;
-    }
+        // Constructor injection
+        public MetricController(MetricService metricService) {
+                this.metricService = metricService;
+        }
 
-    /**
-     * Creates a new metric.
-     *
-     * @param registerRequest the register request containing metric information
-     * @return a Mono of ResponseEntity containing the metric response
-     */
-    @Operation(summary = "Create a new metric", description = "Creates a new metric with the provided details.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Successfully created the metric", content = {
-                    @Content(schema = @Schema(implementation = MetricResponse.class), mediaType = "application/json")
-            }),
-            @ApiResponse(responseCode = "400", description = "Bad request. User registration failed.", content = {
-                    @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
-            }),
-            @ApiResponse(responseCode = "403", description = "Access denied", content = {
-                    @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
-            })
-    })
-    @PostMapping(path = "/", consumes = "application/json", produces = "application/json")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR')")
-    public Mono<ResponseEntity<MetricResponse>> createMetric(
-            @Valid @RequestBody CreateMetricRequest createMetricRequest) {
-        Instant start = Instant.now(); // Record the start time
+        @GetMapping(path = "/pageable", produces = "application/json")
+        @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR')")
+        public Mono<Page<MetricResponse>> getMetricsBy(@RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "25") int size) {
 
-        return metricService.createMetric(createMetricRequest)
-                .map(response -> {
-                    // Log the time taken to process the request
-                    Duration duration = Duration.between(start, Instant.now());
-                    logger.debug("Processed create metric request in " + duration.toMillis()
-                            + " ms");
-                    return ResponseEntity.ok(response);
-                })
-                .defaultIfEmpty(ResponseEntity.notFound().build())
-                .doOnTerminate(() -> {
-                    // This will be called on completion or error
-                    Duration duration = Duration.between(start, Instant.now());
-                    logger.debug("Total time taken for create metric request: "
-                            + duration.toMillis() + " ms");
-                });
-    }
+                Pageable pageable = PageRequest.of(page, size);
+                return metricService.findAllBy(pageable);
+        }
 
-    @Operation(summary = "Delete a metric", description = "Deletes a metric with the provided id.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Successfully deleted the metric", content = {
-                    @Content(schema = @Schema(implementation = MessageResponse.class), mediaType = "application/json")
-            }),
-            @ApiResponse(responseCode = "400", description = "Bad request. Metric deletion failed.", content = {
-                    @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
-            }),
-            @ApiResponse(responseCode = "403", description = "Access denied", content = {
-                    @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
-            })
-    })
-    @DeleteMapping(path = "/{metricId}", produces = "application/json")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR')")
-    public Mono<ResponseEntity<MessageResponse>> deleteMetric(@PathVariable(value = "metricId") String metricId) {
-        logger.debug("Received request to delete metric");
-        return metricService.deleteMetric(metricId)
-                .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.notFound().build());
-    }
+        /**
+         * Creates a new metric.
+         *
+         * @param registerRequest the register request containing metric information
+         * @return a Mono of ResponseEntity containing the metric response
+         */
+        @Operation(summary = "Create a new metric", description = "Creates a new metric with the provided details.")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Successfully created the metric", content = {
+                                        @Content(schema = @Schema(implementation = MetricResponse.class), mediaType = "application/json")
+                        }),
+                        @ApiResponse(responseCode = "400", description = "Bad request. User registration failed.", content = {
+                                        @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
+                        }),
+                        @ApiResponse(responseCode = "403", description = "Access denied", content = {
+                                        @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
+                        })
+        })
+        @PostMapping(path = "/", consumes = "application/json", produces = "application/json")
+        @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR')")
+        public Mono<ResponseEntity<MetricResponse>> createMetric(
+                        @Valid @RequestBody CreateMetricRequest createMetricRequest) {
+                Instant start = Instant.now(); // Record the start time
 
-    @Operation(summary = "Calculate a metric", description = "Calculates a metric based on the provided metric ID, start date, and end date.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Successfully calculated the metric", content = {
-                    @Content(schema = @Schema(implementation = MetricResultResponse.class), mediaType = "application/json")
-            }),
-            @ApiResponse(responseCode = "404", description = "Metric not found", content = {
-                    @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
-            }),
-            @ApiResponse(responseCode = "400", description = "Bad request", content = {
-                    @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
-            })
-    })
-    @GetMapping(path = "/calculate/{metricId}", produces = "application/json")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR')")
-    public Mono<ResponseEntity<MetricResultResponse>> calculateMetric(
-            @PathVariable(value = "metricId") @Parameter(description = "ID of the metric to calculate", example = "605c147c4f7d4a4b3c77ba92") String metricId,
-            @RequestParam @Parameter(description = "Start date for the calculation", example = "2022-01-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
-            @RequestParam @Parameter(description = "End date for the calculation", example = "2022-12-31") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate,
-            @RequestParam @Parameter(description = "Limit the number of returned users. 0 means no limit", example = "10") Integer resultLimit,
-            @RequestParam @Parameter(description = "Sort order for the returned count values. Valid arguments are 'ASC' and 'DESC'. Default is 'ASC'.", example = "ASC") String sortOrder) {
-        logger.debug("Received request to calculate metric");
-        return metricService.calculateMetric(metricId, startDate, endDate, resultLimit, sortOrder)
-                .map(ResponseEntity::ok)
-                .defaultIfEmpty(ResponseEntity.notFound().build());
-    }
+                return metricService.createMetric(createMetricRequest)
+                                .map(response -> {
+                                        // Log the time taken to process the request
+                                        Duration duration = Duration.between(start, Instant.now());
+                                        logger.debug("Processed create metric request in " + duration.toMillis()
+                                                        + " ms");
+                                        return ResponseEntity.ok(response);
+                                })
+                                .defaultIfEmpty(ResponseEntity.notFound().build())
+                                .doOnTerminate(() -> {
+                                        // This will be called on completion or error
+                                        Duration duration = Duration.between(start, Instant.now());
+                                        logger.debug("Total time taken for create metric request: "
+                                                        + duration.toMillis() + " ms");
+                                });
+        }
+
+        @Operation(summary = "Delete a metric", description = "Deletes a metric with the provided id.")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Successfully deleted the metric", content = {
+                                        @Content(schema = @Schema(implementation = MessageResponse.class), mediaType = "application/json")
+                        }),
+                        @ApiResponse(responseCode = "400", description = "Bad request. Metric deletion failed.", content = {
+                                        @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
+                        }),
+                        @ApiResponse(responseCode = "403", description = "Access denied", content = {
+                                        @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
+                        })
+        })
+        @DeleteMapping(path = "/{metricId}", produces = "application/json")
+        @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR')")
+        public Mono<ResponseEntity<MessageResponse>> deleteMetric(@PathVariable(value = "metricId") String metricId) {
+                logger.debug("Received request to delete metric");
+                return metricService.deleteMetric(metricId)
+                                .map(ResponseEntity::ok)
+                                .defaultIfEmpty(ResponseEntity.notFound().build());
+        }
+
+        @Operation(summary = "Calculate a metric", description = "Calculates a metric based on the provided metric ID, start date, and end date.")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Successfully calculated the metric", content = {
+                                        @Content(schema = @Schema(implementation = MetricResultResponse.class), mediaType = "application/json")
+                        }),
+                        @ApiResponse(responseCode = "404", description = "Metric not found", content = {
+                                        @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
+                        }),
+                        @ApiResponse(responseCode = "400", description = "Bad request", content = {
+                                        @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
+                        })
+        })
+        @GetMapping(path = "/calculate/{metricId}", produces = "application/json")
+        @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR')")
+        public Mono<ResponseEntity<MetricResultResponse>> calculateMetric(
+                        @PathVariable(value = "metricId") @Parameter(description = "ID of the metric to calculate", example = "605c147c4f7d4a4b3c77ba92") String metricId,
+                        @RequestParam @Parameter(description = "Start date for the calculation", example = "2022-01-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
+                        @RequestParam @Parameter(description = "End date for the calculation", example = "2022-12-31") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate,
+                        @RequestParam @Parameter(description = "Limit the number of returned users. 0 means no limit", example = "10") Integer resultLimit,
+                        @RequestParam @Parameter(description = "Sort order for the returned count values. Valid arguments are 'ASC' and 'DESC'. Default is 'ASC'.", example = "ASC") String sortOrder) {
+                logger.debug("Received request to calculate metric");
+                return metricService.calculateMetric(metricId, startDate, endDate, resultLimit, sortOrder)
+                                .map(ResponseEntity::ok)
+                                .defaultIfEmpty(ResponseEntity.notFound().build());
+        }
 }
