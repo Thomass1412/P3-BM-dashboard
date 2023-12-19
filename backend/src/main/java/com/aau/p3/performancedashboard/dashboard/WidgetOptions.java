@@ -1,5 +1,6 @@
 package com.aau.p3.performancedashboard.dashboard;
 
+import java.util.Date;
 import java.util.Map;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -62,7 +63,7 @@ public class WidgetOptions {
         example = "2022-01-01",
         required = false
     )
-    private String startDateTypeIfCustom;
+    private Date startDateTypeIfCustom;
     
     @Schema(
         name = "endDateType",
@@ -78,7 +79,7 @@ public class WidgetOptions {
         example = "2022-12-31",
         required = false
     )
-    private String endDateTypeIfCustom;
+    private Date endDateTypeIfCustom;
 
     @NotNull(message = "Limit must not be empty")
     @Schema(
