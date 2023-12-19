@@ -136,9 +136,8 @@ public class MetricController {
     public Mono<ResponseEntity<MetricResultResponse>> calculateMetric(
             @PathVariable(value = "metricId") @Parameter(description = "ID of the metric to calculate", example = "605c147c4f7d4a4b3c77ba92") String metricId,
             @RequestParam @Parameter(description = "Start date for the calculation", example = "2022-01-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date startDate,
-            @RequestParam @Parameter(description = "End date for the calculation", example = "2022-12-31") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate,
-            @RequestParam @Parameter(description = "Limit the number of returned users. 0 means no limit", example = "10") Integer resultLimit) {
-        return metricService.calculateMetric(metricId, startDate, endDate, resultLimit)
+            @RequestParam @Parameter(description = "End date for the calculation", example = "2022-12-31") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date endDate, {
+        return metricService.calculateMetric(metricId, startDate, endDate)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
