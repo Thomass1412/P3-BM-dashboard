@@ -4,7 +4,7 @@ const metricOperations = ["ADD", "SUBTRACT", "MULTIPLY", "DIVIDE", "COUNT"];
 
 export default function IntegrationForm() {
   const [data, setData] = useState([]);
-  const [integration, setIntegration] = useState([]);
+  const [integration, setIntegration] = useState({ data: {} });
   const [integrationSchema, setIntegrationSchema] = useState({});
   const [formFields, setFormFields] = useState([{ name: '', type: 'text' }]);
 
@@ -37,7 +37,7 @@ export default function IntegrationForm() {
         }
         const integrationResponseNonJSON = await integrationResponse.json();
         
-        console.log(integrationResponseNonJSON)
+        console.log(integrationResponseNonJSON.data)
         setIntegration(integrationResponseNonJSON);
         const integrationSchemaResponse = await fetch(`http://localhost/api/v1/integration/${event.target.value}/schema`);
         if (!integrationSchemaResponse.ok) {
@@ -51,7 +51,24 @@ export default function IntegrationForm() {
       console.error('Error fetching:', error);
     }
   }
-  
+
+  const handleCheckSet = async (event) => {
+    try{
+        const integrationSchemaResponse = await fetch(`http://localhost/api/v1/integration/${event.target.value}/schema`);
+        if (!integrationSchemaResponse.ok) {
+            throw new Error(`HTTP error! status: ${integrationSchemaResponse.status}`);
+        }
+        const integrationResponseSchemaNonJSON = await integrationSchemaResponse.json();
+        
+        console.log(integrationResponseSchemaNonJSON.properties.data.properties)
+        setIntegrationSchema(integrationResponseSchemaNonJSON.properties.data.properties);
+    } catch (error) {
+      console.error('Error fetching:', error);
+    }
+  }
+  useEffect(() => {
+    getData();
+  }, []);
 
   useEffect(() => {
     getData();
@@ -93,7 +110,8 @@ export default function IntegrationForm() {
           
         )}
       </select>
-
+      <h1>hej {integrationSchema[0]}</h1>
+      
       
 
       
