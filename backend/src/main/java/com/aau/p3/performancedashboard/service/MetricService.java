@@ -17,7 +17,6 @@ import com.aau.p3.performancedashboard.payload.request.CreateMetricRequest;
 import com.aau.p3.performancedashboard.payload.response.MessageResponse;
 import com.aau.p3.performancedashboard.payload.response.MetricResponse;
 import com.aau.p3.performancedashboard.payload.response.MetricResultResponse;
-import com.aau.p3.performancedashboard.payload.response.UserResponse;
 import com.aau.p3.performancedashboard.repository.MetricRepository;
 import com.aau.p3.performancedashboard.repository.UserRepository;
 
@@ -89,6 +88,10 @@ public class MetricService implements PropertyChangeListener {
         integrationDataService.addPropertyChangeListener(this);
     }
 
+    /**
+     * A map that stores metrics as keys and a list of corresponding values as
+     * values.
+     */
     private static Map<String, List<String>> metrics = new HashMap<>();
 
     // Load metrics from database
@@ -293,6 +296,22 @@ public class MetricService implements PropertyChangeListener {
                 operation == MetricOperationEnum.DIVIDE;
     }
 
+    /**
+     * Retrieves the metric count for a given collection within a specified date
+     * range,
+     * applying custom criteria, query limit, and sort order if provided.
+     *
+     * @param collectionName The name of the collection to query.
+     * @param startDate      The start date of the date range.
+     * @param endDate        The end date of the date range.
+     * @param customCriteria Custom criteria to filter the data.
+     * @param queryLimit     The maximum number of results to return.
+     * @param sortOrder      The sort order of the results (optional).
+     *                       Valid values are "ASC" for ascending and "DESC" for
+     *                       descending.
+     * @return A Mono emitting a List of MetricUserCount objects representing the
+     *         metric counts.
+     */
     public Mono<List<MetricUserCount>> metricCount(String collectionName, Date startDate, Date endDate,
             Map<String, String> customCriteria, Integer queryLimit, Optional<String> sortOrder) {
         // Create criteria for the date
@@ -328,6 +347,7 @@ public class MetricService implements PropertyChangeListener {
         if (queryLimit > 0) {
             LimitOperation limitOperation = Aggregation.limit(queryLimit);
             aggregationOperations.add(limitOperation);
+            logger.debug("Limit operation added with limit: " + queryLimit);
         }
 
         Aggregation aggregation = Aggregation.newAggregation(aggregationOperations);
@@ -337,6 +357,7 @@ public class MetricService implements PropertyChangeListener {
                 .collectList()
                 .flatMap(aggregatedResults -> {
                     logger.debug("Aggregated results: " + aggregatedResults);
+
                     // Map to hold the counts
                     Map<String, MetricUserCount> countsMap = new HashMap<>();
 
@@ -345,6 +366,10 @@ public class MetricService implements PropertyChangeListener {
                             .map(result -> (String) result.get("_id"))
                             .collect(Collectors.toSet());
 
+                    // Log the number of unique user IDs found
+                    logger.info("Number of unique user IDs: " + userIds.size());
+
+                    // Use Flux to process each user ID asynchronously
                     return Flux.fromIterable(userIds)
                             .flatMap(userRepository::findById)
                             .collectMap(User::getId, User::getDisplayName)
@@ -361,6 +386,13 @@ public class MetricService implements PropertyChangeListener {
                 });
     }
 
+    /**
+     * Retrieves all metrics based on the provided pageable object.
+     *
+     * @param pageable the pageable object specifying the page number, size, and
+     *                 sorting criteria
+     * @return a Mono emitting a Page of MetricResponse objects
+     */
     public Mono<Page<MetricResponse>> findAllBy(Pageable pageable) {
         return metricRepository.findAllBy(pageable)
                 .flatMap(metric -> Mono.just(metricConverter.convertToResponse(metric)))
@@ -369,6 +401,13 @@ public class MetricService implements PropertyChangeListener {
                 .map(tuple -> new PageImpl<>(tuple.getT1(), pageable, tuple.getT2()));
     }
 
+    /**
+     * Deletes a metric with the given metric ID.
+     * 
+     * @param metricId the ID of the metric to be deleted
+     * @return a Mono containing a MessageResponse indicating the result of the
+     *         deletion
+     */
     public Mono<MessageResponse> deleteMetric(String metricId) {
         logger.debug("Deleting metric with ID: " + metricId);
 
@@ -391,6 +430,18 @@ public class MetricService implements PropertyChangeListener {
                 });
     }
 
+    /**
+     * Creates a new metric based on the provided createMetricRequest.
+     * 
+     * @param createMetricRequest The request object containing the details of the
+     *                            metric to be created.
+     * @return A Mono that emits the MetricResponse object representing the created
+     *         metric.
+     * @throws IllegalArgumentException     if a metric with the same name already
+     *                                      exists.
+     * @throws IntegrationNotFoundException if any of the dependent integrations
+     *                                      specified in the metric do not exist.
+     */
     public Mono<MetricResponse> createMetric(CreateMetricRequest createMetricRequest) {
         logger.debug("Creating metric with name: " + createMetricRequest.getName());
 

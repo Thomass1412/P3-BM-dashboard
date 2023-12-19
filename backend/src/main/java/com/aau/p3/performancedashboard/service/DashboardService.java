@@ -16,8 +16,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import com.aau.p3.performancedashboard.converter.DashboardConverter;
-import com.aau.p3.performancedashboard.converter.IntegrationConverter;
-import com.aau.p3.performancedashboard.converter.MetricConverter;
 import com.aau.p3.performancedashboard.dashboard.DashboardWidget;
 import com.aau.p3.performancedashboard.dashboard.OptionsDateIntervalCalculator;
 import com.aau.p3.performancedashboard.dashboard.OptionsDateIntervalEnum;
@@ -51,21 +49,14 @@ public class DashboardService {
     private final IntegrationRepository integrationRepository;
     private final MetricService metricService;
     private final DashboardConverter dashboardConverter;
-    private final MetricConverter metricConverter;
-    private final OptionsDateIntervalCalculator optionsDateIntervalCalculator;
-
     // Constructor injection
     public DashboardService(DashboardRepository dashboardRepository, DashboardConverter dashboardConverter,
-            MetricRepository metricRepository, IntegrationRepository integrationRepository, MetricService metricService,
-            MetricConverter metricConverter,
-            OptionsDateIntervalCalculator optionsDateIntervalCalculator) {
+            MetricRepository metricRepository, IntegrationRepository integrationRepository, MetricService metricService) {
         this.dashboardRepository = dashboardRepository;
         this.dashboardConverter = dashboardConverter;
         this.metricRepository = metricRepository;
         this.integrationRepository = integrationRepository;
         this.metricService = metricService;
-        this.metricConverter = metricConverter;
-        this.optionsDateIntervalCalculator = optionsDateIntervalCalculator;
     }
 
     // In-memory list of dashboards
