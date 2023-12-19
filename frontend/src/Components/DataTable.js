@@ -2,11 +2,32 @@ import React, { useState,useEffect } from 'react';
 
 const DataTable = ({ data }) => {
   const [usernames, setUsernames] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!Array.isArray(data) || data.length === 0) {
+        // Handle the case where data is not valid
+        setLoading(false);
+        return;
+      }
+
+      const usernamesArray = [];
+      for (const row of data) {
+        const username = await getusernames(row.userId);
+        usernamesArray.push(username);
+      }
+      setUsernames(usernamesArray);
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [data]);
   
 
   if (!data) {
     return <div>No data available</div>;
-  }else if (!Array.isArray(data) || data.length === 0) {
+  } else if (!Array.isArray(data) || data.length === 0) {
     return <div>No data available or data is not in the expected format.</div>;
   }
 
@@ -49,17 +70,17 @@ const DataTable = ({ data }) => {
     const formatDate = (timestamp) => {
       const date = new Date(timestamp);
       const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+      const month = String(date.getMonth() + 1).padStart(2, '0');
       const year = date.getFullYear();
-      return `${day}/${month}/${year}`;
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      
+      return `${hours}:${minutes} - ${day}/${month}/${year}`;
     };
 
-    console.log(data)
-
-    
   
     return (
-      <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 overflow-x-auto">
+      <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 overflow-x-scroll">
         <h3 className="text-lg font-semibold mb-4">Integration Data</h3>
         <table className="min-w-full leading-normal">
           <thead>
@@ -67,7 +88,7 @@ const DataTable = ({ data }) => {
               <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
               <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">IntegrationID</th>
               <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Agent</th>
-              <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Timestamp</th>
+              <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r">Timestamp</th>
               {dataKeys.map(key => (
                 <th key={key} className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                   {key}
@@ -80,8 +101,8 @@ const DataTable = ({ data }) => {
               <tr key={index}>
                 <td className="px-5 py-3 border-b border-gray-200 bg-white text-sm">{row._id}</td>
                 <td className="px-5 py-3 border-b border-gray-200 bg-white text-sm">{row.integrationId}</td>
-                <td className="px-5 py-3 border-b border-gray-200 bg-white text-sm">{row.userId}</td>
-                <td className="px-5 py-3 border-b border-gray-200 bg-white text-sm">{formatDate(row.timestamp)}</td>
+                <td className="px-5 py-3 border-b border-gray-200 bg-white text-sm">{loading ? 'Loading...' : usernames[index]}</td>
+                <td className="px-5 py-3 border-b border-gray-200 bg-white text-sm border-r">{formatDate(row.timestamp)}</td>
                 {dataKeys.map(key => (
                   <td key={key} className="px-5 py-3 border-b border-gray-200 bg-white text-sm">
                     {row.data ? row.data[key] : 'N/A'}

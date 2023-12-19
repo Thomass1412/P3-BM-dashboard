@@ -4,11 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 function GetIntegration() {
   const [data, setData] = useState([]);
-  const [integrationdata, setIntegrationData] = useState([]);
-  const [parentID, setparentID] = useState();
   const [maxPage, setMaxPage] = useState(1);
   const [page, setPage] = useState(0);
-  const [usernames, setUsernames] = useState([]);
   const { showSnackbar } = useSnackbar(); // Use the Snackbar hook
 
   const getData = async () => {
@@ -29,51 +26,6 @@ function GetIntegration() {
     }
   };
 
-  const getIntegrationData = async() =>{
-    try {
-      const response = await fetch('http://localhost/api/v1/integration/'+parentID+'/data/pageable?page=0&size=50');
-      if (!response.ok) {
-        // Handle non-OK responses
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      const responseData = await response.json();
-      setIntegrationData(responseData.content);
-      console.log('Success: 11', responseData);
-    } catch (error) {
-      const errorMessage = integrationdata.messages.join(', ');
-    }
-  };
-
-
-  const getusernames = async (userID) => {
-    try {
-      const token = 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNzAyOTI0ODE0LCJpYXQiOjE3MDI4Mzg0MTR9.PgwOZyE-2cvUaoYpvvLvZAPRX1eKQA_5M7SYO1a0v8BLEvZj-VY9b0FPnAzAwB8K6_5s0YIcjS-SUezjKcKvXg';
-      const response = await fetch('http://localhost/api/v1/user/'+userID, {
-        method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Authorization': 'Bearer '+ document.cookie.split("=")[1],
-          },
-        });
-
-      if (!response.ok) {
-        // Handle non-OK responses
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      const responseData = await response.json();
-      const username = responseData.login;
-      console.log('Success: user', username);
-      return username
-      
-      // After all requests are done, set the usernames
-    } catch (error) {
-      // Handle errors here
-      console.error('Error:', error);
-    }
-    return "not found"
-  };
-
   const handleNextClick = (e) => {
     setPage(page + 1);
   };
@@ -89,26 +41,19 @@ function GetIntegration() {
     handleLoad();
   }, [page]);
 
-  useEffect(() => {
-    if(parentID){
-      getIntegrationData();
-    }
-  }, [parentID]);
-
-  useEffect(() => {
-    if (integrationdata.length > 0) {
-      const fetchUsernames = async () => {
-        const resolvedUsernames = await Promise.all(
-          integrationdata.map((data) => getusernames(data.userId))
-        );
-        setUsernames(resolvedUsernames);
-      };
-      fetchUsernames();
-    }
-  }, [integrationdata]);
-
   const handleLoad = async () => {
     await getData();
+  };
+
+  const formatDate = (timestamp) => {
+    const date = new Date(timestamp);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${hours}:${minutes} - ${day}/${month}/${year}`;
   };
 
   return (
@@ -121,6 +66,7 @@ function GetIntegration() {
                 <th scope="col" className="px-6 py-4">Id</th>
                 <th scope="col" className="px-6 py-4">Name</th>
                 <th scope="col" className="px-6 py-4">Type</th>
+                <th scope="col" className="px-6 py-4">Last updated</th>
               </tr>
             </thead>
             <tbody>
@@ -129,6 +75,7 @@ function GetIntegration() {
                   <td className="whitespace-nowrap px-6 py-4">{integration.id}</td>
                   <td className="whitespace-nowrap px-6 py-4">{integration.name}</td>
                   <td className="whitespace-nowrap px-6 py-4">{integration.type}</td>
+                  <td className="whitespace-nowrap px-6 py-4">{formatDate(integration.lastUpdated)}</td>
                 </tr>
               ))}
             </tbody>
