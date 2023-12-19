@@ -31,7 +31,6 @@
   }
 }
 
-
 input:focus + label, input:not(:placeholder-shown) + label{
   transform: translateY(-1em) scale(0.8)
 }

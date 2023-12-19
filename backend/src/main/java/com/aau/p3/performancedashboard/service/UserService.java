@@ -134,6 +134,25 @@ public class UserService {
                 .switchIfEmpty(Mono.error(new NotFoundException("User not found.")));
     }
 
+    public Mono<UserResponse> getUserIdByLogin(String username, Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String currentUsername = userDetails.getUsername();
+
+        // Check if the user is an agent and is trying to access another user's data
+        // If so, return an error. Only admins and supervisors can access other users'.
+        return userRepository.findByLogin(username)
+                .flatMap(user -> {
+                    if (userDetails.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_AGENT"))
+                            && !user.getLogin().equals(currentUsername)) {
+                        return Mono.error(new AccessDeniedException("Access denied."));
+                    }
+
+                    UserResponse userResponse = userConverter.convertToResponse(user);
+                    return Mono.just(userResponse);
+                })
+                .switchIfEmpty(Mono.error(new NotFoundException("User not found.")));
+    }
+
     public Mono<MessageResponse> deleteUserById(String userId) {
         return userRepository.findById(userId)
                 .flatMap(user -> userRepository.delete(user)

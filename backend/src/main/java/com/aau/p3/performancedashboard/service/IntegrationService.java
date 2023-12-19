@@ -98,7 +98,7 @@ public class IntegrationService {
    * @return a Mono that emits the integration response if the integration is created successfully,
    *         otherwise emits an error with an IllegalArgumentException
    */
-  private Mono<IntegrationResponse> createInternalIntegration(CreateIntegrationRequest integrationRequest) {
+  protected Mono<IntegrationResponse> createInternalIntegration(CreateIntegrationRequest integrationRequest) {
     // Return a mono which emits the integration response if the integration is created successfully
     // Otherwise emit an error with an IllegalArgumentException
     return Mono.justOrEmpty(integrationRequest)
@@ -117,7 +117,7 @@ public class IntegrationService {
             .map(IntegrationConverter::convertAnyIntegrationToIntegrationResponse)
             .doOnError(e -> logger.error("Error creating collection: " + e.getMessage()));
     });
-}
+  }
 
   /**
    * Finds an integration by its ID.

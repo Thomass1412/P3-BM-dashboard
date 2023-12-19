@@ -191,7 +191,7 @@ public class IntegrationDataService {
 	 * @return A Mono of IntegrationDataResponse representing the processed integration data.
 	 * @throws IllegalArgumentException if the integration with the given ID is not internal.
 	 */
-	private Mono<IntegrationDataResponse> processIntegration(String integrationId, CreateIntegrationDataRequest integrationDataRequest, User user) {
+	public Mono<IntegrationDataResponse> processIntegration(String integrationId, CreateIntegrationDataRequest integrationDataRequest, User user) {
 		logger.debug("Processing integration data for integration with id: " + integrationId + " and request: " + integrationDataRequest.toString());
 
 		// First check if the integration is internal, then process the document using a helper method

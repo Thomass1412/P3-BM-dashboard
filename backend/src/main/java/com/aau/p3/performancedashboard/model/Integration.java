@@ -3,6 +3,7 @@ package com.aau.p3.performancedashboard.model;
 import java.util.Date;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import org.springframework.data.annotation.Id;
@@ -14,6 +15,7 @@ import jakarta.validation.constraints.Size;
 
 @Data
 @org.springframework.data.mongodb.core.mapping.Document(collection = "integration")
+@NoArgsConstructor
 public class Integration {
 
     @Id
