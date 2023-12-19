@@ -20,6 +20,7 @@ import com.aau.p3.performancedashboard.payload.response.ErrorResponse;
 import com.aau.p3.performancedashboard.payload.response.MessageResponse;
 import com.aau.p3.performancedashboard.payload.response.MetricResponse;
 import com.aau.p3.performancedashboard.payload.response.MetricResultResponse;
+import com.aau.p3.performancedashboard.payload.response.PageableResponse;
 import com.aau.p3.performancedashboard.service.MetricService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -60,6 +61,15 @@ public class MetricController {
         this.metricService = metricService;
     }
 
+    @Operation(summary = "Retrieve all metrics by a pageable request", description = "Retrieves all metrics by a pageable request.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the metrics", content = {
+                    @Content(schema = @Schema(implementation = PageableResponse.class), mediaType = "application/json")
+            }),
+            @ApiResponse(responseCode = "403", description = "Access denied", content = {
+                    @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
+            })
+    })
     @GetMapping(path = "/pageable", produces = "application/json")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR')")
     public Mono<Page<MetricResponse>> getMetricsBy(@RequestParam(defaultValue = "0") int page,

@@ -77,6 +77,15 @@ public class DashboardController {
                 .map(dashboardResponse -> ResponseEntity.ok(dashboardResponse));
     }
 
+    @Operation(summary = "Get all dashboards", description = "Get all dashboards with pagination.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved the dashboards", content = {
+                    @Content(schema = @Schema(implementation = Page.class), mediaType = "application/json")
+            }),
+            @ApiResponse(responseCode = "403", description = "Access denied", content = {
+                    @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
+            })
+    })
     @GetMapping(path = "/pageable", produces = "application/json")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR')")
     public Mono<Page<Dashboard>> getDashboardsBy(@RequestParam(defaultValue = "0") int page,
@@ -86,6 +95,18 @@ public class DashboardController {
         return dashboardService.findAllBy(pageable);
     }
 
+    @Operation(summary = "Delete a dashboard", description = "Delete a dashboard with the provided dashboardId.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully deleted the dashboard", content = {
+                    @Content(schema = @Schema(implementation = MessageResponse.class), mediaType = "application/json")
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request. Dashboard deletion failed.", content = {
+                    @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
+            }),
+            @ApiResponse(responseCode = "403", description = "Access denied", content = {
+                    @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
+            })
+    })
     @DeleteMapping(path = "/{dashboardId}", produces = "application/json")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR')")
     public Mono<ResponseEntity<MessageResponse>> deleteDashboard(@RequestParam String dashboardId) {
@@ -93,6 +114,18 @@ public class DashboardController {
                 .map(messageResponse -> ResponseEntity.ok(messageResponse));
     }
 
+    @Operation(summary = "Calculate a dashboard", description = "Calculate a dashboard with the provided dashboardId.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successfully calculated the dashboard", content = {
+                    @Content(schema = @Schema(implementation = DashboardCalulatedResponse.class), mediaType = "application/json")
+            }),
+            @ApiResponse(responseCode = "400", description = "Bad request. Dashboard calculation failed.", content = {
+                    @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
+            }),
+            @ApiResponse(responseCode = "403", description = "Access denied", content = {
+                    @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
+            })
+    })
     @GetMapping(path = "/{dashboardId}", produces = "application/json")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERVISOR')")
     public Mono<ResponseEntity<DashboardCalulatedResponse>> calculateDashboard(@RequestParam String dashboardId) {
