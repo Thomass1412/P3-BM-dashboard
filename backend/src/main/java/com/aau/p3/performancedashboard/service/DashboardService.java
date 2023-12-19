@@ -46,9 +46,11 @@ public class DashboardService {
     }
 
     // In-memory list of dashboards
+    @SuppressWarnings("unused")
     private static List<Dashboard> dashboards;
 
     // In-memory map of which user is using which dashboard
+    @SuppressWarnings("unused")
     private static Map<String, Dashboard> userDashboards = new HashMap<>();
 
     // Load the dashboards on startup

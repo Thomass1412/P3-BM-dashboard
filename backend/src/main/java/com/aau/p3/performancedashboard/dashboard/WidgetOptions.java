@@ -1,6 +1,5 @@
 package com.aau.p3.performancedashboard.dashboard;
 
-import java.util.Date;
 import java.util.Map;
 
 import io.swagger.v3.oas.annotations.media.Schema;
