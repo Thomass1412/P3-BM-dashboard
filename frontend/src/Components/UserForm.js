@@ -41,6 +41,7 @@ export default function UserRegistrationForm() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': 'Bearer '+ document.cookie.split("=")[1],
         },
         body: JSON.stringify(payload),
       });

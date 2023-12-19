@@ -40,7 +40,6 @@ const DataTable = ({ data }) => {
 
     const getusernames = async (userID) => {
       try {
-        const token = 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNzAyOTI0ODE0LCJpYXQiOjE3MDI4Mzg0MTR9.PgwOZyE-2cvUaoYpvvLvZAPRX1eKQA_5M7SYO1a0v8BLEvZj-VY9b0FPnAzAwB8K6_5s0YIcjS-SUezjKcKvXg';
         const response = await fetch('http://localhost/api/v1/user/'+userID, {
           method: 'GET',
             headers: {
