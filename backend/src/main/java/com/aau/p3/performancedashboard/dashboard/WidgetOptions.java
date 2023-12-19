@@ -1,4 +1,4 @@
-package com.aau.p3.performancedashboard.model;
+package com.aau.p3.performancedashboard.dashboard;
 
 import java.util.Date;
 import java.util.Map;
@@ -48,23 +48,38 @@ public class WidgetOptions {
     )
     private Map<String, String> sortedBy;
 
-    @NotNull(message = "Start date must not be empty") 
+    
     @Schema(
-        name = "startDate",
-        description = "Start date for the metric calculation",
-        example = "2021-05-01T00:00:00.000Z",
+        name = "startDateType",
+        description = "Type of the start date interval",
+        example = "THIS_WEEK",
         required = true
     )
-    private Date startDate;
-
-    @NotNull(message = "End date must not be empty")
+    private OptionsDateIntervalEnum startDateType;
+    
     @Schema(
-        name = "endDate",
-        description = "End date for the metric calculation",
-        example = "2021-05-01T00:00:00.000Z",
+        name = "startDateTypeIfCustom",
+        description = "Custom start date if startDateType is CUSTOM",
+        example = "2022-01-01",
+        required = false
+    )
+    private String startDateTypeIfCustom;
+    
+    @Schema(
+        name = "endDateType",
+        description = "Type of the end date interval",
+        example = "THIS_WEEK",
         required = true
     )
-    private Date endDate;
+    private OptionsDateIntervalEnum endDateType;
+    
+    @Schema(
+        name = "endDateTypeIfCustom",
+        description = "Custom end date if endDateType is CUSTOM",
+        example = "2022-12-31",
+        required = false
+    )
+    private String endDateTypeIfCustom;
 
     @NotNull(message = "Limit must not be empty")
     @Schema(

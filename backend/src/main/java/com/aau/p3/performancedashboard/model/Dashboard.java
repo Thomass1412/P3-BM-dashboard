@@ -8,11 +8,15 @@ import com.aau.p3.performancedashboard.dashboard.DashboardWidget;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Schema(
-    name = "Dashboard",
-    description = "A dashboard containing a collection of widgets"
-)
+@Data
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Dashboard {
     
     @Id
