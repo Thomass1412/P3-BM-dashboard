@@ -17,6 +17,7 @@ import com.aau.p3.performancedashboard.exceptions.NotFoundException;
 import com.aau.p3.performancedashboard.model.Authority;
 import com.aau.p3.performancedashboard.model.User;
 import com.aau.p3.performancedashboard.payload.request.RegisterRequest;
+import com.aau.p3.performancedashboard.payload.response.MessageResponse;
 import com.aau.p3.performancedashboard.payload.response.UserResponse;
 import com.aau.p3.performancedashboard.repository.UserRepository;
 import com.aau.p3.performancedashboard.security.AuthorityConstant;
@@ -152,9 +153,10 @@ public class UserService {
                 .switchIfEmpty(Mono.error(new NotFoundException("User not found.")));
     }
 
-    public Mono<Void> deleteUserById(String userId) {
+    public Mono<MessageResponse> deleteUserById(String userId) {
         return userRepository.findById(userId)
-                .flatMap(user -> userRepository.delete(user))
+                .flatMap(user -> userRepository.delete(user)
+                .then(Mono.just(new MessageResponse("User deleted successfully."))))
                 .switchIfEmpty(Mono.error(new NotFoundException("User not found.")));
     }
 

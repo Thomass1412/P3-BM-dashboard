@@ -135,10 +135,10 @@ public class ApiKeyController {
                     @Content(schema = @Schema(implementation = Boolean.class), mediaType = "application/json")
             })
     })
-    @GetMapping(path = "/{key}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "/{keyId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
-    public Mono<ResponseEntity<Boolean>> validateApiKey(@PathVariable String key) {
-        return apiKeyService.validateApiKey(key)
+    public Mono<ResponseEntity<Boolean>> validateApiKey(@PathVariable(value = "keyId") String keyId) {
+        return apiKeyService.validateApiKey(keyId)
                 .map(isValid -> ResponseEntity.ok(isValid));
     }
 
@@ -148,10 +148,10 @@ public class ApiKeyController {
                     @Content(schema = @Schema(implementation = MessageResponse.class), mediaType = "application/json")
             })
     })
-    @DeleteMapping(path = "/{key}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @DeleteMapping(path = "/{keyId}", produces = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("hasRole('ADMIN')")
-    public Mono<ResponseEntity<MessageResponse>> revokeApiKey(@PathVariable String key) {
-        return apiKeyService.revokeApiKey(key)
+    public Mono<ResponseEntity<MessageResponse>> revokeApiKey(@PathVariable(value = "keyId") String keyId) {
+        return apiKeyService.revokeApiKey(keyId)
                 .map(messageResponse -> ResponseEntity.ok(messageResponse));
     }
 }

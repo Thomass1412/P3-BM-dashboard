@@ -1,5 +1,8 @@
 package com.aau.p3.performancedashboard.exceptions;
 
+import java.util.List;
+
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
@@ -7,6 +10,9 @@ import lombok.NoArgsConstructor;
  */
 @NoArgsConstructor
 public class IntegrationNotFoundException extends RuntimeException {
+
+    @Getter
+    private List<String> integrationIds;
     
     /**
      * Constructs a new IntegrationNotFoundException with the specified detail message.
@@ -14,6 +20,11 @@ public class IntegrationNotFoundException extends RuntimeException {
      */
     public IntegrationNotFoundException(String message) {
         super(message);
+    }
+
+    public IntegrationNotFoundException(List<String> integrationIds) {
+        super("Integration with id(s) " + integrationIds + " not found");
+        this.integrationIds = integrationIds;
     }
 
     /**

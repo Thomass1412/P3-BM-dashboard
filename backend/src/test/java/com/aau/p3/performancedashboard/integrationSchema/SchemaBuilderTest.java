@@ -1,8 +1,6 @@
-
-package com.aau.p3.performancedashboard.schema;
+package com.aau.p3.performancedashboard.integrationSchema;
 
 import com.aau.p3.performancedashboard.payload.request.CreateIntegrationRequest;
-import com.aau.p3.performancedashboard.payload.request.IntegrationDataSchemaRequest;
 
 import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class SchemaBuilderTest {
 
-    private List<IntegrationDataSchemaRequest> schemaRequests;
+    private List<IntegrationDataSchema> schemaRequests;
 
     @BeforeEach
     public void setup() {
@@ -25,9 +23,9 @@ public class SchemaBuilderTest {
         integrationRequest.setName("bananas");
         integrationRequest.setType("internal");
         integrationRequest.setSchema(Arrays.asList(
-            new IntegrationDataSchemaRequest("Brand", "text", true),
-            new IntegrationDataSchemaRequest("Price", "number", true),
-            new IntegrationDataSchemaRequest("Maturity", "text", false)
+            new IntegrationDataSchema("Brand", "text", true),
+            new IntegrationDataSchema("Price", "number", true),
+            new IntegrationDataSchema("Maturity", "text", false)
         ));
 
         schemaRequests = integrationRequest.getSchema();

@@ -1,4 +1,4 @@
-package com.aau.p3.performancedashboard.schema;
+package com.aau.p3.performancedashboard.integrationSchema;
 
 import org.bson.Document;
 import org.bson.conversions.Bson;

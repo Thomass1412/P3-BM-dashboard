@@ -4,7 +4,8 @@ import com.aau.p3.performancedashboard.converter.IntegrationConverter;
 import com.aau.p3.performancedashboard.model.Integration;
 import com.aau.p3.performancedashboard.model.InternalIntegration;
 import com.aau.p3.performancedashboard.payload.request.CreateIntegrationRequest;
-import com.aau.p3.performancedashboard.payload.request.IntegrationDataSchemaRequest;
+
+import com.aau.p3.performancedashboard.integrationSchema.IntegrationDataSchema;
 import com.aau.p3.performancedashboard.payload.response.IntegrationResponse;
 import com.aau.p3.performancedashboard.repository.InternalIntegrationRepository;
 
@@ -48,12 +49,12 @@ public class IntegrationServiceTests {
 
     @BeforeEach
     void setUp() {
-        IntegrationDataSchemaRequest schemaRequest = new IntegrationDataSchemaRequest();
+        IntegrationDataSchema schemaRequest = new IntegrationDataSchema();
         schemaRequest.setName("Brand");
         schemaRequest.setType("text");
         schemaRequest.setRequired(true);
 
-        List<IntegrationDataSchemaRequest> schemaList = new ArrayList<>();
+        List<IntegrationDataSchema> schemaList = new ArrayList<>();
         schemaList.add(schemaRequest);
 
         // Initialize requests with valid and invalid data

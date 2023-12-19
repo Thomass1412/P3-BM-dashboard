@@ -10,42 +10,56 @@ import com.aau.p3.performancedashboard.model.User;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+
 /**
- * Repository interface for {@link User} instances. Provides basic CRUD operations due to the extension of
- * {@link ReactiveMongoRepository}. Includes custom implemented functionality by method signatures.
+ * Represents a repository for managing {@link User} instances.
+ * Extends {@link ReactiveMongoRepository} to provide CRUD operations for {@link User} instances.
+ * Annotated with {@link Repository} to indicate its role as a repository.
  */
 @Repository
 public interface UserRepository extends ReactiveMongoRepository<User, String> {
 
-  /**
-   * Finds a user by their login.
-   *
-   * @param login the login of the user to find
-   * @return a Mono emitting the user if found, or an empty Mono if not found
-   */
-  public Mono<User> findByLogin(String login);
+    /**
+     * Retrieves all {@link User} instances with pagination.
+     * Uses Spring Data MongoDB's derived query feature for automatic query generation.
+     *
+     * @param pageable The pagination information.
+     * @return A {@link Flux} of {@link User} instances for the given page, or {@link Flux#empty()} if none exist.
+     */
+    public Flux<User> findAllBy(Pageable pageable);
 
-  /**
-   * Retrieves a user by their ID.
-   *
-   * @param id the ID of the user to retrieve
-   * @return a Mono emitting the user with the specified ID, or an empty Mono if no user is found
-   */
-  public Mono<User> findById(String id);
+    /**
+     * Checks if a user exists by their login.
+     *
+     * @param login the login identifier of the user.
+     * @return true if a user with the given login exists, false otherwise.
+     */
+    public Mono<Boolean> existsByLogin(String login);
+
+    /**
+     * Checks if a user exists by their id.
+     *
+     * @param id the unique identifier of the user.
+     * @return true if a user with the given id exists, false otherwise.
+     */
+    public Mono<Boolean> existsById(String id);
+
+    /**
+     * Finds a {@link User} by their login.
+     * Uses derived query feature for query generation.
+     *
+     * @param login The login of the {@link User} to find.
+     * @return A {@link Mono} with the {@link User}, or {@link Mono#empty()} if not found.
+     */
+    public Mono<User> findByLogin(String login);
+
+    /**
+     * Finds a {@link User} by their id.
+     * Uses derived query feature for query generation.
+     *
+     * @param id The id of the {@link User} to find.
+     * @return A {@link Mono} with the {@link User}, or {@link Mono#empty()} if not found.
+     */
+    public Mono<User> findById(String id);
   
-  /**
-   * Checks if a user with the specified login exists in the repository.
-   *
-   * @param login the login of the user to check
-   * @return a Mono<Boolean> indicating whether a user with the specified login exists
-   */
-  public Mono<Boolean> existsByLogin(String login);
-
-  /**
-   * Retrieves all users based on the specified pageable parameters.
-   *
-   * @param pageable the pageable object containing the pagination information
-   * @return a Flux of User objects representing the users found
-   */
-  public Flux<User> findAllBy(Pageable pageable);
 }
