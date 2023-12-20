@@ -56,8 +56,6 @@ public class IntegrationServiceTests {
         List<IntegrationDataSchemaRequest> schemaList = new ArrayList<>();
         schemaList.add(schemaRequest);
 
-        // Initialize requests with valid and invalid data
-
         validRequest = new CreateIntegrationRequest("ValidName", "internal", schemaList) ; 
         invalidRequest = new CreateIntegrationRequest("InvalidName", "external", schemaList);
     }
@@ -80,7 +78,7 @@ public class IntegrationServiceTests {
             .verifyComplete();
     
         Mockito.verify(integrationDataService).createCollection(validRequest);
-        // Verifying save method was called with any instance of InternalIntegration
+
         Mockito.verify(internalIntegrationRepository).save(Mockito.any(InternalIntegration.class));
     }
      
@@ -100,7 +98,7 @@ public class IntegrationServiceTests {
 
     @Test
     void testCreateIntegration_Success() {
-        // Arrange
+
         String integrationName = validRequest.getName();
         String collectionName = "someCollectionName";
 
@@ -109,7 +107,6 @@ public class IntegrationServiceTests {
         Mockito.when(internalIntegrationRepository.save(Mockito.any(InternalIntegration.class)))
             .thenAnswer(invocation -> Mono.just(invocation.getArgument(0, InternalIntegration.class)));
 
-        // Mocking a static method
         try (MockedStatic<IntegrationConverter> mockedConverter = Mockito.mockStatic(IntegrationConverter.class)) {
             IntegrationResponse expectedResponse = new IntegrationResponse("id", integrationName, "type", new Date(), collectionName);
             mockedConverter.when(() -> IntegrationConverter.convertAnyIntegrationToIntegrationResponse(Mockito.any(InternalIntegration.class)))
@@ -131,7 +128,6 @@ public class IntegrationServiceTests {
 
     @Test
     void testCreateIntegration_NameAlreadyExists(){
-        // Setup
         Mockito.when(integrationRepository.findByName(validRequest.getName())).thenReturn(Mono.just(new Integration()));
 
         // Execute
