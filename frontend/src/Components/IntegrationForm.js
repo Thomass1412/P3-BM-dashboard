@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { useSnackbar } from './SnackbarProvider';
 
 export default function IntegrationForm() {
   const [integrationName, setIntegrationName] = useState('');
   const [formFields, setFormFields] = useState([{ name: '', type: 'text' }]);
+  const { showSnackbar } = useSnackbar();
+
 
   const handleIntegrationNameChange = (event) => {
     setIntegrationName(event.target.value);
@@ -37,10 +40,12 @@ export default function IntegrationForm() {
 
       const data = await response.json();
       console.log(data);
-      // Handle response or redirect user
+      showSnackbar('success', "Integration created successfully");
     } catch (error) {
       console.error(error);
-      // Handle error
+      const errorMessage = error.message || 'An error occurred while submitting the form.';
+      showSnackbar('error', errorMessage);
+
     }
   };
 

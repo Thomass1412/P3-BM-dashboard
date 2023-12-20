@@ -44,6 +44,7 @@ export default function App() {
             <Route path="/metrics" element={<Getmetric />}/>
             <Route path="/newuser" element={<CreateNewUser />}/>
             <Route path="/integrations/:integrationId" element={<IntegrationDetail />}/>
+            <Route path="/createdashboard" element={<CreateDashboard />}/>
           </Route>
         </Routes>
       </SnackbarProvider>

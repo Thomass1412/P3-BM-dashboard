@@ -62,42 +62,6 @@ public class IntegrationServiceTests {
     }
 
     @Test
-    void testCreateInternalIntegration_Success() {
-
-        String collectionName = "someCollectionName";
-
-        Mono<String> collectionCreationMono = Mono.just(collectionName);
-        Mockito.when(integrationDataService.createCollection(validRequest)).thenReturn(collectionCreationMono);
-    
-        Mockito.when(internalIntegrationRepository.save(Mockito.any(InternalIntegration.class)))
-               .thenAnswer(invocation -> Mono.just(invocation.getArgument(0, InternalIntegration.class)));
-    
-        Mono<IntegrationResponse> result = integrationService.createInternalIntegration(validRequest);
-    
-        StepVerifier.create(result)
-            .expectNextMatches(response -> response.getName().equals(validRequest.getName()) && response.getType().equals("internal"))
-            .verifyComplete();
-    
-        Mockito.verify(integrationDataService).createCollection(validRequest);
-
-        Mockito.verify(internalIntegrationRepository).save(Mockito.any(InternalIntegration.class));
-    }
-     
-    @Test
-    void testCreateInternalIntegration_FailureUnsupportedType() {
-        // Execute
-        Mono<IntegrationResponse> result = integrationService.createInternalIntegration(invalidRequest);
-
-        // Verify and Assert
-        StepVerifier.create(result)
-            .expectErrorMatches(throwable -> throwable instanceof IllegalArgumentException &&
-                throwable.getMessage().contains("Integration type 'external' is not supported"))
-            .verify();
-
-        Mockito.verify(integrationDataService, Mockito.never()).createCollection(Mockito.any());
-    }
-
-    @Test
     void testCreateIntegration_Success() {
 
         String integrationName = validRequest.getName();
@@ -143,5 +107,42 @@ public class IntegrationServiceTests {
         Mockito.verify(integrationRepository).findByName(validRequest.getName());
         Mockito.verify(integrationRepository, Mockito.never()).save(Mockito.any());
     }
+
+    @Test
+    void testCreateInternalIntegration_Success() {
+
+        String collectionName = "someCollectionName";
+
+        Mono<String> collectionCreationMono = Mono.just(collectionName);
+        Mockito.when(integrationDataService.createCollection(validRequest)).thenReturn(collectionCreationMono);
+    
+        Mockito.when(internalIntegrationRepository.save(Mockito.any(InternalIntegration.class)))
+               .thenAnswer(invocation -> Mono.just(invocation.getArgument(0, InternalIntegration.class)));
+    
+        Mono<IntegrationResponse> result = integrationService.createInternalIntegration(validRequest);
+    
+        StepVerifier.create(result)
+            .expectNextMatches(response -> response.getName().equals(validRequest.getName()) && response.getType().equals("internal"))
+            .verifyComplete();
+    
+        Mockito.verify(integrationDataService).createCollection(validRequest);
+
+        Mockito.verify(internalIntegrationRepository).save(Mockito.any(InternalIntegration.class));
+    }
+     
+    @Test
+    void testCreateInternalIntegration_FailureUnsupportedType() {
+        // Execute
+        Mono<IntegrationResponse> result = integrationService.createInternalIntegration(invalidRequest);
+
+        // Verify and Assert
+        StepVerifier.create(result)
+            .expectErrorMatches(throwable -> throwable instanceof IllegalArgumentException &&
+                throwable.getMessage().contains("Integration type 'external' is not supported"))
+            .verify();
+
+        Mockito.verify(integrationDataService, Mockito.never()).createCollection(Mockito.any());
+    }
+
 }
 

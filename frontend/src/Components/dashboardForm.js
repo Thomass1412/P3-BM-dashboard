@@ -91,12 +91,11 @@ export default function DashboardForm() {
         setData(data.content);
         console.log('Success:', data);
         showSnackbar('success', 'Dashboard created successfully.');
-        // Handle response or redirect user
+        
       } catch (error) {
         console.error(error);
         const errorMessage = error.message || 'An error occurred while submitting the form.';
         showSnackbar('error', errorMessage);
-        // Handle error
       }
   };
 
@@ -157,7 +156,6 @@ export default function DashboardForm() {
             </select>
           </div>
           <div className="mt-4">
-            {/* Dropdown for Metric Name */}
             <label htmlFor={`widget-metric-${index}`} className="block text-sm font-medium text-gray-700">
               Metric Name
             </label>
@@ -174,7 +172,6 @@ export default function DashboardForm() {
               ))}
             </select>
           </div>
-          {/* Sorted By Dropdown */}
           <div className="mt-4">
             <label htmlFor={`widget-sortedBy-${index}`} className="block text-sm font-medium text-gray-700">
               Sort By count
@@ -239,7 +236,6 @@ export default function DashboardForm() {
               placeholder="Enter limit"
             />
           </div>
-          {/* Additional fields for widget options can be added here */}
           <div className="mt-4">
             <button
               type="button"
