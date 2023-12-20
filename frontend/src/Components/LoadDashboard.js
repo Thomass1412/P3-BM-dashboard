@@ -66,7 +66,6 @@ function LoadDashBoard() {
                         renderedDashboard.push(LeaderBoard(element));
                         break;
                     case "NUMBER":
-                        console.log(data2)
                         await renderedDashboard.push(Number(element, data2))
                         break;
                     case "TABLE":
