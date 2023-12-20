@@ -37,7 +37,7 @@ const IntegrationDetail = () => {
         setSchema(schemaData);
 
         // Fetch the integration data
-        const dataResponse = await fetch(`http://localhost/api/v1/integration/${integrationId}/data/pageable`);
+        const dataResponse = await fetch(`http://localhost/api/v1/integration/${integrationId}/data/pageable?page=0&size=9999`);
         if (!dataResponse.ok) {
             throw new Error(`HTTP error! status: ${dataResponse.status}`);
         }

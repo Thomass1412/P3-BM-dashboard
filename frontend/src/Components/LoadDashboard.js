@@ -2,12 +2,17 @@ import React from "react";
 import { useEffect, useRef, useState } from "react";
 import LeaderBoard from "../Metric/LeaderBoard";
 import Number from "../Metric/Numer";
+import { useParams } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 
 function LoadDashBoard() {
     const [data, setData] = useState([]);
     const [dashboard,setDashBoard] = useState([]);
     const [fulldashboard,setFullDashBoard] = useState([]);
-    const [data2,setData2] = useState()
+    const [calDashboard,setCalDashboard] = useState([])
+    const { id } = useParams();
+
+    const navigate = useNavigate();
 
     const getData = async () => {
         try {
@@ -24,49 +29,114 @@ function LoadDashBoard() {
           }
           const responseData = await response.json();
           setData(responseData.content);
-          setDashBoard(responseData.content[0])
-          console.log(responseData.content[0])
+          setDashBoard(responseData.content[id])
+          console.log(responseData.content[id])
           console.log('Successss:', responseData);
         } catch (error) {
-          const errorMessage = data.messages.join(', ');
+          console.log(data.messages.join(', '));
         }
     };
 
-    const getData2 = async () => {
+  
+
+    const getCalDashboard = async () => {
+      console.log(dashboard) 
+        if (!dashboard || !dashboard.id) {
+          console.log("Dashboard or Dashboard ID is not set.");
+          return;
+        }
         try {
-          const response = await fetch('http://localhost/api/v1/integrations/pageable?page=0&size=9999');
+          console.log(dashboard.id)
+          const response = await fetch('http://localhost/api/v1/dashboard/{dashboardId}?dashboardId='+dashboard.id, {
+            method: 'GET',
+              headers: {
+                'Accept': 'application/json',
+                'Authorization': 'Bearer '+ document.cookie.split("=")[1],
+              },
+            });
           if (!response.ok) {
             // Handle non-OK responses
             throw new Error(`HTTP error! Status: ${response.status}`);
           }
           const responseData = await response.json();
-          setData2(responseData.content.length);
-          console.log('Success:', responseData.content.length);
+          setCalDashboard(responseData);
+          console.log('Success:', responseData);
         } catch (error) {
-          const errorMessage = data.messages.join(', ');
+          console.log(data.messages.join(', '));
         }
       };
     
     useEffect(() => {
-        getData();
-      }, []);
+        console.log("her1");
+        const fetchData = async () => {
+          try {
+              await getData();
+              await getWidgets(); 
+          } catch (error) {
+              // Handle or log error
+              console.error("Error fetching data", error);
+          }
+        };
+
+        fetchData();
+    }, []);
 
     useEffect(() => {
-        getWidgets()
+      // Existing useEffect logic
+      // ...
+
+      // New code to execute something after 30 seconds
+      const timer = setTimeout(() => {
+          // Place your code here that you want to execute after 30 seconds
+          navigate(0);
+      }, 30000);
+
+      // Cleanup function
+      return () => clearTimeout(timer);
+  }, []);
+
+    /*useEffect(() => {
+      console.log("her1");
+        const fetchData = async () => {
+          try {
+              await getData();
+              await getWidgets(); 
+          } catch (error) {
+              // Handle or log error
+              console.error("Error fetching data", error);
+          }
+        };
+        setTimeout(() => {
+          fetchData();
+        }, 5000);
+
+  }, [fulldashboard]);*/
+
+
+    useEffect(() => {
+        if (dashboard && dashboard.id) {
+            getCalDashboard();
+        }
+        
     }, [dashboard]);
+
+    useEffect(() => {
+          getWidgets();
+    }, [calDashboard]);
+    
 
     const getWidgets=()=>{
         const renderedDashboard =[];
         console.log("her")
         console.log(dashboard)
         if (dashboard && Array.isArray(dashboard.widgets)) {
-            dashboard.widgets.forEach(async element => {
+            dashboard.widgets.forEach(async (element , index)=> {
                 switch (element.type) {
                     case "LEADERBOARD":
-                        renderedDashboard.push(LeaderBoard(element));
+                        renderedDashboard.push(LeaderBoard(element, calDashboard.calculatedMetrics[index]));
                         break;
                     case "NUMBER":
-                        await renderedDashboard.push(Number(element, data2))
+                        await renderedDashboard.push(Number(element, calDashboard.calculatedMetrics[index]))
                         break;
                     case "TABLE":
                         
@@ -84,17 +154,11 @@ function LoadDashBoard() {
 
     const handleFieldChange = async (event) => {
         console.log(data[event.target.value])
+        navigate("/dashboard/"+event.target.value)
         setDashBoard(data[event.target.value]);
     }
 
-    useEffect(() => {
-    const interval = setInterval(() => {
-        getWidgets();
-        getData2();
-    }, 1000);
-
-    return () => clearInterval(interval);
-    }, [dashboard]);
+    
 
   return (
     <div className="flex-1">
@@ -103,8 +167,9 @@ function LoadDashBoard() {
         onChange={(event) => handleFieldChange(event)}
         className="px-3 w-1/4 mx-8 py-2 mt-6 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
         >
+          <option>Select Dashboard</option>
         {data.map((dashboard, index) => (
-          <option value={index}>{dashboard.name}</option>
+          <option key={dashboard.id} value={index}>{dashboard.name}</option>
         ))}
         </select>
         <div className="flex-1 h-[90%] grid grid-cols-4 grid-rows-3 p-1 mx-8 mb-4 bg-green-50 rounded-lg my-1">

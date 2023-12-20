@@ -37,7 +37,7 @@ export default function App() {
           <Route path="/login" element={<Login />}/>
           <Route element={<ProtectedRoute />}>
             <Route path="/supervisor" element={<Supervisor />}/>
-            <Route path="/dashboard" element={<Dashboard />}/>
+            <Route path="/dashboard/:id" element={<Dashboard />}/>
             <Route path="/newintegration" element={<NewIntegration />}/>
             <Route path="/newMetric" element={<NewMetric />}/>
             <Route path="/integrations" element={<GetInt />}/>

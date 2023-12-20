@@ -52,7 +52,7 @@ function Header() {
               <a href="/supervisor" className="block py-2 px-3 rounded md:bg-transparent md:p-0" aria-current="page">Home</a>
             </li>
             <li className="border-solid border-b-2 hover:border-green-200  border-green-700 text-green-50">
-              <a href="/dashboard" className="block py-2 px-3 rounded md:p-0">Dashboard</a>
+              <a href="/dashboard/selectdashboard" className="block py-2 px-3 rounded md:p-0">Dashboard</a>
             </li>
             <div ref={dropDownRef}>
               <li className="border-solid border-b-2 hover:border-green-200  border-green-700 text-green-50 ">

@@ -322,7 +322,8 @@ public class MetricService implements PropertyChangeListener {
 
         // Add custom criteria to the list
         for (Map.Entry<String, String> entry : customCriteria.entrySet()) {
-            criteriaList.add(Criteria.where(entry.getKey()).is(entry.getValue()));
+            String keyWithDots = entry.getKey().replace("_", ".");
+            criteriaList.add(Criteria.where(keyWithDots).is(entry.getValue()));
         }
 
         // Combine all criteria using 'andOperator'
