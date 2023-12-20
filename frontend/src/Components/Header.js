@@ -1,6 +1,8 @@
 import React from "react";
 import Logo from "./Logo";
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Cookies from 'js-cookie';
 
 function Header() {
   const logo = Logo("rgb(134 239 172)", "white");
@@ -31,6 +33,13 @@ function Header() {
     }
   }, [open]);
 
+  const navigate = useNavigate();
+
+  const SignOut = () =>{
+    Cookies.remove('login', { path: '/' });
+    navigate("/supervisor")
+  }
+
   return (
     <nav className="bg-green-700 border-gray-200">
       <div className="max-w-screen flex flex-wrap items-center justify-between mx-16 p-4">
@@ -55,7 +64,7 @@ function Header() {
                     <a href="/newmetric" className="block rounded md:bg-transparent md:p-0">New metric</a>
                   </li>
                   <li className="border-solid border-b-2 hover:border-green-200  border-green-700" >
-                    <a href="/supervisor" className="block rounded md:bg-transparent md:p-0">View metrics</a>
+                    <a href="/metrics" className="block rounded md:bg-transparent md:p-0">View metrics</a>
                   </li>
                   <li className="border-solid border-b-2 hover:border-green-200  border-green-700" >
                     <a href="/newintegration" className="block rounded md:bg-transparent md:p-0">New integration</a>
@@ -73,7 +82,7 @@ function Header() {
             <li className="border-solid border-b-2 hover:border-green-200  border-green-700 text-green-50">
               <a href="#" className="block py-2 px-3 rounded md:p-0">Profile</a>
             </li>
-            <li className="border-solid border-b-2 hover:border-green-200  border-green-700 text-green-50">
+            <li className="border-solid border-b-2 hover:border-green-200  border-green-700 text-green-50" onClick={SignOut}>
               <a href="/login" className="block py-2 px-3 rounded md:p-0">logout</a>
             </li>
           </ul>

@@ -3,6 +3,7 @@ import { useSnackbar } from './SnackbarProvider';
 
 export default function DashboardForm() {
   const [data, setData] = useState([]);
+  const [open, setOpen] = useState([]);
   const [dashboardName, setDashboardName] = useState('');
   const [widgets, setWidgets] = useState([{ name: '', type: '', options: {} }]);
   const [metrics, setMetrics] = useState([]);
@@ -20,12 +21,6 @@ export default function DashboardForm() {
     .then(data => setMetrics(data.content || []))
     .catch(error => console.error('Error fetching metrics:', error));
   }, []);
-
-  const handleOptionsChange = (index, key, value) => {
-    const updatedWidgets = [...widgets];
-    updatedWidgets[index].options[key] = value;
-    setWidgets(updatedWidgets);
-  };
 
   const handleMetricNameChange = (index, metricName) => {
     const metric = metrics.find(m => m.name === metricName);
@@ -121,13 +116,15 @@ export default function DashboardForm() {
           name="dashboardName"
           value={dashboardName}
           onChange={handleDashboardNameChange}
-          className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          className="mt-1 block w-80 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           placeholder="Enter dashboard name"
         />
       </div>
+      <div className='flex flex-row flex-wrap'>
 
+      
       {widgets.map((widget, index) => (
-        <div key={index} className="border p-4 rounded-lg mb-4">
+        <div key={index} className="border p-4 rounded-lg mb-4 w-80">
           <div>
             <label htmlFor={`widget-name-${index}`} className="block text-sm font-medium text-gray-700">
               Widget Name
@@ -153,6 +150,7 @@ export default function DashboardForm() {
               onChange={(e) => handleWidgetChange(index, 'type', e.target.value)}
               className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             >
+              <option key={null} value={null}>Select widget</option>
               {widgetTypes.map((type) => (
                 <option key={type} value={type}>{type}</option>
               ))}
@@ -202,7 +200,9 @@ export default function DashboardForm() {
               name={`start-date-type${index}`}
               value={widget.options.startDateType || ''}
               onChange={(e) => handleWidgetChange(index, 'startDateType', e.target.value)}
+              className="mt-1 block px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             >
+              <option key={null} value={null}>Select start date</option>
               {Dates.map((startDateType) => (
               <option key={startDateType} value={startDateType}>{startDateType}</option>
               ))}
@@ -217,7 +217,9 @@ export default function DashboardForm() {
               name={`end-date-type${index}`}
               value={widget.options.endDateType || ''}
               onChange={(e) => handleWidgetChange(index, 'endDateType', e.target.value)}
+              className="mt-1 block px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             >
+              <option key={null} value={null}>Select end date</option>
               {Dates.map((endDateType) => (
                 <option key={endDateType} value={endDateType}>{endDateType}</option>
               ))}
@@ -249,6 +251,7 @@ export default function DashboardForm() {
           </div>
         </div>
       ))}
+    </div>
 
       <div className="flex justify-between">
         <button

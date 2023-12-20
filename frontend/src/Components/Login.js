@@ -43,7 +43,7 @@ function Login() {
       // Handle success response
       console.log(`HTTP status: ${response.status}`);
       console.log("Success:", data.token);
-      Cookies.set('login', data.token, { expires: 7 });
+      Cookies.set('login', data.token);
 
       navigate("/supervisor")
       

@@ -11,6 +11,7 @@ export default function IntegrationForm() {
   const [name, setName] = useState();
   const [checkboxStates, setCheckboxStates] = useState({});
   const [integrationValues, setIntegrationValues] = useState({});
+  const [notFilled, setNotFilled] = useState(false)
 
   const getData = async () => {
     try {
@@ -51,6 +52,7 @@ export default function IntegrationForm() {
 
   const handleFieldChangeOper = async (event) => {
     setOperation(event.target.value);
+    setNotFilled(false);
   }
 
 
@@ -75,6 +77,7 @@ export default function IntegrationForm() {
       await handleCheckSet();
     };
     init();
+    setNotFilled(false);
   }, [integration]);
 
   
@@ -93,6 +96,7 @@ export default function IntegrationForm() {
     }
 
     const metricOperationsPayload = [
+      
       {
         operation: operation, // Assuming 'operation' holds the operation type like 'ADD', 'COUNT', etc.
       },
@@ -114,6 +118,10 @@ export default function IntegrationForm() {
     console.log(payload)
 
     try{
+      if(!operation || !name || !integrationid || !criteria){
+        setNotFilled(true);
+        throw new Error(`something is null`);
+      }
       const response = await fetch(`http://localhost/api/v1/metric/`, {
           method: 'POST',
           headers: {
@@ -130,16 +138,19 @@ export default function IntegrationForm() {
         console.log('Data submitted:', result);
         console.log('Success: ', result);
     }catch(error){
+      setNotFilled(true);
       console.error('Error fetching:', error);
     }
   }
 
 
   const nameSetter = (e) =>{
+    setNotFilled(false);
     setName(e.target.value)
   }
 
   useEffect(() => {
+    setNotFilled(false);
     const initialCheckboxStates = {};
     integrationSchema.forEach((field) => {
       initialCheckboxStates[field] = false;
@@ -148,6 +159,7 @@ export default function IntegrationForm() {
   }, [integrationSchema]);
 
   const handleCheckboxChange = (integration) => {
+    setNotFilled(false);
     setCheckboxStates(prev => ({ ...prev, [integration]: !prev[integration] }));
     if (!checkboxStates[integration]) {
       // Remove the integration value if the checkbox is unchecked
@@ -170,6 +182,9 @@ export default function IntegrationForm() {
 
   return (
     <form onSubmit={handleSubmit2} className="space-y-4">
+      <div className={`${notFilled ? "opacity-100" : "opacity-0"} transition-opacity duration-1000 ease-in-out flex flex-row items-center justify-end w-full text-red-600  `}>
+        <h1 className="">Something is not filled</h1>
+      </div>
       <div>
         <label htmlFor="integrationName" className="block text-sm font-medium text-gray-700">
           Metric Name
@@ -189,6 +204,7 @@ export default function IntegrationForm() {
         onChange={(event) => handleFieldChangeOper(event)}
         className="px-3 w-full py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
       >
+        <option value={undefined}>Choose operation</option>
         {metricOperations.map((operation, index) => (
           <option value={operation}>{operation}</option>
         )
@@ -202,6 +218,7 @@ export default function IntegrationForm() {
         onChange={(event) => handleFieldChange(event)}
         className="px-3 py-2 w-full bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
       >
+        <option value={null}>Choose integration</option>
         {data.map((integration, index) => (
           <option value={integration.id}>{integration.name}</option>
         )

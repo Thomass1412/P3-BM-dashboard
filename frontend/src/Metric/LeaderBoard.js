@@ -1,21 +1,28 @@
 import React from "react";
 
-function LeaderBoard() {
-    const type = "Sales Value "
-    const period = " Current month"
+function LeaderBoard(data) {
     return (
-        <div className="col-span-2 row-span-2 bg-green-200 rounded-md px-2 grid grid-cols-8 grid-rows-6 gap-2">
-            <div className="col-span-8 row-span-1 flexCenterR border-b-2 border-col">
-                <p className="text-black text-2xl">
-                    {type}
-                    <span className="inline-flex items-baseline text-black text-sm">
-                        {period}
-                    </span>
-                </p>    
-            </div>
-            <div className="flexCenterC row-span-4 bg-green-200 rounded-md grid grid-cols-10 grid-rows-6 gap-2">
-            </div>
+        <div className=" bg-green-700 col-span-2 m-1 text-white rounded-md row-span-2 flexCenterC justify-start p-4 text-5xl font-extrabold">
+            <h1>{data.name}</h1>
+            <h1 className=" mb-16">LeaderBoard</h1>
+            <table className="w-full">
+                <thead>
+                    <tr>
+                    <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xl font-semibold text-gray-200 uppercase tracking-wider">#</th>
+                    <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xl font-semibold text-gray-200 uppercase tracking-wider">Agent</th>
+                    <th className="px-5 py-3 border-b-2 border-gray-200 text-left text-xl font-semibold text-gray-200 uppercase tracking-wider">Score</th>
+                    
+                    </tr>
+                </thead>
+                <tbody>
+                    <td className="px-5 py-3 border-b border-gray-200  text-sm">1</td>
+                    <td className="px-5 py-3 border-b border-gray-200  text-sm">Marcus</td>
+                    <td className="px-5 py-3 border-b border-gray-200  text-sm">1100</td>
+                    
+                </tbody>
+            </table>
         </div>
+        
     );
 }
 export default LeaderBoard;
