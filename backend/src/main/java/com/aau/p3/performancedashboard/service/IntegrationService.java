@@ -20,7 +20,7 @@ import com.aau.p3.performancedashboard.payload.request.CreateIntegrationRequest;
 import com.aau.p3.performancedashboard.payload.response.IntegrationResponse;
 import com.aau.p3.performancedashboard.repository.IntegrationRepository;
 import com.aau.p3.performancedashboard.repository.InternalIntegrationRepository;
-import com.aau.p3.performancedashboard.schema.MongoSchemaRetriever;
+import com.aau.p3.performancedashboard.integrationSchema.MongoSchemaRetriever;
 import com.mongodb.reactivestreams.client.MongoDatabase;
 
 import reactor.core.publisher.Mono;
@@ -82,7 +82,13 @@ public class IntegrationService {
     // Check if integration with given name already exists, or else create it
     return integrationRepository.findByName(integrationRequest.getName())
         .hasElement()
-        .flatMap(exists -> exists ? Mono.error(new IllegalArgumentException("Integration with name '" + integrationRequest.getName() + "' already exists.")) : createInternalIntegration(integrationRequest));
+        .flatMap(exists -> {
+          if (exists) {
+            return Mono.error(new IllegalArgumentException("Integration with name '" + integrationRequest.getName() + "' already exists."));
+          } else {
+            return createInternalIntegration(integrationRequest);
+          }
+        });
   }
 
   /**

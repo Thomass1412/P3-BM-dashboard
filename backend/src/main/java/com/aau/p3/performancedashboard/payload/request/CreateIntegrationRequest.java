@@ -4,7 +4,8 @@ import java.util.List;
 
 import org.springframework.data.mongodb.core.schema.MongoJsonSchema;
 
-import com.aau.p3.performancedashboard.schema.SchemaBuilder;
+import com.aau.p3.performancedashboard.integrationSchema.IntegrationDataSchema;
+import com.aau.p3.performancedashboard.integrationSchema.SchemaBuilder;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
@@ -51,7 +52,7 @@ public class CreateIntegrationRequest {
 
     @NotEmpty(message = "The integration schema is required.")
     @Valid
-    private List<IntegrationDataSchemaRequest> schema;
+    private List<IntegrationDataSchema> schema;
 
     public MongoJsonSchema generateSchema() throws IllegalArgumentException {
         return SchemaBuilder.generateFrom(this.schema);

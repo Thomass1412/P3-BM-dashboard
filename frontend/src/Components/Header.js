@@ -34,7 +34,7 @@ function Header() {
   return (
     <nav className="bg-green-700 border-gray-200">
       <div className="max-w-screen flex flex-wrap items-center justify-between mx-16 p-4">
-        <a href="/" className="flex items-center space-x-3">
+        <a href="/supervisor" className="flex items-center space-x-3">
           <span className="whitespace-nowrap h-8 w-96">{logo}</span>
         </a>
         <div className="w-full md:w-auto" id="navbar-default">
@@ -61,7 +61,7 @@ function Header() {
                     <a href="/newintegration" className="block rounded md:bg-transparent md:p-0">New integration</a>
                   </li>
                   <li className="border-solid border-b-2 hover:border-green-200 border-green-700" >
-                    <a href="/viewintergrations" className="block rounded md:bg-transparent md:p-0">view integrations</a>
+                    <a href="/integrations" className="block rounded md:bg-transparent md:p-0">view integrations</a>
                   </li>
                   <li className="border-solid border-b-2 hover:border-green-200 border-green-700" >
                     <a href="/newuser" className="block rounded md:bg-transparent md:p-0">Create new user</a>

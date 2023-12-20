@@ -1,4 +1,4 @@
-package com.aau.p3.performancedashboard.schema;
+package com.aau.p3.performancedashboard.integrationSchema;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,8 +9,6 @@ import org.springframework.data.mongodb.core.schema.JsonSchemaObject.Type;
 import org.springframework.data.mongodb.core.schema.JsonSchemaProperty;
 import org.springframework.data.mongodb.core.schema.MongoJsonSchema;
 import org.springframework.data.mongodb.core.schema.MongoJsonSchema.MongoJsonSchemaBuilder;
-
-import com.aau.p3.performancedashboard.payload.request.IntegrationDataSchemaRequest;
 
 /**
  * This class is responsible for building a MongoDB JSON schema based on a list
@@ -34,7 +32,7 @@ public class SchemaBuilder {
    * @throws IllegalArgumentException If an invalid type is provided in a schema
    *                                  request.
    */
-  public static MongoJsonSchema generateFrom(List<IntegrationDataSchemaRequest> schemaRequests)
+  public static MongoJsonSchema generateFrom(List<IntegrationDataSchema> schemaRequests)
       throws IllegalArgumentException, RuntimeException {
     logger.info("Generating MongoDB JSON schema from schema requests...");
 
@@ -64,17 +62,17 @@ public class SchemaBuilder {
   }
 
   /**
-   * Builds a list of JsonSchemaProperty objects based on a list of IntegrationDataSchemaRequest objects.
+   * Builds a list of JsonSchemaProperty objects based on a list of IntegrationDataSchema objects.
    *
-   * @param schemaRequests the list of IntegrationDataSchemaRequest objects
+   * @param schemaRequests the list of IntegrationDataSchema objects
    * @return the list of JsonSchemaProperty objects
    * @throws IllegalArgumentException if any of the schema requests are invalid
    */
-  private static List<JsonSchemaProperty> buildProperties(List<IntegrationDataSchemaRequest> schemaRequests)
+  private static List<JsonSchemaProperty> buildProperties(List<IntegrationDataSchema> schemaRequests)
       throws IllegalArgumentException {
     List<JsonSchemaProperty> properties = new ArrayList<>();
 
-    for (IntegrationDataSchemaRequest request : schemaRequests) {
+    for (IntegrationDataSchema request : schemaRequests) {
       JsonSchemaProperty property = buildPropertyFromRequest(request);
       properties.add(property);
     }
@@ -85,7 +83,7 @@ public class SchemaBuilder {
   /**
    * Represents a property in a JSON schema.
    */
-  private static JsonSchemaProperty buildPropertyFromRequest(IntegrationDataSchemaRequest request)
+  private static JsonSchemaProperty buildPropertyFromRequest(IntegrationDataSchema request)
       throws IllegalArgumentException, RuntimeException {
     String key = request.getName();
     String typeString = request.getType().toUpperCase();

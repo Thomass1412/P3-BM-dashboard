@@ -9,7 +9,7 @@ import GetInt from "./Pages/getntgrationpage.tsx";
 import SnackbarProvider from "./Components/SnackbarProvider.js";
 import CreateNewUser from "./Pages/CreateUserPage.tsx";
 import IntegrationDetail from "./Pages/IntegrationDetail.tsx"; // Make sure to create this component
-import IntegrationsList from './Pages/IntegrationsList.tsx';
+import CreateDashboard from "./Pages/CreateDashboardPage.tsx";
 
 export default function App() {
   return (
@@ -22,10 +22,10 @@ export default function App() {
           <Route path="/dashboard" element={<Dashboard />}/>
           <Route path="/newintegration" element={<NewIntegration />}/>
           <Route path="/newMetric" element={<NewMetric />}/>
-          <Route path="/viewintergrations" element={<GetInt />}/>
+          <Route path="/integrations" element={<GetInt />}/>
           <Route path="/newuser" element={<CreateNewUser />}/>
-          <Route path="/integrations" element={<IntegrationsList />}/>
           <Route path="/integrations/:integrationId" element={<IntegrationDetail />}/>
+          <Route path="/c" element={<CreateDashboard />}/>
         </Routes>
       </SnackbarProvider>
     </BrowserRouter>

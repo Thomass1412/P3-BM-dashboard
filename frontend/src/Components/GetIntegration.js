@@ -26,36 +26,6 @@ function GetIntegration() {
     }
   };
 
-
-  const getusernames = async (userID) => {
-    try {
-      const token = 'Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZG1pbiIsImF1dGgiOiJST0xFX0FETUlOIiwiZXhwIjoxNzAyOTI0ODE0LCJpYXQiOjE3MDI4Mzg0MTR9.PgwOZyE-2cvUaoYpvvLvZAPRX1eKQA_5M7SYO1a0v8BLEvZj-VY9b0FPnAzAwB8K6_5s0YIcjS-SUezjKcKvXg';
-      const response = await fetch('http://localhost/api/v1/user/'+userID, {
-        method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Authorization': 'Bearer '+ document.cookie.split("=")[1],
-          },
-        });
-
-      if (!response.ok) {
-        // Handle non-OK responses
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      const responseData = await response.json();
-      const username = responseData.login;
-      console.log('Success: user', username);
-      return username
-      
-      // After all requests are done, set the usernames
-    } catch (error) {
-      // Handle errors here
-      console.error('Error:', error);
-    }
-    return "not found"
-  };
-
   const handleNextClick = (e) => {
     setPage(page + 1);
   };

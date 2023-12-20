@@ -20,9 +20,15 @@ import org.springframework.security.core.Authentication;
 
 import com.aau.p3.performancedashboard.payload.JWTToken;
 import com.aau.p3.performancedashboard.payload.request.LoginRequest;
+import com.aau.p3.performancedashboard.payload.response.ErrorResponse;
 import com.aau.p3.performancedashboard.security.TokenProvider;
 import com.aau.p3.performancedashboard.security.jwt.JWTReactiveAuthenticationManager;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import reactor.core.publisher.Mono;
@@ -48,6 +54,18 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
     }
 
+    @Operation(summary = "Authenticate a user", description = "Authenticates a user with the provided credentials.")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Successfully authorized", content = {
+                    @Content(schema = @Schema(implementation = JWTToken.class), mediaType = "application/json")
+            }),
+        @ApiResponse(responseCode = "400", description = "Bad credentials", content = {
+                    @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
+            }),
+        @ApiResponse(responseCode = "401", description = "Unauthorized", content = {
+                    @Content(schema = @Schema(implementation = ErrorResponse.class), mediaType = "application/json")
+            })
+    })
     @PostMapping(path = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
     public Mono<ResponseEntity<JWTToken>> authorize(@Valid @RequestBody LoginRequest loginRequest,
             ServerHttpResponse response) {

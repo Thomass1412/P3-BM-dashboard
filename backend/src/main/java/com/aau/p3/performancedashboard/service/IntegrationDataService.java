@@ -1,8 +1,13 @@
 package com.aau.p3.performancedashboard.service;
 
 import org.bson.Document;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -15,6 +20,7 @@ import org.springframework.stereotype.Service;
 import com.aau.p3.performancedashboard.payload.request.CreateIntegrationRequest;
 import com.aau.p3.performancedashboard.payload.response.IntegrationDataResponse;
 import com.aau.p3.performancedashboard.converter.IntegrationDataConverter;
+import com.aau.p3.performancedashboard.events.IntegrationDataEvent;
 import com.aau.p3.performancedashboard.exceptions.NotFoundException;
 import com.aau.p3.performancedashboard.model.Integration;
 import com.aau.p3.performancedashboard.model.User;
@@ -32,7 +38,21 @@ import reactor.core.publisher.Mono;
 public class IntegrationDataService {
 
 	// Logger
-	private static final Logger logger = LoggerFactory.getLogger(IntegrationDataService.class);
+	private static final Logger logger = LogManager.getLogger(IntegrationDataService.class);
+
+	// Event management -> To notify MetricService about new integration data
+	private final PropertyChangeSupport propertyChangeSupport;
+
+	public void addPropertyChangeListener(PropertyChangeListener listener) {
+		logger.debug("Adding property change listener");
+        propertyChangeSupport.addPropertyChangeListener(listener);
+    }
+
+	private void notifyListeners(IntegrationDataEvent event) {
+		logger.debug("Notifying listeners about integration data event");
+		logger.debug(propertyChangeSupport.getPropertyChangeListeners().length + " listeners registered");
+        propertyChangeSupport.firePropertyChange("integrationDataEvent", null, event);
+    }
 
 	// Dependencies
 	private final IntegrationService integrationService;
@@ -50,6 +70,7 @@ public class IntegrationDataService {
 		this.mongoTemplate = mongoTemplate;
 		this.mongoDatabase = mongoDatabase;
 		this.userService = userService;
+		this.propertyChangeSupport = new PropertyChangeSupport(this);
 	}
 
 	/**
@@ -151,7 +172,14 @@ public class IntegrationDataService {
 		// First check the user exists, then process the integration data by using a helper method
 		return userService.findById(integrationDataRequest.getUserId())
 				.switchIfEmpty(Mono.error(new NotFoundException("User not found.")))
-				.flatMap(user -> processIntegration(integrationId, integrationDataRequest, user));
+				.flatMap(user -> processIntegration(integrationId, integrationDataRequest, user))
+                .doOnSuccess(data -> {
+                    // Create an IntegrationDataEvent
+                    IntegrationDataEvent event = new IntegrationDataEvent(this, integrationId, integrationDataRequest);
+
+                    // Notify listeners about the event
+                    notifyListeners(event);
+                });
 	}
 
 	/**
