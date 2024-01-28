@@ -26,7 +26,7 @@ export default function IntegrationForm() {
     };
 
     try {
-      const response = await fetch('http://localhost/api/v1/integration', {
+      const response = await fetch('https://dashboard.ollioddi.dk/api/v1/integration', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

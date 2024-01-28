@@ -10,7 +10,7 @@ function GetIntegration() {
 
   const getData = async () => {
     try {
-      const response = await fetch('http://localhost/api/v1/integrations/pageable?page='+page+'&size=10');
+      const response = await fetch('https://dashboard.ollioddi.dk/api/v1/integrations/pageable?page='+page+'&size=10');
       if (!response.ok) {
         // Handle non-OK responses
         throw new Error(`HTTP error! Status: ${response.status}`);

@@ -15,7 +15,7 @@ export default function IntegrationForm() {
 
   const getData = async () => {
     try {
-      const response = await fetch('http://localhost/api/v1/integrations/pageable?page=0&size=999', {
+      const response = await fetch('https://dashboard.ollioddi.dk/api/v1/integrations/pageable?page=0&size=999', {
         method: 'GET',
           headers: {
             'Accept': 'application/json',
@@ -36,7 +36,7 @@ export default function IntegrationForm() {
   
   const handleFieldChange = async (event) => {
     try{
-      const integrationResponse = await fetch(`http://localhost/api/v1/integration/${event.target.value}/data/pageable`);
+      const integrationResponse = await fetch(`https://dashboard.ollioddi.dk/api/v1/integration/${event.target.value}/data/pageable`);
         if (!integrationResponse.ok) {
             throw new Error(`HTTP error! status: ${integrationResponse.status}`);
         }
@@ -60,7 +60,7 @@ export default function IntegrationForm() {
   const handleCheckSet = async () => {
     try{
       console.log(integration);
-        const integrationSchemaResponse = await fetch(`http://localhost/api/v1/integration/${integrationid}/schema`);
+        const integrationSchemaResponse = await fetch(`https://dashboard.ollioddi.dk/api/v1/integration/${integrationid}/schema`);
         if (!integrationSchemaResponse.ok) {
             throw new Error(`HTTP error! status: ${integrationSchemaResponse.status}`);
         }
@@ -122,7 +122,7 @@ export default function IntegrationForm() {
         setNotFilled(true);
         throw new Error(`something is null`);
       }
-      const response = await fetch(`http://localhost/api/v1/metric/`, {
+      const response = await fetch(`https://dashboard.ollioddi.dk/api/v1/metric/`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

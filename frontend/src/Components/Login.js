@@ -22,7 +22,7 @@ function Login() {
     e.preventDefault();
     console.log(loginInfo);
     try {
-      const response = await fetch("http://localhost/auth/login", {
+      const response = await fetch("https://dashboard.ollioddi.dk/auth/login", {
         method: "POST",
         mode: "cors", // See comment above
         credentials: "omit",

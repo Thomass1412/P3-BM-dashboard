@@ -10,7 +10,7 @@ function Getmetric() {
 
   const getData = async () => {
     try {
-      const response = await fetch('http://localhost/api/v1/metric/pageable?page='+page+'&size=10', {
+      const response = await fetch('https://dashboard.ollioddi.dk/api/v1/metric/pageable?page='+page+'&size=10', {
         method: 'GET',
           headers: {
             'Accept': 'application/json',

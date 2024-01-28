@@ -40,7 +40,7 @@ const DataTable = ({ data }) => {
 
     const getusernames = async (userID) => {
       try {
-        const response = await fetch('http://localhost/api/v1/user/'+userID, {
+        const response = await fetch('https://dashboard.ollioddi.dk/api/v1/user/'+userID, {
           method: 'GET',
             headers: {
               'Accept': 'application/json',

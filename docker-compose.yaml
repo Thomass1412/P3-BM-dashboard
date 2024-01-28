@@ -1,15 +1,13 @@
-version: "3.8"
+version: "3"
 services: 
   mongodb:
-    image: 'mongo:latest'
     restart: unless-stopped
+    image: 'mongo:latest'
     container_name: "mongodb"
-    environment:
-      - 'MONGO_INITDB_DATABASE=dashboard-db'
-      - 'MONGO_INITDB_ROOT_PASSWORD=secret'
-      - 'MONGO_INITDB_ROOT_USERNAME=root'
+    env_file:
+      - db.env
     ports:
-      - 27017:27017
+      - "27017:27017"
     volumes:
       - db:/data/db
     networks:
@@ -22,17 +20,19 @@ services:
       start_period: 40s
 
   backend:
+    image: gitea.ollioddi.dk/ollioddi/p3-dashboard-backend:1.0
     restart: unless-stopped
-    build: 
-      context: ./backend
-      target: backend
     container_name: "backend"
     depends_on:
       - mongodb
-    profiles:
-      - backend
-    labels:
-      org.springframework.boot.ignore: true
+    env_file:
+      -  db.env
+    environment:
+      - "SPRING_PROFILES_ACTIVE=dev-localdb"
+      - "admin.username=admin"
+      - "admin.password=admin"
+      - "admin.email=admin@localhost"
+      - "disable.auth=false"
     networks:
       - backnet
     healthcheck:
@@ -42,16 +42,19 @@ services:
       retries: 6
 
   frontend:
+    image: gitea.ollioddi.dk/ollioddi/p3-dashboard-frontend:1.0
     restart: unless-stopped
-    build:
-      context: ./frontend
-      target: frontend
     container_name: "frontend"
     ports:
-      - 80:80
+      - 8080:80
     networks: 
       - backnet
-
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.p3.entryPoints=https
+      - traefik.http.services.p3.loadbalancer.server.port=8080
+      - traefik.http.routers.p3.rule=Host(`dashboard.ollioddi.dk`)
+      - kop.bind.ip=192.168.20.50
 volumes:
   db:
     driver:

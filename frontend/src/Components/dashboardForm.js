@@ -10,7 +10,7 @@ export default function DashboardForm() {
   const { showSnackbar } = useSnackbar(); // Use the Snackbar hook
 
   useEffect(() => {
-    fetch('http://localhost/api/v1/metric/pageable', {
+    fetch('https://dashboard.ollioddi.dk/api/v1/metric/pageable', {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -74,7 +74,7 @@ export default function DashboardForm() {
     };
 
     try {
-        const response = await fetch('http://localhost/api/v1/dashboard/', {
+        const response = await fetch('https://dashboard.ollioddi.dk/api/v1/dashboard/', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

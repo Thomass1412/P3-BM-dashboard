@@ -21,7 +21,7 @@ const IntegrationDetail = () => {
     // Fetch the integration details
     const fetchIntegrationDetail = async () => {
       try {
-        const detailResponse = await fetch(`http://localhost/api/v1/integration/${integrationId}`);
+        const detailResponse = await fetch(`https://dashboard.ollioddi.dk/api/v1/integration/${integrationId}`);
         if (!detailResponse.ok) {
           throw new Error(`HTTP error! status: ${detailResponse.status}`);
         }
@@ -29,7 +29,7 @@ const IntegrationDetail = () => {
         setIntegration(detailData);
 
         // Fetch the integration schema
-        const schemaResponse = await fetch(`http://localhost/api/v1/integration/${integrationId}/schema`);
+        const schemaResponse = await fetch(`https://dashboard.ollioddi.dk/api/v1/integration/${integrationId}/schema`);
         if (!schemaResponse.ok) {
           throw new Error(`HTTP error! status: ${schemaResponse.status}`);
         }
@@ -37,7 +37,7 @@ const IntegrationDetail = () => {
         setSchema(schemaData);
 
         // Fetch the integration data
-        const dataResponse = await fetch(`http://localhost/api/v1/integration/${integrationId}/data/pageable?page=0&size=9999`);
+        const dataResponse = await fetch(`https://dashboard.ollioddi.dk/api/v1/integration/${integrationId}/data/pageable?page=0&size=9999`);
         if (!dataResponse.ok) {
             throw new Error(`HTTP error! status: ${dataResponse.status}`);
         }

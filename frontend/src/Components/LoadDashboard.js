@@ -16,7 +16,7 @@ function LoadDashBoard() {
 
     const getData = async () => {
         try {
-          const response = await fetch('http://localhost/api/v1/dashboard/pageable?page=0&size=100', {
+          const response = await fetch('https://dashboard.ollioddi.dk/api/v1/dashboard/pageable?page=0&size=100', {
             method: 'GET',
               headers: {
                 'Accept': 'application/json',
@@ -47,7 +47,7 @@ function LoadDashBoard() {
         }
         try {
           console.log(dashboard.id)
-          const response = await fetch('http://localhost/api/v1/dashboard/{dashboardId}?dashboardId='+dashboard.id, {
+          const response = await fetch('https://dashboard.ollioddi.dk/api/v1/dashboard/{dashboardId}?dashboardId='+dashboard.id, {
             method: 'GET',
               headers: {
                 'Accept': 'application/json',

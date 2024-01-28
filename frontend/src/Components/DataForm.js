@@ -25,7 +25,7 @@ const DataForm = ({ integrationId, schema }) => {
 
   const getNameId = async ()=>{
     try{
-      const response = await fetch('http://localhost/api/v1/user/idByLogin/'+jwtDecode(document.cookie.split("=")[1]).sub, {
+      const response = await fetch('https://dashboard.ollioddi.dk/api/v1/user/idByLogin/'+jwtDecode(document.cookie.split("=")[1]).sub, {
         method: 'GET',
           headers: {
             'Accept': 'application/json',
@@ -58,7 +58,7 @@ const DataForm = ({ integrationId, schema }) => {
       };
       console.log(JSON.stringify(payload))
       try {
-        const response = await fetch(`http://localhost/api/v1/integration/${integrationId}`, {
+        const response = await fetch(`https://dashboard.ollioddi.dk/api/v1/integration/${integrationId}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
